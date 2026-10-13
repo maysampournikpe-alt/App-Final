@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rumbo
 
-## Getting Started
+A free app that helps middle and high school students in the Rio Grande Valley find
+opportunities, build skills, study better and reach their goals. English and Spanish.
+Built for the 2026 Congressional App Challenge. (The name is a placeholder in
+`src/config/brand.ts`.)
 
-First, run the development server:
+Status of every feature: see [FEATURES.md](FEATURES.md).
+
+## Run it locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill in values; never commit this file
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Command | What it does |
+|---|---|
+| `npm run build` | Production build (what Vercel runs) |
+| `npm run typecheck` | Route types + TypeScript |
+| `npm run lint` | ESLint |
+| `npm run check:contrast` | Fails if any color pair drops below WCAG AA |
+| `npm run features:md` | Regenerates FEATURES.md from `src/config/features.ts` |
+| `npm run icons` | Re-renders the PWA icons from `public/icon.svg` |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Listed in `.env.example`. Real values go in **Vercel → Project → Settings → Environment
+Variables**, never in the repo. `SUPABASE_SERVICE_ROLE_KEY` and `GROQ_API_KEY` are
+server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` reach the browser.
 
-## Learn More
+## Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push this repo to GitHub.
+2. In Vercel: **Add New → Project**, pick the repo. Framework is detected as Next.js.
+3. Add the environment variables above, then deploy. Every push to `main` deploys to
+   production, and every other branch gets its own preview link.
+4. In Supabase → Authentication → URL Configuration, add the production URL and the
+   Vercel preview URL pattern as allowed redirect URLs.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How the app is organized
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/config/features.ts`: every feature, in English and Spanish. The sidebar, tab pages,
+  "Coming soon" previews and FEATURES.md all read from it. Add a key to `BUILT` when a
+  feature ships and its badge disappears.
+- `src/app/globals.css`: the design tokens (color, type, card families, motion).
+- `/styleguide`: every component on one page. Not linked from the app.
+- `src/lib/i18n.ts`: interface text. Add a language by adding a column.
+- `src/lib/prefs.ts`: theme, text size, dyslexia font, low data mode, pinned tabs. Stored on
+  the device.

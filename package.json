@@ -1,12 +1,16 @@
 {
-  "name": "app",
+  "name": "rumbo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "features:md": "tsx scripts/gen-features-md.ts",
+    "icons": "node scripts/make-icons.mjs",
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

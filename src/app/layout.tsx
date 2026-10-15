@@ -4,6 +4,7 @@ import { AppShell } from "@/components/shell/AppShell";
 import { BRAND } from "@/config/brand";
 import { PREFS_BOOT_SCRIPT } from "@/lib/prefs-boot";
 import { RegisterSW } from "@/components/RegisterSW";
+import { AccountSync } from "@/components/AccountSync";
 
 export const metadata: Metadata = {
   title: { default: `${BRAND.name}: find your next step`, template: `%s · ${BRAND.name}` },
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <AppShell>{children}</AppShell>
         <RegisterSW />
+        <AccountSync />
       </body>
     </html>
   );

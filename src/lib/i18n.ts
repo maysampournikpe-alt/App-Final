@@ -4,13 +4,14 @@
 // in config/features.ts.
 import type { Lang } from "@/config/features";
 import { usePrefs } from "./prefs";
+import { accountStrings } from "./strings-account";
 
 export const LANGS: { code: Lang; label: string; short: string }[] = [
   { code: "en", label: "English", short: "EN" },
   { code: "es", label: "Español", short: "ES" },
 ];
 
-const dict = {
+const base = {
   skip: { en: "Skip to content", es: "Saltar al contenido" },
   menu: { en: "Menu", es: "Menú" },
   closeMenu: { en: "Close menu", es: "Cerrar menú" },
@@ -66,6 +67,8 @@ const dict = {
   built: { en: "Ready", es: "Lista" },
   stylesheetHidden: { en: "Style guide", es: "Guía de estilo" },
 } as const;
+
+const dict = { ...base, ...accountStrings };
 
 export type Key = keyof typeof dict;
 

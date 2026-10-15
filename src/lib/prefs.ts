@@ -5,6 +5,7 @@ import { useSyncExternalStore } from "react";
 import type { Lang } from "@/config/features";
 import { DEFAULT_BOTTOM_TABS } from "@/config/features";
 import { STORAGE_KEY } from "./prefs-boot";
+import { readDocValue, writeDoc } from "./local-doc";
 
 export interface Prefs {
   lang: Lang;
@@ -64,9 +65,11 @@ export function applyPrefs(p: Prefs) {
   else el.removeAttribute("data-motion");
 }
 
-export function setPrefs(patch: Partial<Prefs>) {
-  load();
-  cache = { ...cache, ...patch };
+/** The preferences that follow a student from device to device. Layout state stays per device. */
+const SYNCED = ["lang", "theme", "text", "dyslexia", "lowData", "motion", "pinned", "hidden", "bottomTabs"] as const;
+
+function commit(next: Prefs) {
+  cache = next;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
   } catch {
@@ -74,6 +77,19 @@ export function setPrefs(patch: Partial<Prefs>) {
   }
   applyPrefs(cache);
   listeners.forEach((l) => l());
+}
+
+export function setPrefs(patch: Partial<Prefs>) {
+  load();
+  commit({ ...cache, ...patch });
+  writeDoc("prefs", Object.fromEntries(SYNCED.map((k) => [k, cache[k]])));
+}
+
+/** After signing in: adopt preferences saved on the account (newest wins, see syncAllDocs). */
+export function applySyncedPrefs() {
+  load();
+  const synced = readDocValue<Partial<Prefs>>("prefs");
+  if (synced) commit({ ...cache, ...synced });
 }
 
 export function togglePref(list: "pinned" | "hidden" | "openTabs" | "closedGroups", value: string) {

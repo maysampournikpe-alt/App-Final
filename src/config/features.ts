@@ -33,6 +33,11 @@ export interface Group {
 export const BUILT = new Set<string>([
   "settings/appearance",
   "settings/language",
+  "settings/account",
+  "settings/privacy",
+  "settings/transparency",
+  "profile/profile",
+  "profile/interests",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

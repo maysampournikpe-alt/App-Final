@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { GROUPS } from "@/config/features";
 import { ICONS } from "@/config/icons";
 import { BRAND } from "@/config/brand";
+import { useAccount } from "@/lib/account";
 import { useLang, useT } from "@/lib/i18n";
 import { TrailHero } from "./art";
 import { Page } from "./ui";
@@ -14,6 +15,7 @@ export function HomeView() {
   const t = useT();
   const lang = useLang();
   const router = useRouter();
+  const account = useAccount();
   const [q, setQ] = useState("");
 
   const go = (e: React.FormEvent) => {
@@ -43,7 +45,14 @@ export function HomeView() {
                   {t("homeSearch")} <ArrowRight size={20} strokeWidth={2} />
                 </button>
               </form>
-              <p className="mt-4 text-muted">{t("guestNote")}</p>
+              {account.status === "signed-in" ? (
+                <p className="mt-4 text-muted">{t("welcomeBack")} <b className="font-mono text-ink">{account.profile.username}</b></p>
+              ) : account.status === "guest" ? (
+                <p className="mt-4 max-w-md text-muted">
+                  {t("guestNote")}{" "}
+                  <Link href="/t/settings/account" className="font-bold text-teal underline underline-offset-4">{t("guestCta")}</Link>
+                </p>
+              ) : null}
             </div>
             <TrailHero className="mx-auto hidden w-full max-w-md text-ink lg:block" />
           </div>

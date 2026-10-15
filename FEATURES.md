@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**2 of 265 features built.**
+**7 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 2 | 73 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 7 | 73 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 0 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
 | Phase 4: Study tools and skill building | 0 | 56 |
@@ -408,8 +408,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Profile | 1 | Future plan |  |
-| Interests | 1 | Future plan |  |
+| Profile | 1 | Built |  |
+| Interests | 1 | Built |  |
 | My why | 2 | Future plan | [LOCAL] |
 | Progress dashboard | 2 | Future plan |  |
 | Levels and XP | 9 | Future plan |  |
@@ -436,9 +436,9 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Appearance and access | 1 | Built |  |
 | Pinned and hidden tabs | 1 | Future plan |  |
 | Notifications | 2 | Future plan |  |
-| Account | 1 | Future plan |  |
-| Privacy | 1 | Future plan |  |
-| How the AI works | 1 | Future plan |  |
+| Account | 1 | Built |  |
+| Privacy | 1 | Built |  |
+| How the AI works | 1 | Built |  |
 | Voice input | 10 | Future plan |  |
 | Read aloud | 10 | Future plan |  |
 | Offline mode | 10 | Future plan |  |

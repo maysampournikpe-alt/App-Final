@@ -72,3 +72,28 @@ export function IndexRow({ tool, href }: { tool: Tool; href: string }) {
     </Link>
   );
 }
+
+const btn = "inline-flex items-center justify-center gap-2 rounded-md border-[1.5px] border-ink px-5 py-2.5 font-bold disabled:cursor-not-allowed disabled:opacity-60";
+export const buttonClass = {
+  primary: `${btn} bg-ruby text-on-ruby shadow-[3px_3px_0_var(--c-ink)] active:translate-x-px active:translate-y-px active:shadow-[2px_2px_0_var(--c-ink)]`,
+  secondary: `${btn} bg-teal text-on-teal`,
+  quiet: `${btn} hover:bg-sunken`,
+  danger: `${btn} bg-surface text-ruby`,
+};
+
+/** Label, input and help text, wired together for screen readers. */
+export function Field({
+  label, help, error, children,
+}: { label: string; help?: string; error?: string | null; children: (props: { id: string; "aria-describedby"?: string; "aria-invalid"?: boolean }) => React.ReactNode }) {
+  const id = `f-${label.replace(/\W+/g, "-").toLowerCase()}`;
+  const note = error ? `${id}-err` : help ? `${id}-help` : undefined;
+  return (
+    <div className="mb-5">
+      <label htmlFor={id} className="block font-bold">{label}</label>
+      <div className="mt-1">{children({ id, "aria-describedby": note, "aria-invalid": error ? true : undefined })}</div>
+      {error ? <p id={`${id}-err`} role="alert" className="mt-1 text-sm font-bold text-ruby">{error}</p>
+        : help ? <p id={`${id}-help`} className="mt-1 text-sm text-muted">{help}</p> : null}
+    </div>
+  );
+}
+export const inputClass = "w-full rounded-md border-[1.5px] border-ink bg-surface px-3 py-2.5 text-lg placeholder:text-muted aria-[invalid=true]:border-ruby";

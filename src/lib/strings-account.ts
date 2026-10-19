@@ -1,5 +1,6 @@
 // Interface text for accounts, profile and interests. Written as Valley Spanish, not word for word.
 export const accountStrings = {
+  demoLink: { en: "Showing this app to someone? Load sample data.", es: "¿Le vas a enseñar la app a alguien? Carga datos de ejemplo." },
   guestCta: { en: "Create an account", es: "Crea una cuenta" },
   welcomeBack: { en: "Signed in as", es: "Sesión iniciada como" },
   acctTitle: { en: "Account", es: "Cuenta" },

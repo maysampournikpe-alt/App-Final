@@ -144,3 +144,35 @@ describe("scoring and progress", () => {
     expect(openMistakes([wrongMath, later])).toEqual([]);
   });
 });
+
+import { buildGenPrompt, buildSolvePrompt, normalizeStem, parseSolved, verifyQuestion } from "../src/lib/exam/verify";
+describe("generation checks", () => {
+  const spec = { exam: "sat" as const, section: "math", skill: "algebra", count: 4, difficulty: 2 as const };
+  const mc = { stem: "If $2x + 3 = 11$, what is $x$?", type: "mc" as const, choices: ["2", "4", "6", "8"], answer: "B", explanation: "Subtract 3 to get 2x = 8, so x = 4." };
+  it("accepts a question the checker solved the same way", () => {
+    expect(verifyQuestion(mc, spec, "B", "id1").ok).toBe(true);
+  });
+  it("rejects when the checker disagrees, answered nothing, or the key is malformed", () => {
+    expect(verifyQuestion(mc, spec, "C", "id1")).toMatchObject({ ok: false });
+    expect(verifyQuestion(mc, spec, null, "id1")).toMatchObject({ ok: false });
+    expect(verifyQuestion({ ...mc, answer: "E" }, spec, "E", "id1")).toMatchObject({ ok: false });
+    expect(verifyQuestion({ ...mc, choices: ["2", "2", "6", "8"] }, spec, "B", "id1")).toMatchObject({ ok: false });
+    expect(verifyQuestion({ ...mc, choices: ["2", "4", "6", "all of the above"] }, spec, "B", "id1")).toMatchObject({ ok: false });
+  });
+  it("checks grid answers numerically", () => {
+    const grid = { stem: "What is $\\frac{15}{2}$ as a decimal?", type: "grid" as const, answer: "7.5", accept: ["15/2"], explanation: "Divide 15 by 2 to get 7.5." };
+    expect(verifyQuestion(grid, spec, "15/2", "g1").ok).toBe(true);
+    expect(verifyQuestion(grid, spec, "7", "g1").ok).toBe(false);
+  });
+  it("reads the checker's final line and ignores noise", () => {
+    expect(parseSolved("Step 1...\nANSWER: **B**")).toBe("B");
+    expect(parseSolved("so x = 4\nANSWER: $7.5$.")).toBe("7.5");
+    expect(parseSolved("I am not sure")).toBeNull();
+  });
+  it("never shows the answer key to the checker, and dedupes by stem", () => {
+    const p = buildSolvePrompt({ stem: mc.stem, type: "mc", choices: mc.choices });
+    expect(p.user).not.toMatch(/explanation|Subtract 3/);
+    expect(normalizeStem("If $2x+3=11$, what is x?")).toBe(normalizeStem("if 2x 3 11 what is X"));
+    expect(buildGenPrompt(spec).system).toMatch(/ORIGINAL/);
+  });
+});

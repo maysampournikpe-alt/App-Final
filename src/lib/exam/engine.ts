@@ -45,7 +45,7 @@ export interface TestSpec { exam: ExamId; mode: Attempt["mode"]; section?: strin
 /** Picks questions balanced across skills, easiest first within the PSAT limit. */
 export function buildTest(bank: Question[], spec: TestSpec): string[] {
   const cfg = EXAMS[spec.exam];
-  const rand = rng(spec.seed ?? Date.now());
+  const rand = rng(spec.seed ?? Math.floor(Math.random() * 1e9));
   const sections = spec.section ? cfg.sections.filter((s) => s.id === spec.section) : cfg.sections;
   const usable = bank.filter((q) => q.exam === cfg.bank && (!cfg.maxDifficulty || q.difficulty <= cfg.maxDifficulty));
   const out: string[] = [];
@@ -125,4 +125,10 @@ export function openMistakes(attempts: Attempt[]): string[] {
   const state = new Map<string, boolean>();
   for (const a of [...attempts].sort((x, y) => x.finishedAt - y.finishedAt)) for (const i of a.items) if (i.answer) state.set(i.qid, i.correct);
   return [...state.entries()].filter(([, ok]) => !ok).map(([id]) => id);
+}
+
+/** A fresh session. `minutes` null means untimed. */
+export function newSession(exam: ExamId, mode: Attempt["mode"], qids: string[], minutes: number | null): Session {
+  const startedAt = Date.now();
+  return { exam, mode, qids, answers: {}, flags: [], startedAt, endsAt: minutes ? startedAt + minutes * 60_000 : null, timed: minutes !== null };
 }

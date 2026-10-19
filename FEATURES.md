@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**23 of 265 features built.**
+**37 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 22 | 73 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 36 | 73 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 0 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
 | Phase 4: Study tools and skill building | 1 | 56 |
@@ -105,8 +105,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Study method picker | 4 | Future plan | [LOCAL] |
 | Feynman explainer | 4 | Future plan |  |
-| Mistake notebook | 1 | Future plan |  |
-| Weak spot finder | 1 | Future plan |  |
+| Mistake notebook | 1 | Built |  |
+| Weak spot finder | 1 | Built |  |
 | STAAR practice | 4 | Future plan |  |
 | Test day checklist | 4 | Future plan | [LOCAL] |
 | Timed practice | 4 | Future plan | [LOCAL] |
@@ -200,31 +200,31 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Test overview | 1 | Future plan |  |
-| Diagnostic test | 1 | Future plan |  |
-| Section practice | 1 | Future plan |  |
-| Full practice tests | 1 | Future plan |  |
+| Test overview | 1 | Built |  |
+| Diagnostic test | 1 | Built |  |
+| Section practice | 1 | Built |  |
+| Full practice tests | 1 | Built |  |
 | Strategy lessons | 1 | Future plan |  |
 | Vocabulary and formulas | 1 | Future plan |  |
-| Score tracker | 1 | Future plan |  |
+| Score tracker | 1 | Built |  |
 | Test date and reminders | 2 | Future plan |  |
 | Study plan | 1 | Future plan |  |
-| Official free prep | 1 | Future plan |  |
+| Official free prep | 1 | Built |  |
 
 #### PSAT
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Test overview | 1 | Future plan |  |
-| Diagnostic test | 1 | Future plan |  |
-| Section practice | 1 | Future plan |  |
-| Full practice tests | 1 | Future plan |  |
+| Test overview | 1 | Built |  |
+| Diagnostic test | 1 | Built |  |
+| Section practice | 1 | Built |  |
+| Full practice tests | 1 | Built |  |
 | Strategy lessons | 1 | Future plan |  |
 | Vocabulary and formulas | 1 | Future plan |  |
-| Score tracker | 1 | Future plan |  |
+| Score tracker | 1 | Built |  |
 | Test date and reminders | 2 | Future plan |  |
 | Study plan | 1 | Future plan |  |
-| Official free prep | 1 | Future plan |  |
+| Official free prep | 1 | Built |  |
 
 #### ACT
 

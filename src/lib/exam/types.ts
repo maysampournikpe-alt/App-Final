@@ -56,6 +56,7 @@ export interface Session {
   answers: Record<string, string>;
   flags: string[];
   startedAt: number;
-  endsAt: number | null; // null when untimed
+  endsAt: number | null; // null when untimed or paused
+  pausedRemainingMs?: number; // set while paused; time resumes from here
   timed: boolean;
 }

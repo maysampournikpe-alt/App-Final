@@ -38,6 +38,11 @@ export const BUILT = new Set<string>([
   "settings/transparency",
   "profile/profile",
   "profile/interests",
+  "grades/gpa",
+  "grades/grade",
+  "focus/pomodoro",
+  "homework/tracker",
+  "homework/backward",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

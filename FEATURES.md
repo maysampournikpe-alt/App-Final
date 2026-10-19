@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**7 of 265 features built.**
+**12 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 7 | 73 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 12 | 73 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 0 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
 | Phase 4: Study tools and skill building | 0 | 56 |
@@ -293,8 +293,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Homework tracker | 1 | Future plan | [LOCAL] |
-| Backward planner | 1 | Future plan | [LOCAL] |
+| Homework tracker | 1 | Built | [LOCAL] |
+| Backward planner | 1 | Built | [LOCAL] |
 | Backpack checklist | 5 | Future plan | [LOCAL] |
 | Daily to-do list | 5 | Future plan | [LOCAL] |
 | Eisenhower matrix | 5 | Future plan | [LOCAL] |
@@ -310,7 +310,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Pomodoro timer | 1 | Future plan | [LOCAL] |
+| Pomodoro timer | 1 | Built | [LOCAL] |
 | Focus mode | 4 | Future plan | [LOCAL] |
 | Study session logger | 4 | Future plan | [LOCAL] |
 | Study stats | 4 | Future plan | [LOCAL] |
@@ -341,8 +341,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| GPA calculator | 1 | Future plan | [LOCAL] |
-| Grade calculator | 1 | Future plan | [LOCAL] |
+| GPA calculator | 1 | Built | [LOCAL] |
+| Grade calculator | 1 | Built | [LOCAL] |
 | Class rank estimator | 3 | Future plan | [LOCAL] |
 | Credit hour tracker | 3 | Future plan | [LOCAL] |
 | Texas graduation requirements | 3 | Future plan | [LOCAL] |

@@ -3,6 +3,7 @@ import { useSyncExternalStore, type ComponentType } from "react";
 import { Page } from "../ui";
 import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
+import { CoachTool } from "./Coach";
 import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
@@ -35,6 +36,10 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "settings/transparency": TransparencyTool,
   "profile/profile": ProfileTool,
   "profile/interests": InterestsTool,
+  "coach/chat": clientOnly(() => <CoachTool kind="chat" />),
+  "coach/homework": clientOnly(() => <CoachTool kind="homework" />),
+  "coach/eli12": clientOnly(() => <CoachTool kind="eli12" />),
+  "coach/practice": clientOnly(() => <CoachTool kind="practice" />),
   "find/search": clientOnly(FindTool),
   "find/saved": clientOnly(SavedTool),
   "find/scams": ScamGuideTool,

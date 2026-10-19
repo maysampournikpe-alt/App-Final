@@ -4,16 +4,16 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**15 of 265 features built.**
+**19 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 15 | 73 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 18 | 73 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 0 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
-| Phase 4: Study tools and skill building | 0 | 56 |
+| Phase 4: Study tools and skill building | 1 | 56 |
 | Phase 5: Planning, productivity and life skills | 0 | 40 |
 | Phase 6: People | 0 | 9 |
 | Phase 7: Wellbeing | 0 | 5 |
@@ -93,11 +93,11 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Coach chat | 1 | Future plan |  |
-| Homework mode | 1 | Future plan |  |
-| Practice modes | 1 | Future plan |  |
+| Coach chat | 1 | Built |  |
+| Homework mode | 1 | Built |  |
+| Practice modes | 1 | Built |  |
 | Interview practice for an opportunity | 2 | Future plan |  |
-| Explain like I'm 12 | 4 | Future plan |  |
+| Explain like I'm 12 | 4 | Built |  |
 
 #### Study
 

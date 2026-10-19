@@ -3,12 +3,14 @@ import { useSyncExternalStore, type ComponentType } from "react";
 import { Page } from "../ui";
 import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
+import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
 import { HomeworkTool } from "./Homework";
 import { PomodoroTool } from "./Pomodoro";
-import { PrivacyTool, TransparencyTool } from "./Legal";
+import { PrivacyTool, ScamGuideTool, TransparencyTool } from "./Legal";
 import { InterestsTool, ProfileTool } from "./Profile";
+import { SavedTool } from "./Saved";
 import { AppearanceSettings, LanguageSettings } from "./Settings";
 
 const useIsClient = () => useSyncExternalStore(() => () => {}, () => true, () => false);
@@ -33,6 +35,9 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "settings/transparency": TransparencyTool,
   "profile/profile": ProfileTool,
   "profile/interests": InterestsTool,
+  "find/search": clientOnly(FindTool),
+  "find/saved": clientOnly(SavedTool),
+  "find/scams": ScamGuideTool,
   "grades/gpa": clientOnly(GpaTool),
   "grades/grade": clientOnly(GradeCalcTool),
   "focus/pomodoro": clientOnly(PomodoroTool),

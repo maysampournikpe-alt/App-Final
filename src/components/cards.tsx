@@ -34,8 +34,8 @@ export function CheckpointTrail({ steps, done }: { steps: string[]; done: number
 
 /** An opportunity as a ticket: category stamp, details, perforated footer. */
 export function Ticket({
-  category, title, org, details, why, footer,
-}: { category: string; title: string; org: string; details: string[]; why?: string; footer?: React.ReactNode }) {
+  category, title, org, details, why, footer, children,
+}: { category: string; title: string; org: string; details: string[]; why?: string; footer?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <article className="ticket">
       <div className="flex items-start justify-between gap-3 px-6 pb-4 pt-5">
@@ -50,6 +50,7 @@ export function Ticket({
           <li key={d} className="flex items-center gap-2"><PinIcon size={15} strokeWidth={1.75} className="shrink-0 text-ruby" />{d}</li>
         ))}
       </ul>
+      {children ? <div className="px-6 pb-4">{children}</div> : null}
       {why ? <p className="px-6 pb-4 font-bold">{why}</p> : null}
       {footer ? <div className="ticket-perf flex items-center justify-between gap-3 px-6 py-3">{footer}</div> : null}
     </article>

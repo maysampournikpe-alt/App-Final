@@ -122,3 +122,34 @@ export function TransparencyTool() {
     </Page>
   );
 }
+
+export function ScamGuideTool() {
+  const es = useLang() === "es";
+  return (
+    <Page>
+      <h1 className="text-3xl sm:text-4xl">{es ? "Guía para detectar fraudes" : "Scam warning guide"}</h1>
+      <p className="mt-3 max-w-prose text-lg">
+        {es ? "Casi todas las oportunidades son reales. Pero algunas son trampas. Esto te ayuda a notar la diferencia."
+            : "Most opportunities are real. A few are traps. This helps you tell the difference."}
+      </p>
+      <List
+        title={es ? "Señales de alerta" : "Red flags"}
+        items={es
+          ? ["Te piden dinero por adelantado para aplicar, empezar o recibir material.", "Te piden el número de Seguro Social, una cuenta de banco o una tarjeta antes de contratarte.",
+             "Prometen mucho dinero por poco trabajo, o “ingresos garantizados”.", "Quieren que pagues con tarjetas de regalo, cripto o apps de dinero.",
+             "Te apuran: “solo quedan 2 lugares hoy”.", "Solo te contactan por mensaje privado y no hay una página oficial ni un número de teléfono."]
+          : ["They ask for money upfront to apply, start or get materials.", "They ask for a Social Security number, bank account or card before hiring you.",
+             "They promise lots of money for little work, or “guaranteed income”.", "They want payment in gift cards, crypto or cash apps.",
+             "They rush you: “only 2 spots left today”.", "They only talk to you in private messages and there is no official page or phone number."]}
+      />
+      <List
+        title={es ? "Qué hacer" : "What to do"}
+        items={es
+          ? ["Abre el enlace de la fuente y revisa que sea el sitio de la organización de verdad.", "Busca el nombre de la organización con la palabra “reseñas” o “estafa”.",
+             "Habla con tus papás, un maestro o un consejero antes de dar datos o pagar.", "Si algo te da mala espina, sal de ahí. No pasa nada por decir que no."]
+          : ["Open the source link and check it is the organization's real site.", "Search the organization's name with the word “reviews” or “scam”.",
+             "Talk to a parent, teacher or counselor before you share details or pay.", "If something feels off, walk away. It is fine to say no."]}
+      />
+    </Page>
+  );
+}

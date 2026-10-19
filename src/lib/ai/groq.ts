@@ -29,7 +29,17 @@ export function collectSearched(node: unknown, out: { title: string; url: string
   return out;
 }
 
-const fixture = (): ChatReply => ({
+const fixture = (kind?: string): ChatReply => kind === "plan" ? ({
+  content: JSON.stringify({
+    title: "Fixture plan", summary: "A plan made by the test fixture.", searchIdeas: ["chess clubs near me"],
+    horizons: [
+      { horizon: "week", steps: ["Do the first small thing", "Tell someone your goal"] },
+      { horizon: "month", steps: ["Practice three times a week", "Find a mentor or friend"] },
+      { horizon: "year", steps: ["Enter an event", "Review how far you came"] },
+    ],
+  }),
+  searched: [],
+}) : ({
   content: JSON.stringify({
     listings: [{
       title: "Sample chess club (fixture)", organization: "Sample Library", description: "Weekly beginner chess.",
@@ -44,7 +54,7 @@ const fixture = (): ChatReply => ({
 });
 
 export async function groqChat(args: ChatArgs): Promise<ChatReply> {
-  if (process.env.AI_FIXTURES === "1") return fixture(); // local testing without a key
+  if (process.env.AI_FIXTURES === "1") return fixture(args.messages[0]?.content.includes("goal plans") ? "plan" : undefined); // local testing without a key
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");
 

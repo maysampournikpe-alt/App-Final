@@ -8,6 +8,7 @@ import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
 import { HomeworkTool } from "./Homework";
+import { PlanTool } from "./Plan";
 import { PomodoroTool } from "./Pomodoro";
 import { PrivacyTool, ScamGuideTool, TransparencyTool } from "./Legal";
 import { InterestsTool, ProfileTool } from "./Profile";
@@ -40,6 +41,10 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "coach/homework": clientOnly(() => <CoachTool kind="homework" />),
   "coach/eli12": clientOnly(() => <CoachTool kind="eli12" />),
   "coach/practice": clientOnly(() => <CoachTool kind="practice" />),
+  "plan/builder": clientOnly(() => <PlanTool view="builder" />),
+  "plan/templates": clientOnly(() => <PlanTool view="templates" />),
+  "plan/checklists": clientOnly(() => <PlanTool view="checklists" />),
+  "plan/adjust": clientOnly(() => <PlanTool view="adjust" />),
   "find/search": clientOnly(FindTool),
   "find/saved": clientOnly(SavedTool),
   "find/scams": ScamGuideTool,

@@ -49,3 +49,32 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 - `src/lib/i18n.ts`: interface text. Add a language by adding a column.
 - `src/lib/prefs.ts`: theme, text size, dyslexia font, low data mode, pinned tabs. Stored on
   the device.
+
+## Demo and checking a deployment
+
+- **/demo** fills the device you are on with sample classes, homework, saved items, a plan in progress,
+  focus time and SAT practice, so you can show the app with real-looking content. It is labeled "Sample"
+  and has a Remove button. It never touches a real account.
+- **A real demo account** for judges: on your computer, with `.env.local` filled in, run
+  `DEMO_PASSWORD='something-good' npm run demo:seed`. It creates `demo_student` with the same sample data.
+  Share the password through the submission form, not in this README.
+- **/api/health** shows what is configured on the live site (yes/no flags and short database messages,
+  never a key). If the Coach, Finder or sign-up misbehave, open it first.
+
+## Growing the SAT question bank
+
+Needs to run on a computer that can reach Groq, with `GROQ_API_KEY` in `.env.local`:
+
+```bash
+npm run bank:generate -- --all --per-skill 12     # every skill, both sections
+npm run bank:generate -- --section math --skill algebra --count 8
+```
+
+Each question is checked by structure, by an independent AI solve that never sees the answer key, and
+for duplicates. Read through a sample of `src/data/bank/sat-generated.json`, then commit it.
+
+## Before you submit
+
+- Run `npm run typecheck && npm run lint && npm test && npm run build`.
+- Confirm `/api/health` says `healthy: true` on the production link.
+- Confirm no key is in the repo: `git grep -nE "gsk_|sb_secret_"` should print nothing.

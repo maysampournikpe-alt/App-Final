@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Check, Copy, Download, Printer } from "lucide-react";
@@ -40,6 +41,7 @@ export function AccountTool() {
         {view === "create" ? <CreateForm onCode={(code) => setStep({ kind: "code", code })} /> : null}
         {view === "signin" ? <SignInForm onForgot={() => setView("recover")} /> : null}
         {view === "recover" ? <RecoverForm onCode={(code) => setStep({ kind: "code", code })} onBack={() => setView("signin")} /> : null}
+        <p className="mt-10 text-sm"><Link href="/demo" className="font-bold text-teal underline underline-offset-4">{t("demoLink")}</Link></p>
       </>
     );
 

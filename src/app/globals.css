@@ -1,0 +1,234 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource/atkinson-hyperlegible/400.css";
+@import "@fontsource/atkinson-hyperlegible/700.css";
+@import "@fontsource/opendyslexic/latin-400.css";
+@import "@fontsource/opendyslexic/latin-700.css";
+
+/* ------------------------------------------------------------------
+   Design tokens. Colors come from the Rio Grande Valley:
+   ruby red grapefruit, resaca teal, sunset terracotta, marigold,
+   palm green, on warm sand (day) or deep night blue (night trail).
+   Checked for WCAG AA by `npm run check:contrast`.
+   ------------------------------------------------------------------ */
+:root {
+  --c-paper: #ece3d0;       /* sand */
+  --c-surface: #f6f0e2;     /* field-guide page */
+  --c-sunken: #e0d5bc;      /* pressed / well */
+  --c-ink: #2a251e;
+  --c-muted: #5a5142;
+  --c-line: #b9ab8d;        /* dotted trail lines, borders */
+  --c-ruby: #b42f39;        /* main accent */
+  --c-on-ruby: #fff8ee;
+  --c-teal: #0c5a60;        /* resaca */
+  --c-on-teal: #f2f7f4;
+  --c-marigold: #e8a41f;    /* highlights, celebrations */
+  --c-on-marigold: #2a251e;
+  --c-terracotta: #a24a28;
+  --c-palm: #266a40;        /* success */
+  --c-focus: #0c5a60;
+  --contour-alpha: 0.16;
+}
+:root[data-theme="dark"] {
+  --c-paper: #111a2b;       /* night trail */
+  --c-surface: #182339;
+  --c-sunken: #0c1422;
+  --c-ink: #eee6d4;
+  --c-muted: #b4b0a3;
+  --c-line: #3d4c68;
+  --c-ruby: #f0757c;
+  --c-on-ruby: #1a0f12;
+  --c-teal: #62c3c8;
+  --c-on-teal: #0b1d20;
+  --c-marigold: #f3b94d;
+  --c-on-marigold: #241b08;
+  --c-terracotta: #e48d65;
+  --c-palm: #6fc58d;
+  --c-focus: #f3b94d;
+  --contour-alpha: 0.2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-paper: #111a2b;
+    --c-surface: #182339;
+    --c-sunken: #0c1422;
+    --c-ink: #eee6d4;
+    --c-muted: #b4b0a3;
+    --c-line: #3d4c68;
+    --c-ruby: #f0757c;
+    --c-on-ruby: #1a0f12;
+    --c-teal: #62c3c8;
+    --c-on-teal: #0b1d20;
+    --c-marigold: #f3b94d;
+    --c-on-marigold: #241b08;
+    --c-terracotta: #e48d65;
+    --c-palm: #6fc58d;
+    --c-focus: #f3b94d;
+    --contour-alpha: 0.2;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--c-paper);
+  --color-surface: var(--c-surface);
+  --color-sunken: var(--c-sunken);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-ruby: var(--c-ruby);
+  --color-on-ruby: var(--c-on-ruby);
+  --color-teal: var(--c-teal);
+  --color-on-teal: var(--c-on-teal);
+  --color-marigold: var(--c-marigold);
+  --color-on-marigold: var(--c-on-marigold);
+  --color-terracotta: var(--c-terracotta);
+  --color-palm: var(--c-palm);
+  --font-display: var(--font-display-stack);
+  --font-body: var(--font-body-stack);
+}
+
+:root {
+  --font-display-stack: "Fraunces Variable", Georgia, serif;
+  --font-body-stack: "Atkinson Hyperlegible", "Segoe UI", sans-serif;
+}
+:root[data-dyslexia="true"] {
+  --font-display-stack: "OpenDyslexic", "Atkinson Hyperlegible", sans-serif;
+  --font-body-stack: "OpenDyslexic", "Atkinson Hyperlegible", sans-serif;
+}
+:root[data-text="large"] { font-size: 118%; }
+:root[data-text="xlarge"] { font-size: 135%; }
+
+html { background: var(--c-paper); color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+body {
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font-family: var(--font-body-stack);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-dyslexia="true"] body { line-height: 1.75; letter-spacing: 0.02em; word-spacing: 0.08em; }
+
+h1, h2, h3, h4 { font-family: var(--font-display-stack); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
+:root[data-dyslexia="true"] :is(h1, h2, h3, h4) { letter-spacing: 0; }
+p { text-wrap: pretty; max-width: 68ch; }
+
+/* Keyboard focus is always visible. */
+:focus-visible { outline: 3px solid var(--c-focus); outline-offset: 2px; border-radius: 4px; }
+
+/* ------------------------------------------------------------------
+   Topographic contour texture (turned off in low data mode).
+   Painted as a mask so it takes the ink color of the current theme.
+   ------------------------------------------------------------------ */
+.contours { position: relative; isolation: isolate; }
+.contours::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: var(--c-ink);
+  opacity: var(--contour-alpha);
+  -webkit-mask: url("/contours.svg") center / cover no-repeat;
+  mask: url("/contours.svg") center / cover no-repeat;
+  pointer-events: none;
+}
+:root[data-lowdata="true"] .contours::before { display: none; }
+
+/* Dotted trail line used by the sidebar and checkpoint trails. */
+.trail-dots {
+  background-image: radial-gradient(circle, var(--c-line) 1.3px, transparent 1.6px);
+  background-size: 4px 8px;
+  background-repeat: repeat-y;
+}
+
+/* ------------------------------------------------------------------
+   Card families. Each kind of content looks like what it is.
+   ------------------------------------------------------------------ */
+
+/* Ticket: opportunities. Notched sides and a perforated stub. */
+.ticket {
+  position: relative;
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-ink);
+  border-radius: 6px;
+  --notch: 11px;
+  -webkit-mask:
+    radial-gradient(circle var(--notch) at 0 3.6rem, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% 3.6rem, #0000 98%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--notch) at 0 3.6rem, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% 3.6rem, #0000 98%, #000) right / 51% 100% no-repeat;
+}
+.ticket-perf { border-top: 2px dashed var(--c-line); }
+
+/* Notebook page: notes, journals. Ruled lines and a margin rule. */
+.notebook {
+  background-color: var(--c-surface);
+  background-image:
+    linear-gradient(to right, transparent 2.4rem, color-mix(in srgb, var(--c-ruby) 55%, transparent) 2.4rem, color-mix(in srgb, var(--c-ruby) 55%, transparent) calc(2.4rem + 1.5px), transparent calc(2.4rem + 1.5px)),
+    repeating-linear-gradient(to bottom, transparent 0 1.9rem, color-mix(in srgb, var(--c-teal) 28%, transparent) 1.9rem calc(1.9rem + 1px));
+  background-position: 0 0, 0 0.6rem;
+  border: 1.5px solid var(--c-line);
+  border-radius: 3px 12px 12px 3px;
+  box-shadow: inset 6px 0 0 -1px var(--c-sunken);
+  padding-left: 3.2rem;
+}
+
+/* Field-guide card: neutral container with a hand-drawn offset edge. */
+.guide-card {
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-ink);
+  border-radius: 10px 4px 10px 4px;
+  box-shadow: 4px 4px 0 var(--c-line);
+}
+
+/* Embroidered patch edge: used by the Patch component. */
+.patch-stitch { stroke-dasharray: 3 3; }
+
+/* ------------------------------------------------------------------
+   Motion. Small and purposeful, and always optional.
+   ------------------------------------------------------------------ */
+@keyframes stamp {
+  0% { transform: scale(1.7) rotate(-14deg); opacity: 0; }
+  60% { transform: scale(0.94) rotate(-6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-6deg); opacity: 1; }
+}
+.stamp-in { animation: stamp 0.38s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+@keyframes checkpoint-fill {
+  from { transform: scale(0.4); }
+  70% { transform: scale(1.18); }
+  to { transform: scale(1); }
+}
+.checkpoint-done { animation: checkpoint-fill 0.35s ease-out both; }
+
+@keyframes stitch {
+  from { stroke-dashoffset: 120; }
+  to { stroke-dashoffset: 0; }
+}
+.stitch-in { stroke-dasharray: 120; animation: stitch 0.8s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+
+/* Print: flyers and plans should print clean. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+}
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* Theme toggle shows the sun at night and the moon by day, with no JS needed. */
+.theme-sun { display: none; }
+:root[data-theme="dark"] .theme-sun { display: block; }
+:root[data-theme="dark"] .theme-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-sun { display: block; }
+  :root:not([data-theme="light"]) .theme-moon { display: none; }
+}

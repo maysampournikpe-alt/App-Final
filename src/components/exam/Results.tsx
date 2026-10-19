@@ -1,7 +1,7 @@
 "use client";
 import { Check, X, Minus } from "lucide-react";
 import { bankById } from "@/lib/exam/bank";
-import { EXAMS } from "@/lib/exam/config";
+import { EXAMS, TSI_READY } from "@/lib/exam/config";
 import { estimate, skillStats } from "@/lib/exam/engine";
 import type { Attempt } from "@/lib/exam/types";
 import { useLang } from "@/lib/i18n";
@@ -36,14 +36,22 @@ export function Results({ attempt, auto = false, onAgain, onScores }: { attempt:
         <p className="text-lg font-bold">{c.correctN(correct, attempt.items.length)}</p>
         <div className="mt-3 flex flex-wrap items-end gap-x-10 gap-y-3">
           {est.total !== null ? (
-            <p><span className="block text-sm text-muted">{c.estScore} · {c.total}</span><span className="font-display text-6xl font-semibold tabular-nums">{est.total}</span></p>
+            <p><span className="block text-sm text-muted">{c.estScore} · {attempt.exam === "act" ? c.composite : c.total}</span><span className="font-display text-6xl font-semibold tabular-nums">{est.total}</span></p>
           ) : null}
           {est.sections.map((s) => (
-            <p key={s.section}><span className="block text-sm text-muted">{c.sectionNames[s.section]} · {c.sectionScore}</span>
+            <p key={s.section}><span className="block text-sm text-muted">{cfg.sections.find((x) => x.id === s.section)?.[lang] ?? s.section} · {c.sectionScore}</span>
               <span className="font-display text-5xl font-semibold tabular-nums text-teal">{s.score}</span>
               <span className="ml-2 text-sm text-muted">{s.correct}/{s.total}</span></p>
           ))}
         </div>
+        {attempt.exam === "tsi" && est.sections.length ? (
+          <div className="mt-4">
+            <ul className="flex flex-wrap gap-x-6 gap-y-1 font-bold">
+              {est.sections.map((s) => { const line = TSI_READY[s.section as keyof typeof TSI_READY]; return <li key={s.section} className={s.score >= line ? "text-palm" : "text-terracotta"}>{cfg.sections.find((x) => x.id === s.section)?.[lang]}: {s.score >= line ? c.above : c.below} ({line})</li>; })}
+            </ul>
+            <p className="mt-1 max-w-prose text-sm text-muted">{c.tsiLine(TSI_READY.math, TSI_READY.elar)}</p>
+          </div>
+        ) : null}
         <p className="mt-4"><Stamp tone="terracotta">{c.estimateOnly}</Stamp></p>
       </section>
 

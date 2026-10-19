@@ -55,11 +55,12 @@ export function ExamTool({ exam, view }: { exam: ExamId; view: ExamView }) {
       {session && session.exam !== exam ? <p className="mt-3 font-bold">{c.resumeLead} <Link className="text-teal underline underline-offset-4" href={`/t/${session.exam}/overview`}>{c.resume}</Link></p> : null}
       {notice ? <p role="alert" className="guide-card mt-4 p-4 font-bold">{notice}</p> : null}
       {view === "overview" ? <Overview exam={exam} c={c} total={usable.length} /> : null}
+      {exam === "tsi" && view !== "overview" && view !== "scores" && view !== "resources" ? <p className="mt-3 text-muted">{c.realUntimed}</p> : null}
       {view === "diagnostic" ? <DiagnosticSetup c={c} total={usable.length} onStart={(timed) => start({ mode: "diagnostic" }, timed)} /> : null}
       {view === "sections" ? <SectionSetup exam={exam} c={c} onStart={(spec, timed) => start(spec, timed)} /> : null}
       {view === "full" ? <FullSetup exam={exam} c={c} usable={usable.length} onStart={(timed) => start({ mode: "full" }, timed)} /> : null}
       {view === "scores" ? <Scores exam={exam} c={c} attempts={attempts.filter((a) => a.exam === exam)} onPractice={(section, skill) => start({ mode: "section", section, skill, count: 8 }, false)} onOpen={setResultId} /> : null}
-      {view === "resources" ? <Resources c={c} /> : null}
+      {view === "resources" ? <Resources c={c} exam={exam} /> : null}
     </Page>
   );
 }
@@ -133,7 +134,7 @@ function SectionSetup({ exam, c, onStart }: { exam: ExamId; c: ExamCopy; onStart
 }
 
 function FullSetup({ exam, c, usable, onStart }: { exam: ExamId; c: ExamCopy; usable: number; onStart: (timed: boolean) => void }) {
-  const [timed, setTimed] = useState(true);
+  const [timed, setTimed] = useState(EXAMS[exam].realTimed !== false);
   const minutes = Math.round(usable * (EXAMS[exam].sections.reduce((m, s) => m + s.minutes, 0) / EXAMS[exam].sections.reduce((m, s) => m + s.questions, 0)));
   return (
     <section className="mt-4 max-w-xl">
@@ -193,12 +194,12 @@ function Scores({ exam, c, attempts, onPractice, onOpen }: { exam: ExamId; c: Ex
   );
 }
 
-function Resources({ c }: { c: ExamCopy }) {
+function Resources({ c, exam }: { c: ExamCopy; exam: ExamId }) {
   return (
     <section className="mt-4 max-w-2xl">
       <p className="text-lg">{c.resourcesLead}</p>
       <ul className="mt-4 space-y-3">
-        {c.links.map((l) => (
+        {(c.linksBy[exam] ?? []).map((l) => (
           <li key={l.href}><a href={l.href} target="_blank" rel="noopener noreferrer" className="guide-card flex items-center justify-between gap-3 p-4 font-bold text-teal hover:underline">{l.label}<ExternalLink size={18} className="shrink-0" /></a></li>
         ))}
       </ul>

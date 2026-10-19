@@ -38,6 +38,8 @@ export interface ExamConfig {
   /** How a total is made from section scores. The ACT averages; the TSI has no total. */
   totalMode: "sum" | "average" | "none";
   maxDifficulty?: 1 | 2 | 3;
+  /** False for tests with no real time limit (the TSIA2), so practice defaults to untimed. */
+  realTimed?: boolean;
 }
 
 export interface Answered { qid: string; section: string; skill: string; answer: string; correct: boolean }

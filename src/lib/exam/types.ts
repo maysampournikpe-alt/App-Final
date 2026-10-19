@@ -35,6 +35,8 @@ export interface ExamConfig {
   sections: SectionConfig[];
   /** Section score range on the real scale, for the estimate. */
   sectionScale: { min: number; max: number; step: number };
+  /** How a total is made from section scores. The ACT averages; the TSI has no total. */
+  totalMode: "sum" | "average" | "none";
   maxDifficulty?: 1 | 2 | 3;
 }
 

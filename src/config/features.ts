@@ -425,6 +425,23 @@ export const GROUPS: Group[] = [
   ]),
 ];
 
+/**
+ * What the sidebar shows: seven hubs instead of 28 tabs. Each hub groups related tabs.
+ * Tool keys and routes (/t/tab/tool) do not change, so saved links and bookmarks keep working.
+ */
+export interface Hub { id: string; icon: IconName; name: L10n; blurb: L10n; tabs: string[] }
+export const HUBS: Hub[] = [
+  { id: "discover", icon: "compass", name: { en: "Discover", es: "Descubrir" }, blurb: { en: "Opportunities, picks for you and local help", es: "Oportunidades, recomendaciones y ayuda local" }, tabs: ["find", "foryou", "local"] },
+  { id: "learn", icon: "book", name: { en: "Learn", es: "Aprender" }, blurb: { en: "Coach, study tools, notes, math, writing and languages", es: "Entrenador, estudio, apuntes, mates, escritura e idiomas" }, tabs: ["coach", "study", "notes", "math", "writing", "languages"] },
+  { id: "testprep", icon: "file-check", name: { en: "Test Prep", es: "Exámenes" }, blurb: { en: "SAT, PSAT, ACT, TSI and AP practice", es: "Práctica de SAT, PSAT, ACT, TSI y AP" }, tabs: ["sat", "psat", "act", "tsi", "ap"] },
+  { id: "plan", icon: "route", name: { en: "Plan and Do", es: "Planear y hacer" }, blurb: { en: "Plans, homework, calendar, focus timer and habits", es: "Planes, tarea, calendario, concentración y hábitos" }, tabs: ["plan", "homework", "calendar", "focus", "habits"] },
+  { id: "career", icon: "graduation", name: { en: "College and Career", es: "Universidad y carrera" }, blurb: { en: "Colleges, careers, grades and achievements", es: "Universidades, carreras, calificaciones y logros" }, tabs: ["college", "grades", "achievements"] },
+  { id: "life", icon: "heart", name: { en: "Life", es: "Vida" }, blurb: { en: "Money, wellbeing and people", es: "Dinero, bienestar y personas" }, tabs: ["money", "wellbeing", "people"] },
+  { id: "me", icon: "user-round", name: { en: "Me", es: "Yo" }, blurb: { en: "Profile, family and school, settings", es: "Perfil, familia y escuela, ajustes" }, tabs: ["profile", "family", "settings"] },
+];
+export const findHub = (id: string) => HUBS.find((h) => h.id === id);
+export const hubOfTab = (tabId: string) => HUBS.find((h) => h.tabs.includes(tabId));
+
 export const ALL_TABS: Tab[] = GROUPS.flatMap((g) => g.tabs);
 export const ALL_TOOLS: Tool[] = ALL_TABS.flatMap((t) => t.tools);
 
@@ -441,4 +458,4 @@ export function findTool(tabId: string, toolId: string) {
 }
 
 /** Which of the student's tabs sit in the phone bottom bar by default. */
-export const DEFAULT_BOTTOM_TABS = ["find", "coach", "plan", "study", "grades"] as const;
+export const DEFAULT_BOTTOM_TABS = ["discover", "learn", "testprep", "plan"] as const;

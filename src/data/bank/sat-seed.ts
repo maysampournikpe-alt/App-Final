@@ -1,4 +1,5 @@
 import type { Question } from "@/lib/exam/types";
+import { balance } from "./balance";
 
 // Original starter questions, written for this app. The answer key of every math question is
 // re-computed in tests/bank.test.ts. Larger banks come from `npm run bank:generate`.
@@ -116,24 +117,5 @@ const RAW: Question[] = [
   r("e9", "expression-of-ideas", 2, "The library's summer reading challenge ended with 120 students finishing ten books each. Many said it was their first time reading for fun. Teachers noticed that those students arrived at fall classes more confident.", "Which choice most accurately states the main benefit of the challenge, based on the text?", ["The challenge cost the library money.", "The challenge helped students enjoy reading and feel more confident.", "The library was closed in summer.", "Teachers were busy in the fall."], "B", "The text says students read for fun and arrived more confident, so the main benefit is enjoying reading and gaining confidence."),
   r("e10", "expression-of-ideas", 2, "(1) The school garden has twelve raised beds. (2) Students grow tomatoes, peppers and herbs there. (3) My cousin plays soccer on weekends. (4) The harvest is donated to the cafeteria.", "The writer wants to keep the paragraph focused on the school garden. Which sentence should be deleted?", ["Sentence 1", "Sentence 2", "Sentence 3", "Sentence 4"], "C", "Sentences 1, 2 and 4 are about the garden. Sentence 3 is about a cousin's soccer, which does not belong."),
 ];
-
-/**
- * Spreads the correct answer evenly over A to D so guessing a letter never helps. Choices that are just
- * numbers keep their ascending order, as on the real test. Explanations never mention a letter, so
- * reordering is safe. The result is the same every time (no randomness).
- */
-const NUMERIC = /^[\\$]*-?[\d.,]+%?\$?$/;
-const PATTERN = ["C", "A", "D", "B", "B", "D", "A", "C"];
-function balance(list: Question[]): Question[] {
-  let n = 0;
-  return list.map((q) => {
-    if (q.type !== "mc" || !q.choices || q.choices.every((c) => NUMERIC.test(c.trim()))) return q;
-    const target = "ABCD".indexOf(PATTERN[n++ % PATTERN.length]);
-    const right = "ABCD".indexOf(q.answer);
-    const others = q.choices.filter((_, i) => i !== right);
-    const choices = [...others.slice(0, target), q.choices[right], ...others.slice(target)];
-    return { ...q, choices, answer: "ABCD"[target] };
-  });
-}
 
 export const SAT_SEED: Question[] = balance(RAW);

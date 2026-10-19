@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { GROUPS } from "@/config/features";
+import { ALL_TABS, HUBS } from "@/config/features";
 import { ICONS } from "@/config/icons";
 import { BRAND } from "@/config/brand";
 import { useAccount } from "@/lib/account";
@@ -63,29 +63,33 @@ export function HomeView() {
         <h2 className="text-2xl sm:text-3xl">{t("homeTry")}</h2>
         <p className="mt-1 text-muted">{t("homeShortcuts")}</p>
         <div className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
-          {GROUPS.map((g) => (
-            <section key={g.id}>
-              <h3 className="border-b-[1.5px] border-ink pb-1 text-xl">{g.name[lang]}</h3>
-              <ul>
-                {g.tabs.map((tab) => {
-                  const Icon = ICONS[tab.icon];
-                  const ready = tab.tools.filter((x) => x.status === "built").length;
-                  return (
-                    <li key={tab.id}>
-                      <Link href={`/t/${tab.id}`} className="flex items-center gap-3 py-2.5 hover:bg-sunken sm:px-2">
-                        <Icon size={20} strokeWidth={1.75} className="shrink-0 text-teal" />
-                        <span className="font-bold">{tab.name[lang]}</span>
-                        <span aria-hidden className="mb-1 min-w-4 flex-1 self-end border-b-2 border-dotted border-line" />
-                        <span className={`text-sm ${ready ? "font-bold text-palm" : "text-muted"}`}>
-                          {ready ? `${ready}/${tab.tools.length}` : tab.tools.length}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
+          {HUBS.map((hub) => {
+            const Icon = ICONS[hub.icon];
+            const tools = hub.tabs.flatMap((id) => ALL_TABS.find((x) => x.id === id)?.tools ?? []);
+            return (
+              <section key={hub.id}>
+                <h3 className="border-b-[1.5px] border-ink pb-1 text-xl">
+                  <Link href={`/h/${hub.id}`} className="flex items-center gap-2 hover:underline"><Icon size={20} strokeWidth={1.75} className="text-teal" />{hub.name[lang]}</Link>
+                </h3>
+                <p className="mt-1 text-sm text-muted">{hub.blurb[lang]}</p>
+                <ul>
+                  {hub.tabs.map((id) => ALL_TABS.find((x) => x.id === id)).filter((x): x is NonNullable<typeof x> => !!x).map((tab) => {
+                    const ready = tab.tools.filter((x) => x.status === "built").length;
+                    return (
+                      <li key={tab.id}>
+                        <Link href={`/t/${tab.id}`} className="flex items-center gap-3 py-2 hover:bg-sunken sm:px-2">
+                          <span className="font-bold">{tab.name[lang]}</span>
+                          <span aria-hidden className="mb-1 min-w-4 flex-1 self-end border-b-2 border-dotted border-line" />
+                          <span className={`text-sm ${ready ? "font-bold text-palm" : "text-muted"}`}>{ready}/{tab.tools.length}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <span className="sr-only">{tools.length}</span>
+              </section>
+            );
+          })}
         </div>
       </Page>
     </>

@@ -86,8 +86,13 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
 
   const model = await pickModel(args.model, key);
   const isCompound = model.includes("compound");
+  const wantsSearch = args.model.includes("compound");
+  const isGptOss = model.startsWith("openai/gpt-oss");
   const body: Record<string, unknown> = {
     model,
+    // gpt-oss has no Compound-style search, but Groq gives it a built-in browser tool.
+    ...(wantsSearch && !isCompound && isGptOss ? { tools: [{ type: "browser_search" }], tool_choice: "auto" } : {}),
+    ...(isGptOss ? { reasoning_effort: wantsSearch ? "medium" : "low" } : {}),
     messages: args.messages,
     temperature: args.temperature ?? 0.2,
     ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}),
@@ -141,7 +146,7 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
     res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}) }),
+      body: JSON.stringify({ model, ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}), messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}) }),
       signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
     });
   } catch (e) {

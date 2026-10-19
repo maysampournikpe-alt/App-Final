@@ -13,7 +13,7 @@ export const AI = {
   /** Tried in order when the name above is not in the account. The app asks Groq which models exist. */
   fallbacks: {
     chat: ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "meta-llama/llama-4-scout-17b-16e-instruct", "qwen/qwen3-32b", "llama-3.1-8b-instant"],
-    search: ["groq/compound", "groq/compound-mini"],
+    search: ["groq/compound", "groq/compound-mini", "openai/gpt-oss-120b", "openai/gpt-oss-20b"],
   },
   /** Seconds. Vercel Hobby functions can run longer than this, but students should not wait longer. */
   searchTimeoutSeconds: 50,

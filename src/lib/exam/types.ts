@@ -1,9 +1,9 @@
-export type ExamId = "sat" | "psat" | "act" | "tsi";
+export type ExamId = "sat" | "psat" | "act" | "tsi" | "ap";
 
 /** One practice question. Math can use $...$ for LaTeX. Same shape for every exam. */
 export interface Question {
   id: string;
-  exam: "sat" | "act" | "tsi";   // which bank it belongs to (the PSAT reuses the SAT bank)
+  exam: "sat" | "act" | "tsi" | "ap";   // which bank it belongs to (the PSAT reuses the SAT bank)
   section: string;               // e.g. "rw", "math"
   skill: string;                 // e.g. "algebra"
   difficulty: 1 | 2 | 3;

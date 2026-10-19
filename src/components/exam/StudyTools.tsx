@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { bankById } from "@/lib/exam/bank";
-import { EXAMS } from "@/lib/exam/config";
+import { EXAMS, examPath } from "@/lib/exam/config";
 import type { ExamId } from "@/lib/exam/types";
 import { buildTest, newSession, openMistakes, skillStats } from "@/lib/exam/engine";
 import { useLang } from "@/lib/i18n";
@@ -37,7 +37,7 @@ function useStart() {
     const same = qids.filter((id) => bank.get(id)?.exam === exam);
     if (!exam || !same.length) return;
     setSession(newSession(exam, "section", same, null));
-    router.push(`/t/${exam}/sections`);
+    router.push(`${examPath(exam, "sections")}?go`);
   };
 }
 
@@ -88,7 +88,7 @@ export function WeakSpotsTool() {
     const qids = buildTest([...bank.values()], { exam, mode: "section", section, skill, count: 8 });
     if (!qids.length) return;
     setSession(newSession(exam, "section", qids, null));
-    router.push(`/t/${exam}/sections`);
+    router.push(`${examPath(exam, "sections")}?go`);
   };
   return (
     <Page>

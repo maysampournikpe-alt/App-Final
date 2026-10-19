@@ -39,7 +39,7 @@ export function Results({ attempt, auto = false, onAgain, onScores }: { attempt:
             <p><span className="block text-sm text-muted">{c.estScore} · {attempt.exam === "act" ? c.composite : c.total}</span><span className="font-display text-6xl font-semibold tabular-nums">{est.total}</span></p>
           ) : null}
           {est.sections.map((s) => (
-            <p key={s.section}><span className="block text-sm text-muted">{cfg.sections.find((x) => x.id === s.section)?.[lang] ?? s.section} · {c.sectionScore}</span>
+            <p key={s.section}><span className="block text-sm text-muted">{cfg.sections.find((x) => x.id === s.section)?.[lang] ?? s.section} · {attempt.exam === "ap" ? c.ap.apScore : c.sectionScore}</span>
               <span className="font-display text-5xl font-semibold tabular-nums text-teal">{s.score}</span>
               <span className="ml-2 text-sm text-muted">{s.correct}/{s.total}</span></p>
           ))}

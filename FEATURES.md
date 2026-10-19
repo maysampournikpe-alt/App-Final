@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**49 of 265 features built.**
+**56 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 48 | 73 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 0 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
 | Phase 4: Study tools and skill building | 1 | 56 |
@@ -184,17 +184,17 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Course picker | 1 | Future plan |  |
-| Course dashboard | 1 | Future plan |  |
+| Course picker | 1 | Built |  |
+| Course dashboard | 1 | Built |  |
 | Unit notes | 1 | Future plan |  |
-| Practice quizzes | 1 | Future plan |  |
-| Full practice exams | 1 | Future plan |  |
+| Practice quizzes | 1 | Built |  |
+| Full practice exams | 1 | Built |  |
 | Free response feedback | 1 | Future plan |  |
 | Flashcards | 1 | Future plan |  |
-| Weak spot report | 1 | Future plan |  |
-| Score estimate | 1 | Future plan |  |
+| Weak spot report | 1 | Built |  |
+| Score estimate | 1 | Built |  |
 | Study plan | 1 | Future plan |  |
-| Official resources | 1 | Future plan |  |
+| Official resources | 1 | Built |  |
 
 #### SAT
 

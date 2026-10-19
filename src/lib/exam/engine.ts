@@ -1,3 +1,4 @@
+import { apScore } from "./ap";
 import { EXAMS, minutesPerQuestion } from "./config";
 import type { Answered, Attempt, ExamId, Question, Session } from "./types";
 
@@ -98,7 +99,7 @@ export function estimate(exam: ExamId, items: Answered[]): Estimate {
     if (!mine.length) return [];
     const correct = mine.filter((i) => i.correct).length;
     const pct = correct / mine.length;
-    const score = Math.min(max, Math.max(min, Math.round((min + (max - min) * pct) / step) * step));
+    const score = exam === "ap" ? apScore(pct) : Math.min(max, Math.max(min, Math.round((min + (max - min) * pct) / step) * step));
     return [{ section: sec.id, correct, total: mine.length, pct, score }];
   });
   const cfg = EXAMS[exam];

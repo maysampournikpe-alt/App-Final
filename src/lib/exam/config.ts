@@ -1,3 +1,4 @@
+import { AP_SECTIONS } from "./ap";
 import type { ExamConfig, ExamId } from "./types";
 
 const sk = (id: string, en: string, es: string) => ({ id, en, es });
@@ -53,6 +54,7 @@ export const EXAMS: Record<ExamId, ExamConfig> = {
   // The PSAT is built like the digital SAT and scored 160 to 760 per section, so it practices from the same bank (easier questions first).
   psat: { id: "psat", bank: "sat", en: "PSAT", es: "PSAT", sections: SAT_SECTIONS, sectionScale: { min: 160, max: 760, step: 10 }, totalMode: "sum", maxDifficulty: 2 },
   act: { id: "act", bank: "act", en: "ACT", es: "ACT", sections: ACT_SECTIONS, sectionScale: { min: 1, max: 36, step: 1 }, totalMode: "average" },
+  ap: { id: "ap", bank: "ap", en: "AP", es: "AP", sections: AP_SECTIONS, sectionScale: { min: 1, max: 5, step: 1 }, totalMode: "none" },
   tsi: { id: "tsi", bank: "tsi", en: "TSI", es: "TSI", sections: TSI_SECTIONS, sectionScale: { min: 910, max: 990, step: 1 }, totalMode: "none", realTimed: false },
 };
 
@@ -64,3 +66,14 @@ export const minutesPerQuestion = (exam: ExamId, sectionId: string) => {
   const s = sectionOf(exam, sectionId);
   return s ? s.minutes / s.questions : 1.5;
 };
+
+export type ExamPage = "overview" | "diagnostic" | "sections" | "full" | "scores" | "resources";
+
+/** Page address for each part of an exam. AP uses its own tool names, the rest share one set. */
+export function examPath(exam: ExamId, page: ExamPage): string {
+  if (exam === "ap") {
+    const ap: Record<ExamPage, string> = { overview: "dashboard", diagnostic: "dashboard", sections: "quizzes", full: "exam", scores: "score", resources: "resources" };
+    return `/t/ap/${ap[page]}`;
+  }
+  return `/t/${exam}/${page}`;
+}

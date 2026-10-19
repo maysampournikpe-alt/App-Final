@@ -27,17 +27,19 @@ export async function GET() {
     db["function:hit_rate_limit"] = error ? `FAILED: ${error.code ?? ""} ${error.message.slice(0, 140)}` : data === true ? "ok" : "returned false";
   }
   let groq = "not tested";
+  let groqModels: string[] = [];
   if (env.groqApiKey && !env.aiFixtureMode) {
     try {
       const res = await fetch(`${AI.baseUrl}/models`, { headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` }, signal: AbortSignal.timeout(8000) });
       if (res.ok) {
         const ids: string[] = ((await res.json()).data ?? []).map((m: { id: string }) => m.id);
         groq = `ok (${ids.length} models). ` + Object.entries(AI.models).map(([k, m]) => `${k}: ${ids.includes(m) ? "found" : "NOT FOUND in your account"} (${m})`).join("; ");
+        groqModels = ids.sort();
       } else groq = `Groq answered ${res.status}${res.status === 401 ? " (key rejected)" : ""}`;
     } catch (e) {
       groq = `could not reach Groq: ${(e as Error).name}`;
     }
   }
   const healthy = env.supabaseUrlAndAnonKey && env.supabaseServiceRoleKey && env.groqApiKey && Object.values(db).every((v) => v === "ok");
-  return NextResponse.json({ healthy, env, db, groq }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ healthy, env, db, groq, groqModels }, { headers: { "Cache-Control": "no-store" } });
 }

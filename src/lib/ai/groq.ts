@@ -29,6 +29,32 @@ export function collectSearched(node: unknown, out: { title: string; url: string
   return out;
 }
 
+let modelCache: { at: number; ids: string[] } | null = null;
+
+/** Model ids this Groq account can use, cached for ten minutes. Empty when Groq cannot be asked. */
+export async function availableModels(key: string): Promise<string[]> {
+  if (modelCache && Date.now() - modelCache.at < 10 * 60_000) return modelCache.ids;
+  try {
+    const res = await fetch(`${AI.baseUrl}/models`, { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const ids: string[] = ((await res.json()).data ?? []).map((m: { id: string }) => m.id);
+    modelCache = { at: Date.now(), ids };
+    return ids;
+  } catch {
+    return [];
+  }
+}
+
+/** The configured model if the account has it, else the first listed fallback it has, else the configured name. */
+async function pickModel(wanted: string, key: string): Promise<string> {
+  const ids = await availableModels(key);
+  if (!ids.length || ids.includes(wanted)) return wanted;
+  const pool = wanted.includes("compound") ? AI.fallbacks.search : AI.fallbacks.chat;
+  const found = pool.find((m) => ids.includes(m));
+  if (found) console.warn(`groq model ${wanted} not in account, using ${found}`);
+  return found ?? wanted;
+}
+
 const fixture = (kind?: string): ChatReply => kind === "plan" ? ({
   content: JSON.stringify({
     title: "Fixture plan", summary: "A plan made by the test fixture.", searchIdeas: ["chess clubs near me"],
@@ -58,9 +84,10 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");
 
-  const isCompound = args.model.includes("compound");
+  const model = await pickModel(args.model, key);
+  const isCompound = model.includes("compound");
   const body: Record<string, unknown> = {
-    model: args.model,
+    model,
     messages: args.messages,
     temperature: args.temperature ?? 0.2,
     ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}),
@@ -108,12 +135,13 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
   }
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");
+  const model = await pickModel(args.model, key);
   let res: Response;
   try {
     res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: args.model, messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}) }),
+      body: JSON.stringify({ model, messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}) }),
       signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
     });
   } catch (e) {

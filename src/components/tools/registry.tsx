@@ -3,10 +3,14 @@ import { useSyncExternalStore, type ComponentType } from "react";
 import { Page } from "../ui";
 import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
+import { CoachTool } from "./Coach";
 import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
 import { HomeworkTool } from "./Homework";
+import { ExamTool } from "../exam/ExamTool";
+import { MistakesTool, WeakSpotsTool } from "../exam/StudyTools";
+import { PlanTool } from "./Plan";
 import { PomodoroTool } from "./Pomodoro";
 import { PrivacyTool, ScamGuideTool, TransparencyTool } from "./Legal";
 import { InterestsTool, ProfileTool } from "./Profile";
@@ -35,6 +39,28 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "settings/transparency": TransparencyTool,
   "profile/profile": ProfileTool,
   "profile/interests": InterestsTool,
+  "coach/chat": clientOnly(() => <CoachTool kind="chat" />),
+  "coach/homework": clientOnly(() => <CoachTool kind="homework" />),
+  "coach/eli12": clientOnly(() => <CoachTool kind="eli12" />),
+  "coach/practice": clientOnly(() => <CoachTool kind="practice" />),
+  "plan/builder": clientOnly(() => <PlanTool view="builder" />),
+  "plan/templates": clientOnly(() => <PlanTool view="templates" />),
+  "plan/checklists": clientOnly(() => <PlanTool view="checklists" />),
+  "plan/adjust": clientOnly(() => <PlanTool view="adjust" />),
+  "study/mistakes": clientOnly(MistakesTool),
+  "study/weak": clientOnly(WeakSpotsTool),
+  "sat/overview": clientOnly(() => <ExamTool exam="sat" view="overview" />),
+  "sat/diagnostic": clientOnly(() => <ExamTool exam="sat" view="diagnostic" />),
+  "sat/sections": clientOnly(() => <ExamTool exam="sat" view="sections" />),
+  "sat/full": clientOnly(() => <ExamTool exam="sat" view="full" />),
+  "sat/scores": clientOnly(() => <ExamTool exam="sat" view="scores" />),
+  "sat/resources": clientOnly(() => <ExamTool exam="sat" view="resources" />),
+  "psat/overview": clientOnly(() => <ExamTool exam="psat" view="overview" />),
+  "psat/diagnostic": clientOnly(() => <ExamTool exam="psat" view="diagnostic" />),
+  "psat/sections": clientOnly(() => <ExamTool exam="psat" view="sections" />),
+  "psat/full": clientOnly(() => <ExamTool exam="psat" view="full" />),
+  "psat/scores": clientOnly(() => <ExamTool exam="psat" view="scores" />),
+  "psat/resources": clientOnly(() => <ExamTool exam="psat" view="resources" />),
   "find/search": clientOnly(FindTool),
   "find/saved": clientOnly(SavedTool),
   "find/scams": ScamGuideTool,

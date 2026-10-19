@@ -29,7 +29,17 @@ export function collectSearched(node: unknown, out: { title: string; url: string
   return out;
 }
 
-const fixture = (): ChatReply => ({
+const fixture = (kind?: string): ChatReply => kind === "plan" ? ({
+  content: JSON.stringify({
+    title: "Fixture plan", summary: "A plan made by the test fixture.", searchIdeas: ["chess clubs near me"],
+    horizons: [
+      { horizon: "week", steps: ["Do the first small thing", "Tell someone your goal"] },
+      { horizon: "month", steps: ["Practice three times a week", "Find a mentor or friend"] },
+      { horizon: "year", steps: ["Enter an event", "Review how far you came"] },
+    ],
+  }),
+  searched: [],
+}) : ({
   content: JSON.stringify({
     listings: [{
       title: "Sample chess club (fixture)", organization: "Sample Library", description: "Weekly beginner chess.",
@@ -44,7 +54,7 @@ const fixture = (): ChatReply => ({
 });
 
 export async function groqChat(args: ChatArgs): Promise<ChatReply> {
-  if (process.env.AI_FIXTURES === "1") return fixture(); // local testing without a key
+  if (process.env.AI_FIXTURES === "1") return fixture(args.messages[0]?.content.includes("goal plans") ? "plan" : undefined); // local testing without a key
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");
 
@@ -79,4 +89,58 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
   const seen = new Set<string>();
   const searched = collectSearched(message?.executed_tools ?? json?.executed_tools).filter((s) => !seen.has(s.url) && seen.add(s.url));
   return { content, searched };
+}
+
+/**
+ * Streams plain text as the model writes it, so students see words right away.
+ * Failures before the first byte throw an AiError. A failure mid-stream just ends the text.
+ */
+export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Array>> {
+  const enc = new TextEncoder();
+  if (process.env.AI_FIXTURES === "1") {
+    const words = "This is a fixture answer so you can test the chat without a key. Ask me anything!".split(" ");
+    return new ReadableStream({
+      async start(c) {
+        for (const w of words) { c.enqueue(enc.encode(w + " ")); await new Promise((r) => setTimeout(r, 40)); }
+        c.close();
+      },
+    });
+  }
+  const key = process.env.GROQ_API_KEY;
+  if (!key) throw new AiError("unavailable");
+  let res: Response;
+  try {
+    res = await fetch(`${AI.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: args.model, messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}) }),
+      signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
+    });
+  } catch (e) {
+    throw new AiError((e as Error).name === "TimeoutError" ? "timeout" : "upstream");
+  }
+  if (!res.ok || !res.body) {
+    console.error("groq stream error", res.status, (await res.text().catch(() => "")).slice(0, 300));
+    throw new AiError(res.status === 401 || res.status === 403 ? "auth" : res.status === 404 ? "model" : res.status === 429 ? "rate" : "upstream", String(res.status));
+  }
+  const { parseSseText } = await import("./coach");
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  return new ReadableStream({
+    async pull(c) {
+      try {
+        const { value, done } = await reader.read();
+        if (done) return c.close();
+        buf += dec.decode(value, { stream: true });
+        const out = parseSseText(buf);
+        buf = out.rest;
+        if (out.text) c.enqueue(enc.encode(out.text));
+        if (out.done) { c.close(); reader.cancel().catch(() => {}); }
+      } catch {
+        c.close();
+      }
+    },
+    cancel() { reader.cancel().catch(() => {}); },
+  });
 }

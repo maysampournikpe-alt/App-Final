@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { BANK, bankById } from "@/lib/exam/bank";
-import { EXAMS } from "@/lib/exam/config";
+import { EXAMS, examPath } from "@/lib/exam/config";
 import { buildTest, estimate, minutesFor, newSession, skillStats, type TestSpec } from "@/lib/exam/engine";
-import type { Attempt, ExamId } from "@/lib/exam/types";
+import type { Attempt, ExamId, Question } from "@/lib/exam/types";
 import { formatDay } from "@/lib/dates";
 import { useLang } from "@/lib/i18n";
 import { useCopy } from "@/lib/use-copy";
@@ -25,6 +25,9 @@ export function ExamTool({ exam, view }: { exam: ExamId; view: ExamView }) {
   const { session, setSession, attempts, hidden } = useExamData();
   const [resultId, setResultId] = useState<string | null>(null);
   const [auto, setAuto] = useState(false);
+  // The test is shown only after Start or Resume, so a paused test never blocks the other pages.
+  const params = useSearchParams();
+  const [open, setOpen] = useState(() => params.has("go")); // ?go means "a test was just started for you"
   const [notice, setNotice] = useState<string | null>(null);
   const router = useRouter();
 
@@ -37,29 +40,37 @@ export function ExamTool({ exam, view }: { exam: ExamId; view: ExamView }) {
     const minutes = minutesFor(exam, qids.map((id) => bank.get(id)!));
     setNotice(null);
     setResultId(null);
+    setOpen(true);
     setSession(newSession(exam, spec.mode, qids, timed ? minutes : null));
   };
 
-  // A test in progress takes over this exam's pages, so it can be resumed from anywhere.
-  if (session && session.exam === exam) {
-    return <Runner session={session} onFinish={(id, wasAuto) => { setAuto(wasAuto); setResultId(id); }} onExit={() => router.push(`/t/${exam}/overview`)} />;
+  if (session && session.exam === exam && open) {
+    return <Runner session={session} onFinish={(id, wasAuto) => { setAuto(wasAuto); setResultId(id); setOpen(false); }} onExit={() => router.push(examPath(exam, "overview"))} />;
   }
   const result = resultId ? attempts.find((a) => a.id === resultId) : undefined;
-  if (result) return <Results attempt={result} auto={auto} onAgain={() => setResultId(null)} onScores={() => { setResultId(null); router.push(`/t/${exam}/scores`); }} />;
+  if (result) return <Results attempt={result} auto={auto} onAgain={() => setResultId(null)} onScores={() => { setResultId(null); router.push(examPath(exam, "scores")); }} />;
 
   if (!cfg.sections.length) return <Page><h1 className="text-3xl sm:text-4xl">{cfg[lang]}</h1><p className="mt-3 text-lg">{c.notReady}</p></Page>;
 
   return (
     <Page>
       <h1 className="text-3xl sm:text-4xl">{cfg[lang]}: {c[view]}</h1>
-      {session && session.exam !== exam ? <p className="mt-3 font-bold">{c.resumeLead} <Link className="text-teal underline underline-offset-4" href={`/t/${session.exam}/overview`}>{c.resume}</Link></p> : null}
+      {session && session.exam !== exam ? <p className="mt-3 font-bold">{c.resumeLead} <Link className="text-teal underline underline-offset-4" href={examPath(session.exam, "overview")}>{c.resume}</Link></p> : null}
+      {session && session.exam === exam ? (
+        <div role="region" aria-label={c.resume} className="guide-card mt-4 flex flex-wrap items-center gap-3 p-4">
+          <p className="font-bold">{c.resumeLead}</p>
+          <button onClick={() => setOpen(true)} className={buttonClass.primary}>{c.resume}</button>
+          <button onClick={() => setSession(null)} className="font-bold text-teal underline underline-offset-4">{c.discard}</button>
+        </div>
+      ) : null}
       {notice ? <p role="alert" className="guide-card mt-4 p-4 font-bold">{notice}</p> : null}
       {view === "overview" ? <Overview exam={exam} c={c} total={usable.length} /> : null}
+      {exam === "tsi" && view !== "overview" && view !== "scores" && view !== "resources" ? <p className="mt-3 text-muted">{c.realUntimed}</p> : null}
       {view === "diagnostic" ? <DiagnosticSetup c={c} total={usable.length} onStart={(timed) => start({ mode: "diagnostic" }, timed)} /> : null}
       {view === "sections" ? <SectionSetup exam={exam} c={c} onStart={(spec, timed) => start(spec, timed)} /> : null}
-      {view === "full" ? <FullSetup exam={exam} c={c} usable={usable.length} onStart={(timed) => start({ mode: "full" }, timed)} /> : null}
+      {view === "full" ? <FullSetup exam={exam} c={c} usable={usable} onStart={(timed, section) => start({ mode: "full", section }, timed)} /> : null}
       {view === "scores" ? <Scores exam={exam} c={c} attempts={attempts.filter((a) => a.exam === exam)} onPractice={(section, skill) => start({ mode: "section", section, skill, count: 8 }, false)} onOpen={setResultId} /> : null}
-      {view === "resources" ? <Resources c={c} /> : null}
+      {view === "resources" ? <Resources c={c} exam={exam} /> : null}
     </Page>
   );
 }
@@ -71,9 +82,9 @@ function Overview({ exam, c, total }: { exam: ExamId; c: ExamCopy; total: number
       <ul className="mt-3 max-w-prose list-disc space-y-2 pl-6 text-lg marker:text-terracotta">{(c.facts[exam] ?? []).map((f) => <li key={f}>{f}</li>)}</ul>
       <p className="mt-4 text-muted">{total ? c.bankNote(total) : c.bankEmpty}</p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href={`/t/${exam}/diagnostic`} className={buttonClass.primary}>{c.diagStart}</Link>
-        <Link href={`/t/${exam}/sections`} className={buttonClass.quiet}>{c.sections}</Link>
-        <Link href={`/t/${exam}/scores`} className={buttonClass.quiet}>{c.scores}</Link>
+        <Link href={examPath(exam, "diagnostic")} className={buttonClass.primary}>{c.diagStart}</Link>
+        <Link href={examPath(exam, "sections")} className={buttonClass.quiet}>{c.sections}</Link>
+        <Link href={examPath(exam, "scores")} className={buttonClass.quiet}>{c.scores}</Link>
       </div>
     </section>
   );
@@ -132,15 +143,26 @@ function SectionSetup({ exam, c, onStart }: { exam: ExamId; c: ExamCopy; onStart
   );
 }
 
-function FullSetup({ exam, c, usable, onStart }: { exam: ExamId; c: ExamCopy; usable: number; onStart: (timed: boolean) => void }) {
-  const [timed, setTimed] = useState(true);
-  const minutes = Math.round(usable * (EXAMS[exam].sections.reduce((m, s) => m + s.minutes, 0) / EXAMS[exam].sections.reduce((m, s) => m + s.questions, 0)));
+function FullSetup({ exam, c, usable, onStart }: { exam: ExamId; c: ExamCopy; usable: Question[]; onStart: (timed: boolean, section?: string) => void }) {
+  const lang = useLang();
+  const cfg = EXAMS[exam];
+  const [timed, setTimed] = useState(cfg.realTimed !== false);
+  const [course, setCourse] = useState(cfg.sections[0]?.id ?? "");
+  const pool = exam === "ap" ? usable.filter((q) => q.section === course) : usable;
+  const n = exam === "ap" ? Math.min(pool.length, cfg.sections.find((s) => s.id === course)?.questions ?? pool.length) : pool.length;
+  const perQ = exam === "ap" ? 80 / 55 : cfg.sections.reduce((m, s) => m + s.minutes, 0) / cfg.sections.reduce((m, s) => m + s.questions, 0);
+  const minutes = Math.round(n * perQ);
   return (
     <section className="mt-4 max-w-xl">
-      <p className="text-lg">{c.fullLead}</p>
-      <p className="mt-2 text-muted">{c.fullNote(usable)} {c.questionsN(usable)} · {c.minutesN(minutes)}.</p>
+      <p className="text-lg">{exam === "ap" ? c.ap.fullLead : c.fullLead}</p>
+      {exam === "ap" ? (
+        <label className="mt-4 block"><span className="block font-bold">{c.ap.course}</span>
+          <select value={course} onChange={(e) => setCourse(e.target.value)} className={`${inputClass} mt-1`}>{cfg.sections.map((s) => <option key={s.id} value={s.id}>{s[lang]}</option>)}</select></label>
+      ) : null}
+      <p className="mt-2 text-muted">{c.fullNote(n)} {c.questionsN(n)} · {c.minutesN(minutes)}.</p>
+      {exam === "ap" ? <p className="mt-2 text-sm text-muted">{c.ap.mcOnly}</p> : null}
       <TimedChoice timed={timed} setTimed={setTimed} c={c} />
-      <button disabled={!usable} onClick={() => onStart(timed)} className={`${buttonClass.primary} mt-6`}>{c.start}</button>
+      <button disabled={!n} onClick={() => onStart(timed, exam === "ap" ? course : undefined)} className={`${buttonClass.primary} mt-6`}>{c.start}</button>
     </section>
   );
 }
@@ -193,12 +215,12 @@ function Scores({ exam, c, attempts, onPractice, onOpen }: { exam: ExamId; c: Ex
   );
 }
 
-function Resources({ c }: { c: ExamCopy }) {
+function Resources({ c, exam }: { c: ExamCopy; exam: ExamId }) {
   return (
     <section className="mt-4 max-w-2xl">
       <p className="text-lg">{c.resourcesLead}</p>
       <ul className="mt-4 space-y-3">
-        {c.links.map((l) => (
+        {(c.linksBy[exam] ?? []).map((l) => (
           <li key={l.href}><a href={l.href} target="_blank" rel="noopener noreferrer" className="guide-card flex items-center justify-between gap-3 p-4 font-bold text-teal hover:underline">{l.label}<ExternalLink size={18} className="shrink-0" /></a></li>
         ))}
       </ul>

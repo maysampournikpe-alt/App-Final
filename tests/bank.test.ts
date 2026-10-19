@@ -100,7 +100,10 @@ describe("building tests", () => {
   it("a diagnostic covers both sections, and full uses everything available", () => {
     const d = buildTest(SAT_SEED, { exam: "sat", mode: "diagnostic", seed: 3 });
     expect(new Set(d.map((i) => q(i).section))).toEqual(new Set(["rw", "math"]));
-    expect(buildTest(SAT_SEED, { exam: "sat", mode: "full", seed: 3 })).toHaveLength(SAT_SEED.length);
+    const full = buildTest(SAT_SEED, { exam: "sat", mode: "full", seed: 3 });
+    // Fills each section up to the real test's length, or uses everything if the bank is smaller.
+    const want = EXAMS.sat.sections.reduce((n, s) => n + Math.min(s.questions, SAT_SEED.filter((x) => x.section === s.id).length), 0);
+    expect(full).toHaveLength(want);
   });
   it("the PSAT only gets easier questions", () => {
     const ids = buildTest(SAT_SEED, { exam: "psat", mode: "full", seed: 1 });
@@ -174,5 +177,58 @@ describe("generation checks", () => {
     expect(p.user).not.toMatch(/explanation|Subtract 3/);
     expect(normalizeStem("If $2x+3=11$, what is x?")).toBe(normalizeStem("if 2x 3 11 what is X"));
     expect(buildGenPrompt(spec).system).toMatch(/ORIGINAL/);
+  });
+});
+
+describe("second batch: math answer keys recomputed independently", () => {
+  const num = (id: string) => Number(plain(choice(id, q(id).answer)).replace(/[\\%]/g, ""));
+  const grid = (id: string) => parseNumeric(q(id).answer);
+  const text = (id: string) => plain(choice(id, q(id).answer)).replace(/\s+/g, "");
+  it("algebra", () => {
+    expect(num("sat-math-a6")).toBe((17 + 8) / 5);
+    expect(grid("sat-math-a7")).toBe((165 - 45) / 30);
+    expect(text("sat-math-a8")).toBe("y=2x-3");
+    expect(grid("sat-math-a9")).toBe((2 * 5 - 3 * 2) / (3 - 2));
+    expect(num("sat-math-a10")).toBe((24 + 6) / 2);
+    expect(num("sat-math-a11")).toBe(2); expect(1).not.toBe(5); // parallel (same slope) but different intercepts
+    const x = grid("sat-math-a12")!; expect((2 * x - 1) / 3).toBe(x - 4);
+  });
+  it("advanced math", () => {
+    expect(text("sat-math-v5")).toBe("x=3andx=-3"); expect(3 ** 2 - 9).toBe(0); expect((-3) ** 2 - 9).toBe(0);
+    const v6 = grid("sat-math-v6")!; expect(v6 ** 2 + 2 * v6 - 15).toBe(0); expect(v6).toBeGreaterThan(0);
+    expect(num("sat-math-v7")).toBe((-1) ** 2 - 4 * -1 + 1);
+    expect(grid("sat-math-v8")).toBe(Math.round(800 * 1.05 ** 2));
+    expect(text("sat-math-v9")).toBe("6x^5");
+    const v10 = num("sat-math-v10"); expect(v10 ** 2 - 6 * v10 + 9).toBe(25);
+    const t = -20 / (2 * -5); expect(grid("sat-math-v11")).toBe(-5 * t * t + 20 * t + 1);
+    // every wrong choice of v10 must fail the equation or the x > 0 rule
+    for (const c of q("sat-math-v10").choices!) { const k = Number(c); if (k !== v10) expect(k ** 2 - 6 * k + 9).not.toBe(25); }
+  });
+  it("problem solving and data", () => {
+    expect(num("sat-math-p5")).toBe(40 * 0.75);
+    const sorted = [3, 9, 4, 12, 7].sort((a, b) => a - b); expect(num("sat-math-p6")).toBe(sorted[2]);
+    expect(grid("sat-math-p7")).toBe(250 * 0.4);
+    expect(text("sat-math-p8")).toBe("\\frac{3}{5}"); expect(18 / 30).toBe(3 / 5);
+    expect(grid("sat-math-p9")).toBe(3 * 8 + 10);
+    expect(num("sat-math-p10")).toBe(((230 - 200) / 200) * 100);
+    expect(grid("sat-math-p11")).toBe(120 / (60 / 40 + 60 / 60));
+  });
+  it("geometry and trig", () => {
+    expect(num("sat-math-t5")).toBe((36 / 4) ** 2);
+    expect(grid("sat-math-t6")).toBe(Math.hypot(9, 12));
+    expect(text("sat-math-t7")).toBe("49\\pi");
+    expect(text("sat-math-t8")).toBe(`${180 - 65}^\\circ`);
+    expect(grid("sat-math-t9")).toBe(5 * 4 * 3);
+    expect(text("sat-math-t10")).toBe("\\frac{12}{13}"); expect(Math.sqrt(13 ** 2 - 5 ** 2)).toBe(12);
+    expect(grid("sat-math-t11")).toBeCloseTo(20 * (9 / 6) ** 2, 9);
+  });
+  it("has at least 8 questions in every skill now", () => {
+    for (const sec of EXAMS.sat.sections) for (const s of sec.skills)
+      expect(SAT_SEED.filter((x) => x.section === sec.id && x.skill === s.id).length, `${sec.id}/${s.id}`).toBeGreaterThanOrEqual(8);
+    expect(SAT_SEED.length).toBe(85);
+  });
+  it("no answer letter dominates (the key is spread out)", () => {
+    const mc = SAT_SEED.filter((x) => x.type === "mc");
+    for (const l of "ABCD") expect(mc.filter((x) => x.answer === l).length / mc.length, l).toBeLessThan(0.45);
   });
 });

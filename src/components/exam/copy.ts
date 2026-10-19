@@ -20,18 +20,39 @@ export const examCopy = {
     noAttempts: "No practice tests yet. Take the diagnostic and your scores show up here.", history: "Your practice tests", trend: "Score estimates over time",
     weakTitle: "Where to practice next", weakLead: "Your weakest skills so far:", practiceSkill: "Practice this skill",
     mode: { diagnostic: "Diagnostic", section: "Section practice", full: "Full test" } as Record<string, string>,
-    sectionNames: { rw: "Reading and Writing", math: "Math" } as Record<string, string>,
     resourcesLead: "The best free practice is from the test makers. Use these first, and use this app for extra practice and to track your weak spots.",
     facts: {
       sat: ["The SAT is taken on a computer using the free Bluebook app.", "It has two sections, Reading and Writing, and Math, each split into two parts. The second part adapts to how you did on the first.", "Scores run from 400 to 1600 (200 to 800 for each section).", "It takes about 2 hours and 15 minutes. A calculator is allowed on the whole Math section.", "Check collegeboard.org for the newest rules, dates and fee waivers."],
       psat: ["The PSAT is built like the digital SAT, so SAT practice helps.", "It is scored 320 to 1520 (160 to 760 for each section).", "In 11th grade it is the PSAT/NMSQT, which is also how students qualify for the National Merit Scholarship.", "This app practices with easier SAT-style questions for the PSAT.", "Check collegeboard.org for the newest rules and dates."],
+      act: ["The ACT has English, Math and Reading, and an optional Science test. The current version is shorter than the older one.", "Each section is scored 1 to 36, and your composite is the average of English, Math and Reading.", "You can take it on a computer or on paper, depending on where you test.", "Check act.org for the newest format, dates and fee waivers."],
+      tsi: ["The TSI Assessment (TSIA2) shows whether you are ready for college-level classes in Texas. It covers Math and Reading and Writing (ELAR).", "It has no time limit, and it adjusts to your answers.", "Texas colleges commonly use 950 in Math and 945 in Reading and Writing as the college-ready lines. Ask your college, because rules can change.", "Some students can skip it with scores from the SAT, ACT or STAAR, or through dual enrollment rules. Ask your counselor."],
     } as Record<string, string[]>,
-    links: [
-      { href: "https://bluebook.collegeboard.org", label: "Bluebook: the official test app and full practice tests" },
-      { href: "https://www.khanacademy.org/test-prep/sat", label: "Official free SAT practice on Khan Academy" },
-      { href: "https://satsuite.collegeboard.org", label: "College Board: dates, registration and fee waivers" },
-    ],
+    linksBy: {
+      sat: [
+        { href: "https://bluebook.collegeboard.org", label: "Bluebook: the official test app and full practice tests" },
+        { href: "https://www.khanacademy.org/test-prep/sat", label: "Official free SAT practice on Khan Academy" },
+        { href: "https://satsuite.collegeboard.org", label: "College Board: dates, registration and fee waivers" },
+      ],
+      psat: [
+        { href: "https://bluebook.collegeboard.org", label: "Bluebook: the official test app and practice tests" },
+        { href: "https://satsuite.collegeboard.org", label: "College Board: PSAT dates and information" },
+      ],
+      act: [{ href: "https://www.act.org", label: "ACT: official free practice, dates and fee waivers" }],
+      ap: [{ href: "https://apstudents.collegeboard.org", label: "AP Students: course pages, AP Classroom, exam dates and fee help" }],
+      tsi: [
+        { href: "https://www.highered.texas.gov", label: "Texas Higher Education Coordinating Board: TSI rules and exemptions" },
+        { href: "https://accuplacer.collegeboard.org", label: "College Board ACCUPLACER: TSIA2 practice and information" },
+      ],
+    } as Record<string, { href: string; label: string }[]>,
     notReady: "Practice for this test is still being built.",
+    ap: {
+      dashTitle: "Open my dashboard", pickLead: "Pick the AP courses you are taking. Courses marked ready have practice questions here.", ready: "Practice ready", notReadyYet: "No practice yet", picked: "Your courses",
+      none: "Pick at least one course to see its dashboard.", dashLead: "Each unit with your accuracy so far and a shortcut to practice it.", unitQs: (n: number) => `${n} question${n === 1 ? "" : "s"}`,
+      noQs: "Questions coming", practiceUnit: "Practice this unit", acc: "Accuracy", noData: "Not practiced yet", examDate: "Your exam date", daysTo: (n: number) => (n === 0 ? "Exam day is today" : n > 0 ? `${n} days to go` : "This date has passed"),
+      course: "Course", mcOnly: "Practice here is multiple choice. The real exam also has free-response questions, which this app does not grade yet. Use the official free-response questions and scoring guides for those.",
+      apScore: "AP score estimate (1 to 5)", fullLead: "Every question available for one course, with a clock at about the real exam's pace.", openCollege: "Official AP Classroom and course pages",
+    },
+    composite: "Composite", tsiLine: (m: number, e: number) => `Texas colleges commonly use ${m} (Math) and ${e} (Reading and Writing) as the college-ready lines. This estimate is rough, so ask your college.`, above: "At or above the line", below: "Below the line", realUntimed: "The real TSIA2 has no time limit, so practice here is untimed by default.", aiNote: "AI-checked starter questions.",
   },
   es: {
     overview: "Resumen", diagnostic: "Examen de diagnóstico", sections: "Práctica por sección", full: "Examen completo de práctica", scores: "Seguimiento de puntajes", resources: "Preparación oficial gratis",
@@ -54,18 +75,39 @@ export const examCopy = {
     noAttempts: "Todavía no has hecho exámenes de práctica. Haz el diagnóstico y aquí aparecen tus puntajes.", history: "Tus exámenes de práctica", trend: "Puntajes estimados con el tiempo",
     weakTitle: "Qué practicar después", weakLead: "Tus habilidades más débiles por ahora:", practiceSkill: "Practicar esta habilidad",
     mode: { diagnostic: "Diagnóstico", section: "Práctica por sección", full: "Examen completo" } as Record<string, string>,
-    sectionNames: { rw: "Lectura y escritura", math: "Matemáticas" } as Record<string, string>,
     resourcesLead: "La mejor práctica gratis viene de quienes hacen el examen. Úsala primero, y usa esta app para practicar más y ver en qué estás débil.",
     facts: {
       sat: ["El SAT se presenta en computadora con la app gratis Bluebook.", "Tiene dos secciones, Lectura y escritura, y Matemáticas, cada una en dos partes. La segunda parte se adapta a cómo te fue en la primera.", "Los puntajes van de 400 a 1600 (de 200 a 800 por sección).", "Dura unas 2 horas y 15 minutos. Se permite calculadora en toda la sección de Matemáticas.", "Revisa collegeboard.org para ver las reglas, fechas y exenciones de cuota más recientes."],
       psat: ["El PSAT está hecho como el SAT digital, así que practicar el SAT ayuda.", "Se califica de 320 a 1520 (de 160 a 760 por sección).", "En 11.º grado es el PSAT/NMSQT, que también sirve para calificar a la Beca Nacional al Mérito.", "Esta app practica el PSAT con preguntas más fáciles estilo SAT.", "Revisa collegeboard.org para ver las reglas y fechas más recientes."],
+      act: ["El ACT tiene Inglés, Matemáticas y Lectura, y una prueba opcional de Ciencias. La versión actual es más corta que la anterior.", "Cada sección se califica de 1 a 36, y tu compuesto es el promedio de Inglés, Matemáticas y Lectura.", "Puedes presentarlo en computadora o en papel, según el lugar donde lo hagas.", "Revisa act.org para ver el formato, las fechas y las exenciones de cuota más recientes."],
+      tsi: ["El examen TSI (TSIA2) muestra si estás listo para clases de nivel universitario en Texas. Cubre Matemáticas y Lectura y escritura (ELAR).", "No tiene límite de tiempo y se ajusta a tus respuestas.", "Las universidades de Texas suelen usar 950 en Matemáticas y 945 en Lectura y escritura como líneas de preparación universitaria. Pregunta en tu universidad, porque las reglas pueden cambiar.", "Algunos estudiantes pueden saltárselo con puntajes del SAT, ACT o STAAR, o por reglas de inscripción doble. Pregunta a tu consejero."],
     } as Record<string, string[]>,
-    links: [
-      { href: "https://bluebook.collegeboard.org", label: "Bluebook: la app oficial del examen y exámenes completos de práctica" },
-      { href: "https://www.khanacademy.org/test-prep/sat", label: "Práctica oficial gratis del SAT en Khan Academy" },
-      { href: "https://satsuite.collegeboard.org", label: "College Board: fechas, inscripción y exenciones de cuota" },
-    ],
+    linksBy: {
+      sat: [
+        { href: "https://bluebook.collegeboard.org", label: "Bluebook: la app oficial del examen y exámenes completos de práctica" },
+        { href: "https://www.khanacademy.org/test-prep/sat", label: "Práctica oficial gratis del SAT en Khan Academy" },
+        { href: "https://satsuite.collegeboard.org", label: "College Board: fechas, inscripción y exenciones de cuota" },
+      ],
+      psat: [
+        { href: "https://bluebook.collegeboard.org", label: "Bluebook: la app oficial del examen y exámenes de práctica" },
+        { href: "https://satsuite.collegeboard.org", label: "College Board: fechas e información del PSAT" },
+      ],
+      act: [{ href: "https://www.act.org", label: "ACT: práctica oficial gratis, fechas y exenciones de cuota" }],
+      ap: [{ href: "https://apstudents.collegeboard.org", label: "AP Students: páginas de los cursos, AP Classroom, fechas de examen y ayuda con cuotas" }],
+      tsi: [
+        { href: "https://www.highered.texas.gov", label: "Consejo de Educación Superior de Texas: reglas y exenciones del TSI" },
+        { href: "https://accuplacer.collegeboard.org", label: "College Board ACCUPLACER: práctica e información del TSIA2" },
+      ],
+    } as Record<string, { href: string; label: string }[]>,
     notReady: "La práctica para este examen todavía se está construyendo.",
+    ap: {
+      dashTitle: "Abrir mi panel", pickLead: "Elige los cursos AP que llevas. Los marcados como listos tienen preguntas de práctica aquí.", ready: "Práctica lista", notReadyYet: "Aún sin práctica", picked: "Tus cursos",
+      none: "Elige al menos un curso para ver su panel.", dashLead: "Cada unidad con tu precisión hasta ahora y un acceso directo para practicarla.", unitQs: (n: number) => `${n} pregunta${n === 1 ? "" : "s"}`,
+      noQs: "Preguntas pronto", practiceUnit: "Practicar esta unidad", acc: "Precisión", noData: "Aún no has practicado", examDate: "Fecha de tu examen", daysTo: (n: number) => (n === 0 ? "Hoy es el examen" : n > 0 ? `Faltan ${n} días` : "Esa fecha ya pasó"),
+      course: "Curso", mcOnly: "La práctica aquí es de opción múltiple. El examen real también tiene preguntas de respuesta escrita, que esta app todavía no califica. Para esas, usa las preguntas oficiales gratis y sus guías de calificación.",
+      apScore: "Puntaje AP estimado (1 a 5)", fullLead: "Todas las preguntas disponibles de un curso, con reloj a un ritmo parecido al examen real.", openCollege: "AP Classroom oficial y páginas de los cursos",
+    },
+    composite: "Compuesto", tsiLine: (m: number, e: number) => `Las universidades de Texas suelen usar ${m} (Matemáticas) y ${e} (Lectura y escritura) como líneas de preparación. Este estimado es aproximado, así que pregunta en tu universidad.`, above: "En la línea o arriba", below: "Debajo de la línea", realUntimed: "El TSIA2 real no tiene límite de tiempo, así que aquí la práctica es sin reloj por defecto.", aiNote: "Preguntas de inicio revisadas por IA.",
   },
 };
 export type ExamCopy = typeof examCopy.en;

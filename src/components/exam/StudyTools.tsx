@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { bankById } from "@/lib/exam/bank";
-import { EXAMS } from "@/lib/exam/config";
+import { EXAMS, examPath } from "@/lib/exam/config";
+import type { ExamId } from "@/lib/exam/types";
 import { buildTest, newSession, openMistakes, skillStats } from "@/lib/exam/engine";
 import { useLang } from "@/lib/i18n";
 import { useCopy } from "@/lib/use-copy";
@@ -29,10 +30,14 @@ const copy = {
 function useStart() {
   const { setSession } = useExamData();
   const router = useRouter();
+  const bank = bankById();
   return (qids: string[]) => {
-    if (!qids.length) return;
-    setSession(newSession("sat", "section", qids, null));
-    router.push("/t/sat/sections");
+    // A practice set stays inside one exam: the exam of the first question.
+    const exam = bank.get(qids[0])?.exam;
+    const same = qids.filter((id) => bank.get(id)?.exam === exam);
+    if (!exam || !same.length) return;
+    setSession(newSession(exam, "section", same, null));
+    router.push(`${examPath(exam, "sections")}?go`);
   };
 }
 
@@ -79,11 +84,11 @@ export function WeakSpotsTool() {
   const { setSession } = useExamData();
   const bank = bankById();
   const stats = skillStats(attempts);
-  const practice = (section: string, skill: string) => {
-    const qids = buildTest([...bank.values()], { exam: "sat", mode: "section", section, skill, count: 8 });
+  const practice = (exam: ExamId, section: string, skill: string) => {
+    const qids = buildTest([...bank.values()], { exam, mode: "section", section, skill, count: 8 });
     if (!qids.length) return;
-    setSession(newSession("sat", "section", qids, null));
-    router.push("/t/sat/sections");
+    setSession(newSession(exam, "section", qids, null));
+    router.push(`${examPath(exam, "sections")}?go`);
   };
   return (
     <Page>
@@ -95,11 +100,11 @@ export function WeakSpotsTool() {
       ) : (
         <ul className="mt-6 max-w-2xl space-y-4">
           {stats.map((s) => {
-            const name = EXAMS.sat.sections.find((x) => x.id === s.section)?.skills.find((x) => x.id === s.skill)?.[lang] ?? s.skill;
+            const name = `${EXAMS[s.exam].en} · ${EXAMS[s.exam].sections.find((x) => x.id === s.section)?.skills.find((x) => x.id === s.skill)?.[lang] ?? s.skill}`;
             return (
-              <li key={`${s.section}/${s.skill}`}>
+              <li key={`${s.exam}/${s.section}/${s.skill}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2 font-bold"><span>{name} <span className="font-normal text-muted">· {s.correct}/{s.total} {c.answered}</span></span>
-                  <button onClick={() => practice(s.section, s.skill)} className={`${buttonClass.quiet} !py-1`}>{c.practiceSkill}</button></div>
+                  <button onClick={() => practice(s.exam, s.section, s.skill)} className={`${buttonClass.quiet} !py-1`}>{c.practiceSkill}</button></div>
                 <div className="mt-1 h-3 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" aria-hidden="true">
                   <div className={`h-full ${s.pct >= 0.7 ? "bg-palm" : s.pct >= 0.4 ? "bg-marigold" : "bg-ruby"}`} style={{ width: `${Math.round(s.pct * 100)}%` }} />
                 </div>

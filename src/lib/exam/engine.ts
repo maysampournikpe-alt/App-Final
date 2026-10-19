@@ -1,3 +1,4 @@
+import { apScore } from "./ap";
 import { EXAMS, minutesPerQuestion } from "./config";
 import type { Answered, Attempt, ExamId, Question, Session } from "./types";
 
@@ -98,22 +99,31 @@ export function estimate(exam: ExamId, items: Answered[]): Estimate {
     if (!mine.length) return [];
     const correct = mine.filter((i) => i.correct).length;
     const pct = correct / mine.length;
-    const score = Math.min(max, Math.max(min, Math.round((min + (max - min) * pct) / step) * step));
+    const score = exam === "ap" ? apScore(pct) : Math.min(max, Math.max(min, Math.round((min + (max - min) * pct) / step) * step));
     return [{ section: sec.id, correct, total: mine.length, pct, score }];
   });
-  const everySection = sections.length === EXAMS[exam].sections.length && sections.length > 0;
-  return { sections, total: everySection ? sections.reduce((s, x) => s + x.score, 0) : null };
+  const cfg = EXAMS[exam];
+  // The ACT science test is optional, so a composite needs the other sections but not science.
+  const needed = cfg.sections.filter((s) => !(exam === "act" && s.id === "science"));
+  const haveNeeded = needed.every((n) => sections.some((x) => x.section === n.id)) && sections.length > 0;
+  let total: number | null = null;
+  if (haveNeeded && cfg.totalMode === "sum") total = sections.reduce((s, x) => s + x.score, 0);
+  if (haveNeeded && cfg.totalMode === "average") {
+    const core = sections.filter((x) => needed.some((n) => n.id === x.section));
+    total = Math.round(core.reduce((s, x) => s + x.score, 0) / core.length);
+  }
+  return { sections, total };
 }
 
-export interface SkillStat { skill: string; section: string; correct: number; total: number; pct: number }
+export interface SkillStat { exam: ExamId; skill: string; section: string; correct: number; total: number; pct: number }
 
 /** Weak spots across every attempt, weakest first. Needs at least 2 answers in a skill to say anything. */
 export function skillStats(attempts: Attempt[]): SkillStat[] {
   const map = new Map<string, SkillStat>();
   for (const a of attempts) for (const i of a.items) {
     if (!i.answer) continue;
-    const key = `${i.section}/${i.skill}`;
-    const s = map.get(key) ?? { skill: i.skill, section: i.section, correct: 0, total: 0, pct: 0 };
+    const key = `${a.exam}/${i.section}/${i.skill}`;
+    const s = map.get(key) ?? { exam: a.exam, skill: i.skill, section: i.section, correct: 0, total: 0, pct: 0 };
     s.total++; if (i.correct) s.correct++;
     map.set(key, s);
   }

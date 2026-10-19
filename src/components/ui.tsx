@@ -97,3 +97,27 @@ export function Field({
   );
 }
 export const inputClass = "w-full rounded-md border-[1.5px] border-ink bg-surface px-3 py-2.5 text-lg placeholder:text-muted aria-[invalid=true]:border-ruby";
+
+/** Ready tools first as a contents list. Tools that are not built yet fold away so the page stays clean. */
+export function ToolList({ tools }: { tools: Tool[] }) {
+  const t = useT();
+  const ready = tools.filter((x) => x.status === "built");
+  const soon = tools.filter((x) => x.status !== "built");
+  return (
+    <>
+      {ready.length ? (
+        <ul className="divide-y-2 divide-dotted divide-line">
+          {ready.map((tool) => <li key={tool.key}><IndexRow tool={tool} href={`/t/${tool.key}`} /></li>)}
+        </ul>
+      ) : null}
+      {soon.length ? (
+        <details className="mt-2">
+          <summary className="cursor-pointer py-2 font-bold text-muted hover:text-ink">{t("comingSoon")} ({soon.length})</summary>
+          <ul className="divide-y-2 divide-dotted divide-line">
+            {soon.map((tool) => <li key={tool.key}><IndexRow tool={tool} href={`/t/${tool.key}`} /></li>)}
+          </ul>
+        </details>
+      ) : null}
+    </>
+  );
+}

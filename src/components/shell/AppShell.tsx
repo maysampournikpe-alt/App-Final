@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, X, Ellipsis } from "lucide-react";
-import { findTab } from "@/config/features";
+import { findHub } from "@/config/features";
 import { ICONS } from "@/config/icons";
 import { BRAND } from "@/config/brand";
 import { useLang, useT } from "@/lib/i18n";
@@ -108,24 +108,22 @@ function BottomBar({ onMore }: { onMore: () => void }) {
   const lang = useLang();
   const prefs = usePrefs();
   const pathname = usePathname();
-  const tabs = prefs.bottomTabs.map((id) => findTab(id)?.tab).filter((x): x is NonNullable<typeof x> => !!x).slice(0, 5);
+  // Saved choices from before the hubs existed hold old tab ids; those are ignored.
+  const hubs = prefs.bottomTabs.map((id) => findHub(id)).filter((x): x is NonNullable<typeof x> => !!x).slice(0, 4);
+  const shown = hubs.length ? hubs : ["discover", "learn", "testprep", "plan"].map((id) => findHub(id)!);
+  const hubOfPath = pathname.startsWith("/h/") ? pathname.split("/")[2] : null;
   return (
     <nav aria-label="Main" className="no-print fixed inset-x-0 bottom-0 z-40 border-t-[1.5px] border-ink bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
       <ul className="mx-auto flex max-w-xl items-stretch">
-        {tabs.map((tab) => {
-          const Icon = ICONS[tab.icon];
-          const active = pathname.startsWith(`/t/${tab.id}`);
+        {shown.map((hub) => {
+          const Icon = ICONS[hub.icon];
+          const active = hubOfPath === hub.id || (!!hubOfPath === false && hub.tabs.some((tid) => pathname.startsWith(`/t/${tid}`)));
           return (
-            <li key={tab.id} className="flex-1">
-              <Link
-                href={`/t/${tab.id}`}
-                aria-current={active ? "page" : undefined}
-                className={`flex h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-bold leading-tight ${active ? "text-teal" : "text-ink"}`}
-              >
-                <span className={`grid h-7 w-12 place-items-center rounded-full ${active ? "bg-teal text-on-teal" : ""}`}>
-                  <Icon size={18} strokeWidth={1.75} />
-                </span>
-                <span className="max-w-full truncate px-1">{tab.name[lang]}</span>
+            <li key={hub.id} className="flex-1">
+              <Link href={`/h/${hub.id}`} aria-current={active ? "page" : undefined}
+                className={`flex h-14 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-bold leading-tight ${active ? "text-teal" : "text-ink"}`}>
+                <span className={`grid h-7 w-12 place-items-center rounded-full ${active ? "bg-teal text-on-teal" : ""}`}><Icon size={18} strokeWidth={1.75} /></span>
+                <span className="max-w-full truncate px-1">{hub.name[lang]}</span>
               </Link>
             </li>
           );

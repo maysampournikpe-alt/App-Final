@@ -1,9 +1,9 @@
-export type ExamId = "sat" | "psat" | "act" | "tsi";
+export type ExamId = "sat" | "psat" | "act" | "tsi" | "ap";
 
 /** One practice question. Math can use $...$ for LaTeX. Same shape for every exam. */
 export interface Question {
   id: string;
-  exam: "sat" | "act" | "tsi";   // which bank it belongs to (the PSAT reuses the SAT bank)
+  exam: "sat" | "act" | "tsi" | "ap";   // which bank it belongs to (the PSAT reuses the SAT bank)
   section: string;               // e.g. "rw", "math"
   skill: string;                 // e.g. "algebra"
   difficulty: 1 | 2 | 3;
@@ -35,7 +35,11 @@ export interface ExamConfig {
   sections: SectionConfig[];
   /** Section score range on the real scale, for the estimate. */
   sectionScale: { min: number; max: number; step: number };
+  /** How a total is made from section scores. The ACT averages; the TSI has no total. */
+  totalMode: "sum" | "average" | "none";
   maxDifficulty?: 1 | 2 | 3;
+  /** False for tests with no real time limit (the TSIA2), so practice defaults to untimed. */
+  realTimed?: boolean;
 }
 
 export interface Answered { qid: string; section: string; skill: string; answer: string; correct: boolean }

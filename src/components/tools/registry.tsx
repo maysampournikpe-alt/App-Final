@@ -8,6 +8,7 @@ import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
 import { HomeworkTool } from "./Homework";
+import { ApCoursesTool, ApDashboardTool } from "../exam/ApTools";
 import { ExamTool } from "../exam/ExamTool";
 import { MistakesTool, WeakSpotsTool } from "../exam/StudyTools";
 import { PlanTool } from "./Plan";
@@ -61,6 +62,25 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "psat/full": clientOnly(() => <ExamTool exam="psat" view="full" />),
   "psat/scores": clientOnly(() => <ExamTool exam="psat" view="scores" />),
   "psat/resources": clientOnly(() => <ExamTool exam="psat" view="resources" />),
+  "act/overview": clientOnly(() => <ExamTool exam="act" view="overview" />),
+  "act/diagnostic": clientOnly(() => <ExamTool exam="act" view="diagnostic" />),
+  "act/sections": clientOnly(() => <ExamTool exam="act" view="sections" />),
+  "act/full": clientOnly(() => <ExamTool exam="act" view="full" />),
+  "act/scores": clientOnly(() => <ExamTool exam="act" view="scores" />),
+  "act/resources": clientOnly(() => <ExamTool exam="act" view="resources" />),
+  "tsi/overview": clientOnly(() => <ExamTool exam="tsi" view="overview" />),
+  "tsi/diagnostic": clientOnly(() => <ExamTool exam="tsi" view="diagnostic" />),
+  "tsi/sections": clientOnly(() => <ExamTool exam="tsi" view="sections" />),
+  "tsi/full": clientOnly(() => <ExamTool exam="tsi" view="full" />),
+  "tsi/scores": clientOnly(() => <ExamTool exam="tsi" view="scores" />),
+  "tsi/resources": clientOnly(() => <ExamTool exam="tsi" view="resources" />),
+  "ap/courses": clientOnly(ApCoursesTool),
+  "ap/dashboard": clientOnly(ApDashboardTool),
+  "ap/quizzes": clientOnly(() => <ExamTool exam="ap" view="sections" />),
+  "ap/exam": clientOnly(() => <ExamTool exam="ap" view="full" />),
+  "ap/score": clientOnly(() => <ExamTool exam="ap" view="scores" />),
+  "ap/weak": clientOnly(WeakSpotsTool),
+  "ap/resources": clientOnly(() => <ExamTool exam="ap" view="resources" />),
   "find/search": clientOnly(FindTool),
   "find/saved": clientOnly(SavedTool),
   "find/scams": ScamGuideTool,

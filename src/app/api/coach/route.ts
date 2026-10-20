@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     const stream = await groqStream({
       model: AI.models.chat,
       timeoutSeconds: AI.chatTimeoutSeconds,
-      maxTokens: 700,
+      maxTokens: 500,
       messages: [
         { role: "system", content: systemPrompt(req.mode as never, req.lang, { grade: req.grade, interests: req.interests }) },
         ...trimHistory(req.messages),

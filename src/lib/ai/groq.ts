@@ -45,14 +45,71 @@ export async function availableModels(key: string): Promise<string[]> {
   }
 }
 
-/** The configured model if the account has it, else the first listed fallback it has, else the configured name. */
-async function pickModel(wanted: string, key: string): Promise<string> {
+const isOss = (m: string) => m.startsWith("openai/gpt-oss");
+
+/** Models to try, best first: the configured one, then the fallbacks this account actually has. */
+async function candidates(wanted: string, key: string): Promise<string[]> {
   const ids = await availableModels(key);
-  if (!ids.length || ids.includes(wanted)) return wanted;
   const pool = wanted.includes("compound") ? AI.fallbacks.search : AI.fallbacks.chat;
-  const found = pool.find((m) => ids.includes(m));
-  if (found) console.warn(`groq model ${wanted} not in account, using ${found}`);
-  return found ?? wanted;
+  const list = [wanted, ...pool].filter((m, i, all) => all.indexOf(m) === i);
+  const have = ids.length ? list.filter((m) => ids.includes(m)) : list;
+  return have.length ? have : [wanted];
+}
+
+function requestBody(model: string, args: ChatArgs, stream: boolean): string {
+  const wantsSearch = args.model.includes("compound");
+  const gptOss = isOss(model);
+  return JSON.stringify({
+    model,
+    // gpt-oss has no Compound-style search, but Groq gives it a built-in browser tool.
+    ...(wantsSearch && gptOss ? { tools: [{ type: "browser_search" }], tool_choice: "auto" } : {}),
+    ...(gptOss ? { reasoning_effort: "low" } : {}),
+    messages: args.messages,
+    temperature: args.temperature ?? (stream ? 0.5 : 0.2),
+    // Always cap the answer: Groq counts the cap (not the real length) against the per-minute limit,
+    // and a model's default cap is huge. gpt-oss also spends tokens on hidden reasoning.
+    max_tokens: (args.maxTokens ?? 3000) + (gptOss ? 600 : 0),
+    ...(stream ? { stream: true } : {}),
+    ...(model.includes("compound") && args.excludeDomains?.length ? { search_settings: { exclude_domains: [...args.excludeDomains] } } : {}),
+  });
+}
+
+/**
+ * Sends the request. Groq limits each model separately, so when one is full (429) or missing (404)
+ * the next model is tried instead of showing students an error.
+ */
+async function send(args: ChatArgs, key: string, stream: boolean): Promise<Response> {
+  const models = await candidates(args.model, key);
+  const deadline = Date.now() + args.timeoutSeconds * 1000;
+  let last: Response | null = null;
+  for (let i = 0; i < models.length; i++) {
+    let res: Response;
+    try {
+      res = await fetch(`${AI.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: requestBody(models[i], args, stream),
+        signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())),
+      });
+    } catch (e) {
+      throw new AiError((e as Error).name === "TimeoutError" ? "timeout" : "upstream");
+    }
+    if ((res.status === 429 || res.status === 404) && i < models.length - 1) {
+      console.warn(`groq ${models[i]} answered ${res.status}, trying ${models[i + 1]}`);
+      last = res;
+      await res.text().catch(() => "");
+      continue;
+    }
+    return res;
+  }
+  return last!;
+}
+
+async function failure(res: Response, what: string): Promise<AiError> {
+  const detail = (await res.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 220);
+  console.error(what, res.status, detail);
+  const code = res.status === 401 || res.status === 403 ? "auth" : res.status === 404 ? "model" : res.status === 429 ? "rate" : "upstream";
+  return new AiError(code, `${res.status} ${detail}`);
 }
 
 const fixture = (kind?: string): ChatReply => kind === "plan" ? ({
@@ -84,38 +141,8 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");
 
-  const model = await pickModel(args.model, key);
-  const isCompound = model.includes("compound");
-  const wantsSearch = args.model.includes("compound");
-  const isGptOss = model.startsWith("openai/gpt-oss");
-  const body: Record<string, unknown> = {
-    model,
-    // gpt-oss has no Compound-style search, but Groq gives it a built-in browser tool.
-    ...(wantsSearch && !isCompound && isGptOss ? { tools: [{ type: "browser_search" }], tool_choice: "auto" } : {}),
-    ...(isGptOss ? { reasoning_effort: "low" } : {}),
-    messages: args.messages,
-    temperature: args.temperature ?? 0.2,
-    // Always cap the answer: Groq counts the cap (not the real length) against the per-minute limit,
-    // and a model's default cap is huge.
-    max_tokens: (args.maxTokens ?? 3000) + (isGptOss ? 1500 : 0),
-    ...(isCompound && args.excludeDomains?.length ? { search_settings: { exclude_domains: [...args.excludeDomains] } } : {}),
-  };
-  let res: Response;
-  try {
-    res = await fetch(`${AI.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
-    });
-  } catch (e) {
-    throw new AiError((e as Error).name === "TimeoutError" ? "timeout" : "upstream");
-  }
-  if (!res.ok) {
-    const detail = (await res.text().catch(() => "")).slice(0, 300); // logged on the server only
-    console.error("groq error", res.status, detail);
-    throw new AiError(res.status === 401 || res.status === 403 ? "auth" : res.status === 404 ? "model" : res.status === 429 ? "rate" : "upstream", `${res.status} ${detail.replace(/\s+/g, " ").slice(0, 220)}`);
-  }
+  const res = await send(args, key, false);
+  if (!res.ok) throw await failure(res, "groq error");
   const json = await res.json();
   const message = json?.choices?.[0]?.message;
   const content: string = typeof message?.content === "string" ? message.content : "";
@@ -142,22 +169,8 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
   }
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");
-  const model = await pickModel(args.model, key);
-  let res: Response;
-  try {
-    res = await fetch(`${AI.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}), messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens + (model.startsWith("openai/gpt-oss") ? 1500 : 0) } : {}) }),
-      signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
-    });
-  } catch (e) {
-    throw new AiError((e as Error).name === "TimeoutError" ? "timeout" : "upstream");
-  }
-  if (!res.ok || !res.body) {
-    console.error("groq stream error", res.status, (await res.text().catch(() => "")).slice(0, 300));
-    throw new AiError(res.status === 401 || res.status === 403 ? "auth" : res.status === 404 ? "model" : res.status === 429 ? "rate" : "upstream", String(res.status));
-  }
+  const res = await send(args, key, true);
+  if (!res.ok || !res.body) throw await failure(res, "groq stream error");
   const { parseSseText } = await import("./coach");
   const reader = res.body.getReader();
   const dec = new TextDecoder();

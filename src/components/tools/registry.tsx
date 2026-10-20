@@ -4,6 +4,12 @@ import { Page } from "../ui";
 import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
+import { CornellTool } from "./Cornell";
+import { CountdownTool } from "./Countdown";
+import { FlashcardsTool } from "./Flashcards";
+import { HabitsTool } from "./Habits";
+import { MoneyTool } from "./Money";
+import { UnitsTool } from "./Units";
 import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
@@ -88,5 +94,14 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "grades/grade": clientOnly(GradeCalcTool),
   "focus/pomodoro": clientOnly(PomodoroTool),
   "homework/tracker": clientOnly(HomeworkTool),
+  "notes/cornell": clientOnly(CornellTool),
+  "notes/flashcards": clientOnly(() => <FlashcardsTool view="make" />),
+  "notes/spaced": clientOnly(() => <FlashcardsTool view="review" />),
+  "habits/tracker": clientOnly(HabitsTool),
+  "calendar/countdown": clientOnly(CountdownTool),
+  "math/units": clientOnly(UnitsTool),
+  "money/compound": clientOnly(() => <MoneyTool view="compound" />),
+  "money/savings": clientOnly(() => <MoneyTool view="savings" />),
+  "money/paycheck": clientOnly(() => <MoneyTool view="paycheck" />),
   "homework/backward": clientOnly(BackwardTool),
 };

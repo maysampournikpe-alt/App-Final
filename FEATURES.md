@@ -4,17 +4,17 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**56 of 265 features built.**
+**65 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
 | Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
-| Phase 2: Family, school, portfolio, deadlines, applications | 0 | 30 |
+| Phase 2: Family, school, portfolio, deadlines, applications | 1 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
-| Phase 4: Study tools and skill building | 1 | 56 |
-| Phase 5: Planning, productivity and life skills | 0 | 40 |
+| Phase 4: Study tools and skill building | 5 | 56 |
+| Phase 5: Planning, productivity and life skills | 4 | 40 |
 | Phase 6: People | 0 | 9 |
 | Phase 7: Wellbeing | 0 | 5 |
 | Phase 8: Local resources | 0 | 7 |
@@ -121,15 +121,15 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Cornell notes | 4 | Future plan | [LOCAL] |
+| Cornell notes | 4 | Built | [LOCAL] |
 | Mind map maker | 4 | Future plan | [LOCAL] |
 | Outline builder | 4 | Future plan | [LOCAL] |
 | Note summarizer | 4 | Future plan |  |
 | Notes to quiz | 4 | Future plan |  |
 | Photo to notes | 4 | Future plan |  |
 | Lecture recorder | 4 | Future plan |  |
-| Flashcard maker | 4 | Future plan |  |
-| Spaced repetition review | 4 | Future plan | [LOCAL] |
+| Flashcard maker | 4 | Built |  |
+| Spaced repetition review | 4 | Built | [LOCAL] |
 | Memory palace trainer | 4 | Future plan | [LOCAL] |
 | Mnemonic generator | 4 | Future plan |  |
 
@@ -141,7 +141,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Graphing calculator | 4 | Future plan | [LOCAL] |
 | Fraction and percent helper | 4 | Future plan | [LOCAL] |
 | Geometry shape calculator | 4 | Future plan | [LOCAL] |
-| Unit converter | 4 | Future plan | [LOCAL] |
+| Unit converter | 4 | Built | [LOCAL] |
 | Formula sheets | 4 | Future plan | [LOCAL] |
 | Periodic table | 4 | Future plan | [LOCAL] |
 | Equation balancer | 4 | Future plan | [LOCAL] |
@@ -277,7 +277,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Deadline calendar | 2 | Future plan |  |
 | Reminders | 2 | Future plan |  |
-| Countdown widgets | 2 | Future plan | [LOCAL] |
+| Countdown widgets | 2 | Built | [LOCAL] |
 | School year calendar | 2 | Future plan | [LOCAL] |
 | Class schedule | 5 | Future plan | [LOCAL] |
 | Semester at a glance | 5 | Future plan | [LOCAL] |
@@ -323,7 +323,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Habit tracker | 5 | Future plan | [LOCAL] |
+| Habit tracker | 5 | Built | [LOCAL] |
 | Habit stacking helper | 5 | Future plan | [LOCAL] |
 | SMART goal builder | 5 | Future plan | [LOCAL] |
 | Goal ladder | 5 | Future plan | [LOCAL] |
@@ -369,9 +369,9 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Budget planner | 5 | Future plan |  |
-| Paycheck calculator | 5 | Future plan | [LOCAL] |
-| Savings goal tracker | 5 | Future plan | [LOCAL] |
-| Compound interest | 5 | Future plan | [LOCAL] |
+| Paycheck calculator | 5 | Built | [LOCAL] |
+| Savings goal tracker | 5 | Built | [LOCAL] |
+| Compound interest | 5 | Built | [LOCAL] |
 | Teen work law guide | 5 | Future plan |  |
 
 ### Grow

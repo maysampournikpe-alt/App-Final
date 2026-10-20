@@ -87,6 +87,15 @@ export const BUILT = new Set<string>([
   "focus/pomodoro",
   "homework/tracker",
   "homework/backward",
+  "notes/cornell",
+  "notes/flashcards",
+  "notes/spaced",
+  "habits/tracker",
+  "calendar/countdown",
+  "math/units",
+  "money/compound",
+  "money/savings",
+  "money/paycheck",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

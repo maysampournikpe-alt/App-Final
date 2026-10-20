@@ -102,3 +102,12 @@ describe("unit converter", () => {
     expect(niceNumber(NaN)).toBe("");
   });
 });
+
+import { cleanSupabaseUrl } from "../src/lib/supabase/env";
+describe("supabase url", () => {
+  it("tidies pasted addresses", () => {
+    expect(cleanSupabaseUrl("https://abc.supabase.co")).toBe("https://abc.supabase.co");
+    expect(cleanSupabaseUrl("https://abc.supabase.co/")).toBe("https://abc.supabase.co");
+    expect(cleanSupabaseUrl(" https://abc.supabase.co/rest/v1/ ")).toBe("https://abc.supabase.co");
+  });
+});

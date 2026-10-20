@@ -162,14 +162,19 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
   let buf = "";
   return new ReadableStream({
     async pull(c) {
+      // Keep reading until there is text to hand over: a chunk with no text (the model's hidden
+      // reasoning) must not end this pull, or the stream stalls waiting for a call that never comes.
       try {
-        const { value, done } = await reader.read();
-        if (done) return c.close();
-        buf += dec.decode(value, { stream: true });
-        const out = parseSseText(buf);
-        buf = out.rest;
-        if (out.text) c.enqueue(enc.encode(out.text));
-        if (out.done) { c.close(); reader.cancel().catch(() => {}); }
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) return c.close();
+          buf += dec.decode(value, { stream: true });
+          const out = parseSseText(buf);
+          buf = out.rest;
+          if (out.text) c.enqueue(enc.encode(out.text));
+          if (out.done) { c.close(); reader.cancel().catch(() => {}); return; }
+          if (out.text) return;
+        }
       } catch {
         c.close();
       }

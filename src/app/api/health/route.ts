@@ -55,7 +55,9 @@ export async function GET(request: Request) {
         giveUp,
       ]);
     };
+    const bigAsk = { ...ask, maxTokens: undefined, timeoutSeconds: 7, messages: [{ role: "user" as const, content: "Write a JSON object with keys title, summary and three short steps for the goal: make 50 dollars." }] };
     const results = await Promise.all([
+      timed("plan-sized", async () => `"${(await groqChat(bigAsk)).content.slice(0, 60)}"`),
       timed("chat", async () => `"${(await groqChat(ask)).content.slice(0, 80)}"`),
       timed("stream", async () => {
         const text = await new Response(await groqStream(ask)).text();

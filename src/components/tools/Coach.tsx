@@ -110,6 +110,7 @@ export function CoachTool({ kind }: { kind: Kind }) {
           acc += dec.decode(value, { stream: true });
           setLive(acc);
         }
+        if (!acc.trim()) setError("failed");
       }
     } catch (e) {
       if ((e as Error).name !== "AbortError") setError(navigator.onLine ? "failed" : "offline");

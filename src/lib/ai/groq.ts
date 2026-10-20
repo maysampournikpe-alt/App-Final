@@ -95,7 +95,7 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
     ...(isGptOss ? { reasoning_effort: wantsSearch ? "medium" : "low" } : {}),
     messages: args.messages,
     temperature: args.temperature ?? 0.2,
-    ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}),
+    ...(args.maxTokens ? { max_tokens: args.maxTokens + (isGptOss ? 2000 : 0) } : {}),
     ...(isCompound && args.excludeDomains?.length ? { search_settings: { exclude_domains: [...args.excludeDomains] } } : {}),
   };
   let res: Response;
@@ -146,7 +146,7 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
     res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}), messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens } : {}) }),
+      body: JSON.stringify({ model, ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}), messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens + (model.startsWith("openai/gpt-oss") ? 2000 : 0) } : {}) }),
       signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
     });
   } catch (e) {

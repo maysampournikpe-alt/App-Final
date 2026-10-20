@@ -96,6 +96,12 @@ export const BUILT = new Set<string>([
   "money/compound",
   "money/savings",
   "money/paycheck",
+  "homework/todo",
+  "homework/eisenhower",
+  "math/fractions",
+  "math/geometry",
+  "math/drills",
+  "habits/smart",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

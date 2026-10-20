@@ -6,6 +6,11 @@ import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
 import { CornellTool } from "./Cornell";
 import { CountdownTool } from "./Countdown";
+import { DrillsTool } from "./Drills";
+import { FractionsTool } from "./Fractions";
+import { GeometryTool } from "./Geometry";
+import { SmartTool } from "./Smart";
+import { TasksTool } from "./Tasks";
 import { FlashcardsTool } from "./Flashcards";
 import { HabitsTool } from "./Habits";
 import { MoneyTool } from "./Money";
@@ -98,6 +103,12 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "notes/flashcards": clientOnly(() => <FlashcardsTool view="make" />),
   "notes/spaced": clientOnly(() => <FlashcardsTool view="review" />),
   "habits/tracker": clientOnly(HabitsTool),
+  "habits/smart": clientOnly(SmartTool),
+  "homework/todo": clientOnly(() => <TasksTool view="todo" />),
+  "homework/eisenhower": clientOnly(() => <TasksTool view="matrix" />),
+  "math/fractions": clientOnly(FractionsTool),
+  "math/geometry": clientOnly(GeometryTool),
+  "math/drills": clientOnly(DrillsTool),
   "calendar/countdown": clientOnly(CountdownTool),
   "math/units": clientOnly(UnitsTool),
   "money/compound": clientOnly(() => <MoneyTool view="compound" />),

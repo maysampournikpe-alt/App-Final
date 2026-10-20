@@ -111,3 +111,108 @@ describe("supabase url", () => {
     expect(cleanSupabaseUrl(" https://abc.supabase.co/rest/v1/ ")).toBe("https://abc.supabase.co");
   });
 });
+
+import { gcd, solve, simplify, mixed, fromDecimal, toPercent } from "../src/lib/fractions";
+import { measure, SHAPES } from "../src/lib/geometry";
+import { makeQuestions, bestFor } from "../src/lib/drills";
+import { quadrantOf, canAddTop, topTasks, type Task } from "../src/lib/tasks";
+import { smartReady } from "../src/lib/smart";
+
+describe("fractions", () => {
+  it("adds with a common denominator and simplifies", () => {
+    expect(solve({ n: 1, d: 2 }, "+", { n: 1, d: 3 })!.result).toEqual({ n: 5, d: 6 });
+    expect(solve({ n: 1, d: 4 }, "+", { n: 1, d: 4 })!.result).toEqual({ n: 1, d: 2 });
+  });
+  it("subtracts, multiplies and divides", () => {
+    expect(solve({ n: 3, d: 4 }, "-", { n: 1, d: 6 })!.result).toEqual({ n: 7, d: 12 });
+    expect(solve({ n: 2, d: 3 }, "×", { n: 3, d: 4 })!.result).toEqual({ n: 1, d: 2 });
+    expect(solve({ n: 1, d: 2 }, "÷", { n: 3, d: 4 })!.result).toEqual({ n: 2, d: 3 });
+  });
+  it("refuses impossible input", () => {
+    expect(solve({ n: 1, d: 0 }, "+", { n: 1, d: 2 })).toBeNull();
+    expect(solve({ n: 1, d: 2 }, "÷", { n: 0, d: 5 })).toBeNull();
+  });
+  it("shows steps", () => expect(solve({ n: 1, d: 2 }, "+", { n: 1, d: 3 })!.steps.join(" ")).toContain("Common denominator: 6"));
+  it("gcd, mixed numbers, decimals, percent", () => {
+    expect(gcd(12, 18)).toBe(6);
+    expect(simplify({ n: 2, d: -4 })).toEqual({ n: -1, d: 2 });
+    expect(mixed({ n: 7, d: 3 })).toEqual({ whole: 2, rest: { n: 1, d: 3 } });
+    expect(fromDecimal(0.375)).toEqual({ n: 3, d: 8 });
+    expect(toPercent({ n: 3, d: 8 })).toBe(37.5);
+  });
+});
+
+describe("geometry", () => {
+  const val = (id: Parameters<typeof measure>[0], v: Record<string, number>, key: string) => measure(id, v)!.find((x) => x.key === key)!.value;
+  it("flat shapes", () => {
+    expect(val("rectangle", { l: 5, w: 3 }, "area")).toBe(15);
+    expect(val("rectangle", { l: 5, w: 3 }, "perimeter")).toBe(16);
+    expect(val("circle", { r: 1 }, "area")).toBeCloseTo(Math.PI, 9);
+    expect(val("triangle", { a: 3, b: 4, c: 5 }, "area")).toBeCloseTo(6, 9);
+    expect(val("trapezoid", { a: 3, b: 5, h: 2, c: 2, e: 2 }, "area")).toBe(8);
+    expect(val("parallelogram", { b: 4, h: 3, s: 5 }, "area")).toBe(12);
+  });
+  it("solids", () => {
+    expect(val("box", { l: 2, w: 3, h: 4 }, "volume")).toBe(24);
+    expect(val("box", { l: 2, w: 3, h: 4 }, "surface")).toBe(52);
+    expect(val("cube", { s: 3 }, "volume")).toBe(27);
+    expect(val("cylinder", { r: 1, h: 2 }, "volume")).toBeCloseTo(2 * Math.PI, 9);
+    expect(val("sphere", { r: 3 }, "volume")).toBeCloseTo(36 * Math.PI, 9);
+    expect(val("cone", { r: 3, h: 4 }, "volume")).toBeCloseTo(12 * Math.PI, 9);
+    expect(val("cone", { r: 3, h: 4 }, "surface")).toBeCloseTo(24 * Math.PI, 9); // slant height 5
+  });
+  it("rejects missing, zero and impossible sizes", () => {
+    expect(measure("rectangle", { l: 5 })).toBeNull();
+    expect(measure("circle", { r: 0 })).toBeNull();
+    expect(measure("triangle", { a: 1, b: 2, c: 10 })).toBeNull();
+  });
+  it("every shape has a measurement set", () => {
+    for (const s of SHAPES) {
+      const sizes = Object.fromEntries(s.dims.map((x) => [x.key, 3]));
+      expect(measure(s.id, sizes), s.id).not.toBeNull();
+    }
+  });
+});
+
+describe("math drills", () => {
+  const seeded = () => { let x = 7; return () => ((x = (x * 16807) % 2147483647) / 2147483647); };
+  it("makes whole, non-negative answers for every operation", () => {
+    for (const op of ["+", "-", "×", "÷"] as const) {
+      for (const q of makeQuestions(op, 12, 200, seeded())) {
+        expect(Number.isInteger(q.answer), `${q.a}${op}${q.b}`).toBe(true);
+        expect(q.answer).toBeGreaterThanOrEqual(0);
+        if (op === "÷") expect(q.b).toBeGreaterThan(0);
+      }
+    }
+  });
+  it("division questions divide evenly", () => { for (const q of makeQuestions("÷", 12, 100, seeded())) expect(q.a % q.b).toBe(0); });
+  it("finds the fastest perfect run", () => {
+    const s = [{ op: "×" as const, max: 12, right: 10, total: 10, seconds: 40, date: "d" }, { op: "×" as const, max: 12, right: 10, total: 10, seconds: 30, date: "d" }, { op: "×" as const, max: 12, right: 9, total: 10, seconds: 10, date: "d" }];
+    expect(bestFor(s, "×", 12)!.seconds).toBe(30);
+  });
+});
+
+describe("to-do and matrix", () => {
+  const t = (o: Partial<Task>): Task => ({ id: "1", title: "x", done: false, urgent: false, important: false, top: false, created: "2026-10-01", ...o });
+  it("sorts into the four boxes", () => {
+    expect(quadrantOf(t({ urgent: true, important: true }))).toBe("do");
+    expect(quadrantOf(t({ important: true }))).toBe("plan");
+    expect(quadrantOf(t({ urgent: true }))).toBe("quick");
+    expect(quadrantOf(t({}))).toBe("drop");
+  });
+  it("allows only three top priorities, ignoring finished ones", () => {
+    const three = [t({ id: "a", top: true }), t({ id: "b", top: true }), t({ id: "c", top: true })];
+    expect(canAddTop(three)).toBe(false);
+    expect(canAddTop([...three.slice(0, 2), t({ id: "c", top: true, done: true })])).toBe(true);
+    expect(topTasks(three)).toHaveLength(3);
+  });
+});
+
+describe("smart goals", () => {
+  it("needs every part and a date", () => {
+    const ok = { specific: "Run a 5K", measurable: "3 runs a week", achievable: "I run twice now", relevant: "Soccer fitness", by: "2026-12-01" };
+    expect(smartReady(ok)).toBe(true);
+    expect(smartReady({ ...ok, specific: "a" })).toBe(false);
+    expect(smartReady({ ...ok, by: "" })).toBe(false);
+  });
+});

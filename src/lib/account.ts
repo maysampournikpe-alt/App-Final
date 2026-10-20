@@ -16,8 +16,9 @@ export type Account =
   | { status: "unavailable" }
   | { status: "signed-in"; profile: AccountProfile };
 
+const LOADING: Account = { status: "loading" };
 const listeners = new Set<() => void>();
-let state: Account = { status: "loading" };
+let state: Account = LOADING;
 let started = false;
 
 export async function refreshAccount() {
@@ -43,6 +44,6 @@ export function useAccount(): Account {
       return () => listeners.delete(cb);
     },
     () => state,
-    () => ({ status: "loading" }) as Account,
+    () => LOADING, // one shared object: React requires the server snapshot to be the same value each call
   );
 }

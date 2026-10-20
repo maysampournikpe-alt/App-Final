@@ -92,10 +92,12 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
     model,
     // gpt-oss has no Compound-style search, but Groq gives it a built-in browser tool.
     ...(wantsSearch && !isCompound && isGptOss ? { tools: [{ type: "browser_search" }], tool_choice: "auto" } : {}),
-    ...(isGptOss ? { reasoning_effort: wantsSearch ? "medium" : "low" } : {}),
+    ...(isGptOss ? { reasoning_effort: "low" } : {}),
     messages: args.messages,
     temperature: args.temperature ?? 0.2,
-    ...(args.maxTokens ? { max_tokens: args.maxTokens + (isGptOss ? 2000 : 0) } : {}),
+    // Always cap the answer: Groq counts the cap (not the real length) against the per-minute limit,
+    // and a model's default cap is huge.
+    max_tokens: (args.maxTokens ?? 3000) + (isGptOss ? 1500 : 0),
     ...(isCompound && args.excludeDomains?.length ? { search_settings: { exclude_domains: [...args.excludeDomains] } } : {}),
   };
   let res: Response;
@@ -112,7 +114,7 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
   if (!res.ok) {
     const detail = (await res.text().catch(() => "")).slice(0, 300); // logged on the server only
     console.error("groq error", res.status, detail);
-    throw new AiError(res.status === 401 || res.status === 403 ? "auth" : res.status === 404 ? "model" : res.status === 429 ? "rate" : "upstream", String(res.status));
+    throw new AiError(res.status === 401 || res.status === 403 ? "auth" : res.status === 404 ? "model" : res.status === 429 ? "rate" : "upstream", `${res.status} ${detail.replace(/\s+/g, " ").slice(0, 220)}`);
   }
   const json = await res.json();
   const message = json?.choices?.[0]?.message;
@@ -146,7 +148,7 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
     res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}), messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens + (model.startsWith("openai/gpt-oss") ? 2000 : 0) } : {}) }),
+      body: JSON.stringify({ model, ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}), messages: args.messages, temperature: args.temperature ?? 0.5, stream: true, ...(args.maxTokens ? { max_tokens: args.maxTokens + (model.startsWith("openai/gpt-oss") ? 1500 : 0) } : {}) }),
       signal: AbortSignal.timeout(args.timeoutSeconds * 1000),
     });
   } catch (e) {

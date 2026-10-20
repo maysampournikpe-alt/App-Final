@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { AI } from "@/config/ai";
 import { groqChat, groqStream } from "@/lib/ai/groq";
-import { hasSupabasePublic } from "@/lib/supabase/env";
+import { hasSupabasePublic, SUPABASE_URL_WAS_MESSY } from "@/lib/supabase/env";
 import { hasSupabaseServer, supabaseAdmin } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,7 @@ export async function GET(request: Request) {
     supabaseServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     groqApiKey: !!process.env.GROQ_API_KEY,
     aiFixtureMode: process.env.AI_FIXTURES === "1",
+    supabaseUrlNeededTidying: SUPABASE_URL_WAS_MESSY,
   };
   const db: Record<string, string> = {};
   if (hasSupabaseServer()) {

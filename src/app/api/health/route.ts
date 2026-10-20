@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   let groqModels: string[] = [];
   if (env.groqApiKey && !env.aiFixtureMode) {
     try {
-      const res = await fetch(`${AI.baseUrl}/models`, { headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` }, signal: AbortSignal.timeout(8000) });
+      const res = await fetch(`${AI.baseUrl}/models`, { headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` }, signal: AbortSignal.timeout(4000) });
       if (res.ok) {
         const ids: string[] = ((await res.json()).data ?? []).map((m: { id: string }) => m.id);
         groq = `ok (${ids.length} models). ` + Object.entries(AI.models).map(([k, m]) => `${k}: ${ids.includes(m) ? "found" : "NOT FOUND in your account"} (${m})`).join("; ");
@@ -45,11 +45,15 @@ export async function GET(request: Request) {
   // /api/health?ai=1 also asks the chat model one tiny question and shows what came back.
   let aiTest: string | undefined;
   if (new URL(request.url).searchParams.has("ai") && env.groqApiKey && !env.aiFixtureMode) {
-    const ask = { model: AI.models.chat, timeoutSeconds: 20, maxTokens: 50, messages: [{ role: "user" as const, content: "Say hello in five words." }] };
+    const ask = { model: AI.models.chat, timeoutSeconds: 7, maxTokens: 50, messages: [{ role: "user" as const, content: "Say hello in five words." }] };
+    // Stop at 8 seconds whatever happens, so this page answers even when Groq does not (some hosts cut functions off at 10).
     const timed = async (name: string, run: () => Promise<string>) => {
       const t0 = Date.now();
-      try { return `${name}: ${await run()} (${Date.now() - t0} ms)`; }
-      catch (e) { return `${name} FAILED: ${(e as Error).message} (${Date.now() - t0} ms)`; }
+      const giveUp = new Promise<string>((r) => setTimeout(() => r(`${name}: NO ANSWER after 8 s`), 8000));
+      return Promise.race([
+        run().then((v) => `${name}: ${v} (${Date.now() - t0} ms)`, (e) => `${name} FAILED: ${(e as Error).message} (${Date.now() - t0} ms)`),
+        giveUp,
+      ]);
     };
     const results = await Promise.all([
       timed("chat", async () => `"${(await groqChat(ask)).content.slice(0, 80)}"`),

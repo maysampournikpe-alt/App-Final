@@ -4,19 +4,19 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**80 of 265 features built.**
+**94 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
 | Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
-| Phase 2: Family, school, portfolio, deadlines, applications | 3 | 30 |
-| Phase 3: Discovery and college/career | 0 | 26 |
+| Phase 2: Family, school, portfolio, deadlines, applications | 9 | 30 |
+| Phase 3: Discovery and college/career | 4 | 26 |
 | Phase 4: Study tools and skill building | 10 | 56 |
-| Phase 5: Planning, productivity and life skills | 12 | 40 |
+| Phase 5: Planning, productivity and life skills | 14 | 40 |
 | Phase 6: People | 0 | 9 |
-| Phase 7: Wellbeing | 0 | 5 |
+| Phase 7: Wellbeing | 2 | 5 |
 | Phase 8: Local resources | 0 | 7 |
 | Phase 9: Motivation and fun | 0 | 14 |
 | Phase 10: Extra accessibility and trust | 0 | 5 |
@@ -63,8 +63,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Day in the life videos | 3 | Future plan |  |
 | College finder | 3 | Future plan |  |
 | Major explorer | 3 | Future plan |  |
-| College cost calculator | 3 | Future plan | [LOCAL] |
-| SAT and ACT converter | 3 | Future plan | [LOCAL] |
+| College cost calculator | 3 | Built | [LOCAL] |
+| SAT and ACT converter | 3 | Built | [LOCAL] |
 | Scholarship matcher | 3 | Future plan |  |
 | FAFSA helper | 3 | Future plan |  |
 | Dual enrollment info | 3 | Future plan |  |
@@ -343,8 +343,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | GPA calculator | 1 | Built | [LOCAL] |
 | Grade calculator | 1 | Built | [LOCAL] |
-| Class rank estimator | 3 | Future plan | [LOCAL] |
-| Credit hour tracker | 3 | Future plan | [LOCAL] |
+| Class rank estimator | 3 | Built | [LOCAL] |
+| Credit hour tracker | 3 | Built | [LOCAL] |
 | Texas graduation requirements | 3 | Future plan | [LOCAL] |
 | Texas automatic admission | 3 | Future plan | [LOCAL] |
 
@@ -352,13 +352,13 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Accomplishments tracker | 2 | Future plan |  |
-| Volunteer hour log | 2 | Future plan |  |
-| Certificate tracker | 2 | Future plan |  |
+| Accomplishments tracker | 2 | Built |  |
+| Volunteer hour log | 2 | Built |  |
+| Certificate tracker | 2 | Built |  |
 | Digital portfolio | 2 | Future plan |  |
 | Skills radar | 2 | Future plan |  |
-| Brag sheet | 2 | Future plan |  |
-| Resume builder | 2 | Future plan |  |
+| Brag sheet | 2 | Built |  |
+| Resume builder | 2 | Built |  |
 | Badges | 9 | Future plan |  |
 | Monthly challenges | 9 | Future plan |  |
 | School volunteer totals | 9 | Future plan |  |
@@ -368,7 +368,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Budget planner | 5 | Future plan |  |
+| Budget planner | 5 | Built |  |
 | Paycheck calculator | 5 | Built | [LOCAL] |
 | Savings goal tracker | 5 | Built | [LOCAL] |
 | Compound interest | 5 | Built | [LOCAL] |
@@ -380,15 +380,15 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Mood check-in | 7 | Future plan | [LOCAL] |
-| Sleep tracker | 5 | Future plan | [LOCAL] |
+| Mood check-in | 7 | Built | [LOCAL] |
+| Sleep tracker | 5 | Built | [LOCAL] |
 | Energy planner | 5 | Future plan | [LOCAL] |
 | Screen time goal | 5 | Future plan | [LOCAL] |
 | Break ideas | 5 | Future plan | [LOCAL] |
 | Stress tips | 7 | Future plan |  |
 | Burnout check | 7 | Future plan |  |
 | Balance meter | 7 | Future plan |  |
-| Counselor contacts and help lines | 7 | Future plan |  |
+| Counselor contacts and help lines | 7 | Built |  |
 
 #### People
 
@@ -410,7 +410,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Profile | 1 | Built |  |
 | Interests | 1 | Built |  |
-| My why | 2 | Future plan | [LOCAL] |
+| My why | 2 | Built | [LOCAL] |
 | Progress dashboard | 2 | Future plan |  |
 | Levels and XP | 9 | Future plan |  |
 | Streaks | 9 | Future plan |  |

@@ -111,3 +111,215 @@ describe("supabase url", () => {
     expect(cleanSupabaseUrl(" https://abc.supabase.co/rest/v1/ ")).toBe("https://abc.supabase.co");
   });
 });
+
+import { gcd, solve, simplify, mixed, fromDecimal, toPercent } from "../src/lib/fractions";
+import { measure, SHAPES } from "../src/lib/geometry";
+import { makeQuestions, bestFor } from "../src/lib/drills";
+import { quadrantOf, canAddTop, topTasks, type Task } from "../src/lib/tasks";
+import { smartReady } from "../src/lib/smart";
+
+describe("fractions", () => {
+  it("adds with a common denominator and simplifies", () => {
+    expect(solve({ n: 1, d: 2 }, "+", { n: 1, d: 3 })!.result).toEqual({ n: 5, d: 6 });
+    expect(solve({ n: 1, d: 4 }, "+", { n: 1, d: 4 })!.result).toEqual({ n: 1, d: 2 });
+  });
+  it("subtracts, multiplies and divides", () => {
+    expect(solve({ n: 3, d: 4 }, "-", { n: 1, d: 6 })!.result).toEqual({ n: 7, d: 12 });
+    expect(solve({ n: 2, d: 3 }, "×", { n: 3, d: 4 })!.result).toEqual({ n: 1, d: 2 });
+    expect(solve({ n: 1, d: 2 }, "÷", { n: 3, d: 4 })!.result).toEqual({ n: 2, d: 3 });
+  });
+  it("refuses impossible input", () => {
+    expect(solve({ n: 1, d: 0 }, "+", { n: 1, d: 2 })).toBeNull();
+    expect(solve({ n: 1, d: 2 }, "÷", { n: 0, d: 5 })).toBeNull();
+  });
+  it("shows steps", () => expect(solve({ n: 1, d: 2 }, "+", { n: 1, d: 3 })!.steps.join(" ")).toContain("Common denominator: 6"));
+  it("gcd, mixed numbers, decimals, percent", () => {
+    expect(gcd(12, 18)).toBe(6);
+    expect(simplify({ n: 2, d: -4 })).toEqual({ n: -1, d: 2 });
+    expect(mixed({ n: 7, d: 3 })).toEqual({ whole: 2, rest: { n: 1, d: 3 } });
+    expect(fromDecimal(0.375)).toEqual({ n: 3, d: 8 });
+    expect(toPercent({ n: 3, d: 8 })).toBe(37.5);
+  });
+});
+
+describe("geometry", () => {
+  const val = (id: Parameters<typeof measure>[0], v: Record<string, number>, key: string) => measure(id, v)!.find((x) => x.key === key)!.value;
+  it("flat shapes", () => {
+    expect(val("rectangle", { l: 5, w: 3 }, "area")).toBe(15);
+    expect(val("rectangle", { l: 5, w: 3 }, "perimeter")).toBe(16);
+    expect(val("circle", { r: 1 }, "area")).toBeCloseTo(Math.PI, 9);
+    expect(val("triangle", { a: 3, b: 4, c: 5 }, "area")).toBeCloseTo(6, 9);
+    expect(val("trapezoid", { a: 3, b: 5, h: 2, c: 2, e: 2 }, "area")).toBe(8);
+    expect(val("parallelogram", { b: 4, h: 3, s: 5 }, "area")).toBe(12);
+  });
+  it("solids", () => {
+    expect(val("box", { l: 2, w: 3, h: 4 }, "volume")).toBe(24);
+    expect(val("box", { l: 2, w: 3, h: 4 }, "surface")).toBe(52);
+    expect(val("cube", { s: 3 }, "volume")).toBe(27);
+    expect(val("cylinder", { r: 1, h: 2 }, "volume")).toBeCloseTo(2 * Math.PI, 9);
+    expect(val("sphere", { r: 3 }, "volume")).toBeCloseTo(36 * Math.PI, 9);
+    expect(val("cone", { r: 3, h: 4 }, "volume")).toBeCloseTo(12 * Math.PI, 9);
+    expect(val("cone", { r: 3, h: 4 }, "surface")).toBeCloseTo(24 * Math.PI, 9); // slant height 5
+  });
+  it("rejects missing, zero and impossible sizes", () => {
+    expect(measure("rectangle", { l: 5 })).toBeNull();
+    expect(measure("circle", { r: 0 })).toBeNull();
+    expect(measure("triangle", { a: 1, b: 2, c: 10 })).toBeNull();
+  });
+  it("every shape has a measurement set", () => {
+    for (const s of SHAPES) {
+      const sizes = Object.fromEntries(s.dims.map((x) => [x.key, 3]));
+      expect(measure(s.id, sizes), s.id).not.toBeNull();
+    }
+  });
+});
+
+describe("math drills", () => {
+  const seeded = () => { let x = 7; return () => ((x = (x * 16807) % 2147483647) / 2147483647); };
+  it("makes whole, non-negative answers for every operation", () => {
+    for (const op of ["+", "-", "×", "÷"] as const) {
+      for (const q of makeQuestions(op, 12, 200, seeded())) {
+        expect(Number.isInteger(q.answer), `${q.a}${op}${q.b}`).toBe(true);
+        expect(q.answer).toBeGreaterThanOrEqual(0);
+        if (op === "÷") expect(q.b).toBeGreaterThan(0);
+      }
+    }
+  });
+  it("division questions divide evenly", () => { for (const q of makeQuestions("÷", 12, 100, seeded())) expect(q.a % q.b).toBe(0); });
+  it("finds the fastest perfect run", () => {
+    const s = [{ op: "×" as const, max: 12, right: 10, total: 10, seconds: 40, date: "d" }, { op: "×" as const, max: 12, right: 10, total: 10, seconds: 30, date: "d" }, { op: "×" as const, max: 12, right: 9, total: 10, seconds: 10, date: "d" }];
+    expect(bestFor(s, "×", 12)!.seconds).toBe(30);
+  });
+});
+
+describe("to-do and matrix", () => {
+  const t = (o: Partial<Task>): Task => ({ id: "1", title: "x", done: false, urgent: false, important: false, top: false, created: "2026-10-01", ...o });
+  it("sorts into the four boxes", () => {
+    expect(quadrantOf(t({ urgent: true, important: true }))).toBe("do");
+    expect(quadrantOf(t({ important: true }))).toBe("plan");
+    expect(quadrantOf(t({ urgent: true }))).toBe("quick");
+    expect(quadrantOf(t({}))).toBe("drop");
+  });
+  it("allows only three top priorities, ignoring finished ones", () => {
+    const three = [t({ id: "a", top: true }), t({ id: "b", top: true }), t({ id: "c", top: true })];
+    expect(canAddTop(three)).toBe(false);
+    expect(canAddTop([...three.slice(0, 2), t({ id: "c", top: true, done: true })])).toBe(true);
+    expect(topTasks(three)).toHaveLength(3);
+  });
+});
+
+describe("smart goals", () => {
+  it("needs every part and a date", () => {
+    const ok = { specific: "Run a 5K", measurable: "3 runs a week", achievable: "I run twice now", relevant: "Soccer fitness", by: "2026-12-01" };
+    expect(smartReady(ok)).toBe(true);
+    expect(smartReady({ ...ok, specific: "a" })).toBe(false);
+    expect(smartReady({ ...ok, by: "" })).toBe(false);
+  });
+});
+
+import { parseDeadline, collectItems, monthGrid, reminderFor, startOfWeek } from "../src/lib/calendar";
+import { addDays } from "../src/lib/dates";
+import { weekBySubject, weeklyTotals, averageFocus, hoursText } from "../src/lib/study";
+import { doneToday, progress, toggleStep, NO_ROUTINES } from "../src/lib/routines";
+
+describe("deadline parsing", () => {
+  const now = "2026-10-20";
+  it("reads common formats", () => {
+    expect(parseDeadline("March 15, 2027", now)).toBe("2027-03-15");
+    expect(parseDeadline("Applications due 2027-03-15", now)).toBe("2027-03-15");
+    expect(parseDeadline("Due 3/15/27", now)).toBe("2027-03-15");
+    expect(parseDeadline("Deadline: Nov 1st", now)).toBe("2026-11-01");
+    expect(parseDeadline("15 de marzo de 2027", now)).toBe("2027-03-15");
+  });
+  it("a month and day with no year means the next one coming", () => {
+    expect(parseDeadline("Feb 1", now)).toBe("2027-02-01");
+    expect(parseDeadline("October 20", now)).toBe("2026-10-20");
+    expect(parseDeadline("October 19", now)).toBe("2027-10-19");
+  });
+  it("gives up on vague or invalid text", () => {
+    for (const x of ["Rolling", "Varies", "", null, undefined, "February 31, 2027", "13/45/2027"]) expect(parseDeadline(x as string, now)).toBeNull();
+  });
+});
+
+describe("calendar", () => {
+  it("builds Monday-first weeks that cover the month", () => {
+    const g = monthGrid(2026, 9); // October 2026 starts on a Thursday
+    expect(g[0][0].date).toBe("2026-09-28");
+    expect(g[0][3]).toEqual({ date: "2026-10-01", inMonth: true });
+    expect(g.at(-1)![6].date >= "2026-10-31").toBe(true);
+    expect(g.every((w) => w.length === 7)).toBe(true);
+  });
+  it("starts weeks on Monday", () => {
+    expect(startOfWeek("2026-10-20")).toBe("2026-10-19"); // a Tuesday
+    expect(startOfWeek("2026-10-25")).toBe("2026-10-19"); // Sunday belongs to the week before
+  });
+  it("collects items from saved, homework and countdowns, skipping done homework and vague deadlines", () => {
+    const items = collectItems({
+      saved: [{ title: "Chess open", deadline: "Nov 5, 2026", sourceUrl: "https://a.org" }, { title: "Rolling prog", deadline: "Rolling", sourceUrl: "https://b.org" }],
+      homework: [{ id: "1", title: "Essay", cls: "Eng", due: "2026-10-22", done: false }, { id: "2", title: "Old", cls: "", due: "2026-10-21", done: true }],
+      countdowns: [{ id: "c", name: "SAT", date: "2026-12-05" }], now: "2026-10-20",
+    });
+    expect(items.map((i) => i.title)).toEqual(["Essay (Eng)", "Chess open", "SAT"]);
+  });
+  it("reminds for today, tomorrow and the coming week only", () => {
+    expect([reminderFor("2026-10-20", "2026-10-20"), reminderFor("2026-10-21", "2026-10-20"), reminderFor("2026-10-25", "2026-10-20")]).toEqual(["today", "tomorrow", "week"]);
+    expect([reminderFor("2026-10-19", "2026-10-20"), reminderFor("2026-11-20", "2026-10-20")]).toEqual([null, null]);
+  });
+});
+
+describe("study stats", () => {
+  const s = (date: string, subject: string, minutes: number, focus: 1 | 2 | 3 | 4 | 5 = 4) => ({ id: date + subject, date, subject, minutes, focus });
+  const list = [s("2026-10-19", "Math", 30), s("2026-10-20", "Math", 45), s("2026-10-21", "Bio", 60), s("2026-10-12", "Math", 100)];
+  it("adds minutes per subject for one week, biggest first", () => expect(weekBySubject(list, "2026-10-22")).toEqual([{ subject: "Math", minutes: 75 }, { subject: "Bio", minutes: 60 }]));
+  it("totals the last weeks, oldest first", () => expect(weeklyTotals(list, "2026-10-22", 2).map((w) => w.minutes)).toEqual([100, 135]));
+  it("averages focus and formats time", () => {
+    expect(averageFocus([s("a", "x", 1, 5), s("b", "x", 1, 4)])).toBe(4.5);
+    expect(averageFocus([])).toBe(0);
+    expect([hoursText(45), hoursText(60), hoursText(135)]).toEqual(["45 min", "1 h", "2 h 15 min"]);
+  });
+});
+
+describe("routines", () => {
+  const doc = { ...NO_ROUTINES, steps: { morning: [{ id: "a", text: "Make bed" }, { id: "b", text: "Eat" }], evening: [{ id: "c", text: "Pack bag" }] } };
+  it("each day starts empty and progress is a percent", () => {
+    expect(progress(doc, "morning", "2026-10-20")).toBe(0);
+    const d1 = toggleStep(doc, "a", "2026-10-20");
+    expect(progress(d1, "morning", "2026-10-20")).toBe(50);
+    expect(progress(d1, "morning", "2026-10-21")).toBe(0);
+    expect(doneToday(d1, "evening", "2026-10-20")).toEqual([]);
+  });
+  it("unchecks, and prunes old days", () => {
+    const on = toggleStep(doc, "a", "2026-10-20");
+    expect(doneToday(toggleStep(on, "a", "2026-10-20"), "morning", "2026-10-20")).toEqual([]);
+    let d = doc;
+    for (let i = 0; i < 100; i++) d = toggleStep(d, "a", addDays("2026-01-01", i)); // 100 different days
+    expect(Object.keys(d.done)).toHaveLength(60);
+    expect(d.done["2026-04-10"]).toEqual(["a"]); // the newest day (index 99) is kept
+    expect(d.done["2026-01-01"]).toBeUndefined(); // the oldest is dropped
+  });
+});
+
+import { periodKey, journalPromptIndex, pastKeys, isFilled, JOURNAL_PROMPT_COUNT } from "../src/lib/reflect";
+describe("reflections", () => {
+  it("one key per week (Monday) or month", () => {
+    expect(periodKey("weekly", "2026-10-22")).toBe("weekly:2026-10-19");
+    expect(periodKey("weekly", "2026-10-25")).toBe("weekly:2026-10-19");
+    expect(periodKey("monthly", "2026-10-22")).toBe("monthly:2026-10");
+    expect(periodKey("journal", "2026-10-26")).toBe("journal:2026-10-26");
+  });
+  it("journal prompt is steady within a week and always in range", () => {
+    expect(journalPromptIndex("2026-10-19")).toBe(journalPromptIndex("2026-10-25"));
+    expect(journalPromptIndex("2026-10-26")).not.toBe(journalPromptIndex("2026-10-19"));
+    for (let i = 0; i < 400; i += 7) {
+      const v = journalPromptIndex(addDays("2026-01-05", i));
+      expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThan(JOURNAL_PROMPT_COUNT);
+    }
+    expect(journalPromptIndex("2025-12-01")).toBeGreaterThanOrEqual(0); // before the start date still works
+  });
+  it("lists only earlier, non-empty entries of the same kind, newest first", () => {
+    const e = (v: string) => ({ answers: { x: v }, updated: 1 });
+    const all = { "weekly:2026-10-05": e("a"), "weekly:2026-10-12": e("b"), "weekly:2026-10-19": e("c"), "weekly:2026-09-28": e("  "), "monthly:2026-09": e("m") };
+    expect(pastKeys(all, "weekly", "weekly:2026-10-19")).toEqual(["weekly:2026-10-12", "weekly:2026-10-05"]);
+    expect(isFilled(undefined)).toBe(false);
+  });
+});

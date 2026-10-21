@@ -4,8 +4,18 @@ import { Page } from "../ui";
 import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
+import { CalendarTool } from "./CalendarTool";
 import { CornellTool } from "./Cornell";
 import { CountdownTool } from "./Countdown";
+import { DrillsTool } from "./Drills";
+import { FocusLogTool } from "./FocusLog";
+import { FractionsTool } from "./Fractions";
+import { GeometryTool } from "./Geometry";
+import { ReflectTool } from "./Reflect";
+import { RoutinesTool } from "./Routines";
+import { SmartTool } from "./Smart";
+import { StackingTool } from "./Stacking";
+import { TasksTool } from "./Tasks";
 import { FlashcardsTool } from "./Flashcards";
 import { HabitsTool } from "./Habits";
 import { MoneyTool } from "./Money";
@@ -98,6 +108,21 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "notes/flashcards": clientOnly(() => <FlashcardsTool view="make" />),
   "notes/spaced": clientOnly(() => <FlashcardsTool view="review" />),
   "habits/tracker": clientOnly(HabitsTool),
+  "habits/smart": clientOnly(SmartTool),
+  "habits/weekly": clientOnly(() => <ReflectTool kind="weekly" />),
+  "habits/monthly": clientOnly(() => <ReflectTool kind="monthly" />),
+  "habits/journal": clientOnly(() => <ReflectTool kind="journal" />),
+  "habits/routines": clientOnly(RoutinesTool),
+  "habits/stacking": clientOnly(StackingTool),
+  "calendar/deadlines": clientOnly(() => <CalendarTool view="deadlines" />),
+  "calendar/reminders": clientOnly(() => <CalendarTool view="reminders" />),
+  "focus/logger": clientOnly(() => <FocusLogTool view="logger" />),
+  "focus/stats": clientOnly(() => <FocusLogTool view="stats" />),
+  "homework/todo": clientOnly(() => <TasksTool view="todo" />),
+  "homework/eisenhower": clientOnly(() => <TasksTool view="matrix" />),
+  "math/fractions": clientOnly(FractionsTool),
+  "math/geometry": clientOnly(GeometryTool),
+  "math/drills": clientOnly(DrillsTool),
   "calendar/countdown": clientOnly(CountdownTool),
   "math/units": clientOnly(UnitsTool),
   "money/compound": clientOnly(() => <MoneyTool view="compound" />),

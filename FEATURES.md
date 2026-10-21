@@ -4,17 +4,17 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**65 of 265 features built.**
+**80 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
 | Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
-| Phase 2: Family, school, portfolio, deadlines, applications | 1 | 30 |
+| Phase 2: Family, school, portfolio, deadlines, applications | 3 | 30 |
 | Phase 3: Discovery and college/career | 0 | 26 |
-| Phase 4: Study tools and skill building | 5 | 56 |
-| Phase 5: Planning, productivity and life skills | 4 | 40 |
+| Phase 4: Study tools and skill building | 10 | 56 |
+| Phase 5: Planning, productivity and life skills | 12 | 40 |
 | Phase 6: People | 0 | 9 |
 | Phase 7: Wellbeing | 0 | 5 |
 | Phase 8: Local resources | 0 | 7 |
@@ -139,14 +139,14 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Scientific calculator | 4 | Future plan | [LOCAL] |
 | Graphing calculator | 4 | Future plan | [LOCAL] |
-| Fraction and percent helper | 4 | Future plan | [LOCAL] |
-| Geometry shape calculator | 4 | Future plan | [LOCAL] |
+| Fraction and percent helper | 4 | Built | [LOCAL] |
+| Geometry shape calculator | 4 | Built | [LOCAL] |
 | Unit converter | 4 | Built | [LOCAL] |
 | Formula sheets | 4 | Future plan | [LOCAL] |
 | Periodic table | 4 | Future plan | [LOCAL] |
 | Equation balancer | 4 | Future plan | [LOCAL] |
 | Molar mass calculator | 4 | Future plan | [LOCAL] |
-| Math facts drills | 4 | Future plan | [LOCAL] |
+| Math facts drills | 4 | Built | [LOCAL] |
 | Lab report template | 4 | Future plan | [LOCAL] |
 | Data table and graph maker | 4 | Future plan | [LOCAL] |
 | Math step checker | 4 | Future plan |  |
@@ -275,8 +275,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Deadline calendar | 2 | Future plan |  |
-| Reminders | 2 | Future plan |  |
+| Deadline calendar | 2 | Built |  |
+| Reminders | 2 | Built |  |
 | Countdown widgets | 2 | Built | [LOCAL] |
 | School year calendar | 2 | Future plan | [LOCAL] |
 | Class schedule | 5 | Future plan | [LOCAL] |
@@ -296,8 +296,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Homework tracker | 1 | Built | [LOCAL] |
 | Backward planner | 1 | Built | [LOCAL] |
 | Backpack checklist | 5 | Future plan | [LOCAL] |
-| Daily to-do list | 5 | Future plan | [LOCAL] |
-| Eisenhower matrix | 5 | Future plan | [LOCAL] |
+| Daily to-do list | 5 | Built | [LOCAL] |
+| Eisenhower matrix | 5 | Built | [LOCAL] |
 | Eat the frog | 5 | Future plan | [LOCAL] |
 | 2-minute rule list | 5 | Future plan | [LOCAL] |
 | Kanban board | 5 | Future plan | [LOCAL] |
@@ -312,8 +312,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Pomodoro timer | 1 | Built | [LOCAL] |
 | Focus mode | 4 | Future plan | [LOCAL] |
-| Study session logger | 4 | Future plan | [LOCAL] |
-| Study stats | 4 | Future plan | [LOCAL] |
+| Study session logger | 4 | Built | [LOCAL] |
+| Study stats | 4 | Built | [LOCAL] |
 | Distraction reminder | 4 | Future plan | [LOCAL] |
 | Study with me | 6 | Future plan |  |
 | Brain break games | 9 | Future plan | [LOCAL] |
@@ -324,14 +324,14 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Habit tracker | 5 | Built | [LOCAL] |
-| Habit stacking helper | 5 | Future plan | [LOCAL] |
-| SMART goal builder | 5 | Future plan | [LOCAL] |
+| Habit stacking helper | 5 | Built | [LOCAL] |
+| SMART goal builder | 5 | Built | [LOCAL] |
 | Goal ladder | 5 | Future plan | [LOCAL] |
 | Vision board | 5 | Future plan | [LOCAL] |
-| Morning and evening routines | 5 | Future plan | [LOCAL] |
-| Goal journal | 5 | Future plan | [LOCAL] |
-| Weekly review | 5 | Future plan | [LOCAL] |
-| Monthly reflection | 5 | Future plan | [LOCAL] |
+| Morning and evening routines | 5 | Built | [LOCAL] |
+| Goal journal | 5 | Built | [LOCAL] |
+| Weekly review | 5 | Built | [LOCAL] |
+| Monthly reflection | 5 | Built | [LOCAL] |
 | Time audit | 5 | Future plan | [LOCAL] |
 | Task time estimator | 5 | Future plan | [LOCAL] |
 

@@ -8,7 +8,9 @@ import { ICONS } from "@/config/icons";
 import { BRAND } from "@/config/brand";
 import { useAccount } from "@/lib/account";
 import { useLang, useT } from "@/lib/i18n";
+import { useLocalDoc } from "@/lib/local-doc";
 import { TrailHero } from "./art";
+import { WHY_KEY } from "./tools/Why";
 import { Page } from "./ui";
 
 export function HomeView() {
@@ -17,6 +19,7 @@ export function HomeView() {
   const router = useRouter();
   const account = useAccount();
   const [q, setQ] = useState("");
+  const [why] = useLocalDoc<string>(WHY_KEY, "");
 
   const go = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +48,11 @@ export function HomeView() {
                   {t("homeSearch")} <ArrowRight size={20} strokeWidth={2} />
                 </button>
               </form>
+              {why.trim() ? (
+                <blockquote className="mt-5 max-w-xl border-l-[6px] border-teal pl-4 font-display text-xl">
+                  <Link href="/t/profile/why" className="hover:underline">“{why.trim().slice(0, 200)}”</Link>
+                </blockquote>
+              ) : null}
               {account.status === "signed-in" ? (
                 <p className="mt-4 text-muted">{t("welcomeBack")} <b className="font-mono text-ink">{account.profile.username}</b></p>
               ) : account.status === "guest" ? (

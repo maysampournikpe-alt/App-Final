@@ -323,3 +323,76 @@ describe("reflections", () => {
     expect(isFilled(undefined)).toBe(false);
   });
 });
+
+import { actToSat, satToAct, ACT_TO_SAT, collegeCost, rankInfo, creditTotal, volunteerTotal, volunteerByOrg, certStatus, needsSupportNudge, sleepHours, sleepVerdict, monthSummary, sortNewest } from "../src/lib/career";
+describe("SAT and ACT converter", () => {
+  it("maps known scores both ways", () => {
+    expect(actToSat(36)).toBe(1590); expect(actToSat(25)).toBe(1210); expect(actToSat(20)).toBe(1040); expect(actToSat(5)).toBeNull(); expect(actToSat(20.5)).toBeNull();
+    expect(satToAct(1600)).toBe(36); expect(satToAct(1210)).toBe(25); expect(satToAct(1040)).toBe(20); expect(satToAct(590)).toBe(9);
+  });
+  it("rejects scores outside the table", () => { for (const x of [0, 400, 589, 1601, NaN]) expect(satToAct(x)).toBeNull(); });
+  it("the table only goes up, and every ACT score converts back to itself", () => {
+    const acts = Object.keys(ACT_TO_SAT).map(Number).sort((a, b) => a - b);
+    for (let i = 1; i < acts.length; i++) expect(ACT_TO_SAT[acts[i]]).toBeGreaterThan(ACT_TO_SAT[acts[i - 1]]);
+    for (const a of acts) expect(satToAct(ACT_TO_SAT[a]), `ACT ${a}`).toBe(a);
+  });
+  it("every SAT total from 590 to 1600 gives an ACT score that never goes down as the total goes up", () => {
+    let last = 0;
+    for (let s = 590; s <= 1600; s += 10) { const a = satToAct(s)!; expect(a).toBeGreaterThanOrEqual(last); last = a; }
+  });
+});
+describe("college cost", () => {
+  const c = { tuition: 8000, housing: 6000, books: 1000, transport: 500, other: 500, scholarships: 3000, grants: 2000 };
+  it("subtracts aid and multiplies by years", () => {
+    const r = collegeCost(c, 4, 5, 10);
+    expect([r.sticker, r.aid, r.net, r.total, r.covered]).toEqual([16000, 5000, 11000, 44000, 31]);
+    expect(r.monthlyLoan).toBeCloseTo(466.7, 1); // 44000 at 5% for 10 years
+  });
+  it("never goes negative, and zero cost means no loan", () => {
+    const r = collegeCost({ ...c, scholarships: 99999 }, 4, 5, 10);
+    expect([r.net, r.total, r.monthlyLoan, r.covered]).toEqual([0, 0, 0, 100]);
+  });
+  it("a zero-interest loan is just the total split evenly", () => expect(collegeCost(c, 4, 0, 10).monthlyLoan).toBeCloseTo(44000 / 120, 2));
+});
+describe("class rank", () => {
+  it("computes top percent and percentile", () => {
+    expect(rankInfo(1, 400)).toMatchObject({ topPercent: 1, percentile: 100, inTop10: true });
+    expect(rankInfo(40, 400)).toMatchObject({ topPercent: 10, inTop10: true });
+    expect(rankInfo(41, 400)).toMatchObject({ topPercent: 11, inTop10: false });
+    expect(rankInfo(400, 400)!.percentile).toBe(0);
+  });
+  it("rejects impossible ranks", () => { for (const [r, s] of [[0, 10], [11, 10], [1.5, 10], [1, 0]]) expect(rankInfo(r, s)).toBeNull(); });
+});
+describe("credits, volunteering, certificates", () => {
+  it("adds credit hours", () => expect(creditTotal([{ id: "1", name: "a", hours: 3, term: "", source: "" }, { id: "2", name: "b", hours: 4, term: "", source: "" }])).toBe(7));
+  it("adds volunteer hours exactly and groups by organization", () => {
+    const l = [{ id: "1", date: "2026-10-01", org: "Food bank", hours: 1.5, supervisor: "", contact: "" }, { id: "2", date: "2026-10-02", org: "Library", hours: 2.25, supervisor: "", contact: "" }, { id: "3", date: "2026-10-03", org: "Food bank", hours: 0.1, supervisor: "", contact: "" }];
+    expect(volunteerTotal(l)).toBe(3.85);
+    expect(volunteerByOrg(l)).toEqual([{ org: "Library", hours: 2.25 }, { org: "Food bank", hours: 1.6 }]);
+  });
+  it("flags certificates by expiry", () => {
+    const c = (expires: string) => ({ id: "1", name: "CPR", issuer: "", earned: "2025-01-01", expires });
+    expect([certStatus(c(""), "2026-10-20"), certStatus(c("2027-06-01"), "2026-10-20"), certStatus(c("2026-11-15"), "2026-10-20"), certStatus(c("2026-10-01"), "2026-10-20")]).toEqual(["none", "ok", "soon", "expired"]);
+  });
+  it("sorts newest first", () => expect(sortNewest([{ date: "2026-01-01" }, { date: "2026-05-01" }]).map((x) => x.date)).toEqual(["2026-05-01", "2026-01-01"]));
+});
+describe("wellbeing", () => {
+  const m = (date: string, mood: 1 | 2 | 3 | 4 | 5) => ({ date, mood, note: "" });
+  it("suggests talking to someone after three low check-ins in a week, and not otherwise", () => {
+    expect(needsSupportNudge([m("2026-10-18", 2), m("2026-10-19", 1), m("2026-10-20", 2)], "2026-10-20")).toBe(true);
+    expect(needsSupportNudge([m("2026-10-18", 2), m("2026-10-19", 4), m("2026-10-20", 2)], "2026-10-20")).toBe(false);
+    expect(needsSupportNudge([m("2026-10-19", 1), m("2026-10-20", 1)], "2026-10-20")).toBe(false);
+    expect(needsSupportNudge([m("2026-09-01", 1), m("2026-09-02", 1), m("2026-09-03", 1)], "2026-10-20")).toBe(false);
+  });
+  it("counts sleep across midnight", () => {
+    expect(sleepHours("22:30", "06:30")).toBe(8); expect(sleepHours("23:45", "05:15")).toBe(5.5); expect(sleepHours("01:00", "09:00")).toBe(8); expect(sleepHours("", "06:00")).toBeNull();
+    expect([sleepHours("23:00", "05:00"), sleepHours("22:00", "06:00"), sleepHours("20:00", "08:00")].map((h) => sleepVerdict(h!))).toEqual(["short", "good", "long"]);
+  });
+});
+describe("budget", () => {
+  it("summarizes one month", () => {
+    const l = [{ id: "1", month: "2026-10", kind: "income" as const, label: "Job", amount: 200 }, { id: "2", month: "2026-10", kind: "spend" as const, label: "Food", amount: 60.5 }, { id: "3", month: "2026-10", kind: "save" as const, label: "Laptop", amount: 40 }, { id: "4", month: "2026-09", kind: "income" as const, label: "Old", amount: 999 }];
+    expect(monthSummary(l, "2026-10")).toEqual({ income: 200, spend: 60.5, save: 40, left: 99.5, saveRate: 20 });
+    expect(monthSummary(l, "2026-08")).toEqual({ income: 0, spend: 0, save: 0, left: 0, saveRate: 0 });
+  });
+});

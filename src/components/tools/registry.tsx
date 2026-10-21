@@ -4,7 +4,10 @@ import { Page } from "../ui";
 import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
+import { BragTool, CertificatesTool, ResumeTool, TrackerTool, VolunteerTool } from "./Achievements";
+import { BudgetTool } from "./Budget";
 import { CalendarTool } from "./CalendarTool";
+import { ConverterTool, CostTool, CreditsTool, RankTool } from "./CollegeTools";
 import { CornellTool } from "./Cornell";
 import { CountdownTool } from "./Countdown";
 import { DrillsTool } from "./Drills";
@@ -20,6 +23,8 @@ import { FlashcardsTool } from "./Flashcards";
 import { HabitsTool } from "./Habits";
 import { MoneyTool } from "./Money";
 import { UnitsTool } from "./Units";
+import { HelpTool, MoodTool, SleepTool } from "./Wellbeing";
+import { WhyTool } from "./Why";
 import { FindTool } from "./Find";
 import { GpaTool } from "./Gpa";
 import { GradeCalcTool } from "./GradeCalc";
@@ -108,6 +113,20 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "notes/flashcards": clientOnly(() => <FlashcardsTool view="make" />),
   "notes/spaced": clientOnly(() => <FlashcardsTool view="review" />),
   "habits/tracker": clientOnly(HabitsTool),
+  "college/cost": clientOnly(CostTool),
+  "college/converter": clientOnly(ConverterTool),
+  "grades/rank": clientOnly(RankTool),
+  "grades/credits": clientOnly(CreditsTool),
+  "achievements/tracker": clientOnly(TrackerTool),
+  "achievements/volunteer": clientOnly(VolunteerTool),
+  "achievements/certificates": clientOnly(CertificatesTool),
+  "achievements/brag": clientOnly(BragTool),
+  "achievements/resume": clientOnly(ResumeTool),
+  "wellbeing/mood": clientOnly(MoodTool),
+  "wellbeing/sleep": clientOnly(SleepTool),
+  "wellbeing/contacts": clientOnly(HelpTool),
+  "profile/why": clientOnly(WhyTool),
+  "money/budget": clientOnly(BudgetTool),
   "habits/smart": clientOnly(SmartTool),
   "habits/weekly": clientOnly(() => <ReflectTool kind="weekly" />),
   "habits/monthly": clientOnly(() => <ReflectTool kind="monthly" />),

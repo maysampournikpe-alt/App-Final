@@ -111,6 +111,20 @@ export const BUILT = new Set<string>([
   "habits/journal",
   "habits/routines",
   "habits/stacking",
+  "college/cost",
+  "college/converter",
+  "grades/rank",
+  "grades/credits",
+  "achievements/tracker",
+  "achievements/volunteer",
+  "achievements/certificates",
+  "achievements/brag",
+  "achievements/resume",
+  "wellbeing/mood",
+  "wellbeing/sleep",
+  "wellbeing/contacts",
+  "profile/why",
+  "money/budget",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

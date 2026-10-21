@@ -4,21 +4,21 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**94 of 265 features built.**
+**99 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
 | Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
-| Phase 2: Family, school, portfolio, deadlines, applications | 9 | 30 |
+| Phase 2: Family, school, portfolio, deadlines, applications | 10 | 30 |
 | Phase 3: Discovery and college/career | 4 | 26 |
 | Phase 4: Study tools and skill building | 10 | 56 |
 | Phase 5: Planning, productivity and life skills | 14 | 40 |
 | Phase 6: People | 0 | 9 |
 | Phase 7: Wellbeing | 2 | 5 |
 | Phase 8: Local resources | 0 | 7 |
-| Phase 9: Motivation and fun | 0 | 14 |
+| Phase 9: Motivation and fun | 4 | 14 |
 | Phase 10: Extra accessibility and trust | 0 | 5 |
 
 [LOCAL] = runs entirely on the device, works offline, no AI and no database.
@@ -359,7 +359,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Skills radar | 2 | Future plan |  |
 | Brag sheet | 2 | Built |  |
 | Resume builder | 2 | Built |  |
-| Badges | 9 | Future plan |  |
+| Badges | 9 | Built |  |
 | Monthly challenges | 9 | Future plan |  |
 | School volunteer totals | 9 | Future plan |  |
 | Year in review | 9 | Future plan |  |
@@ -411,10 +411,10 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Profile | 1 | Built |  |
 | Interests | 1 | Built |  |
 | My why | 2 | Built | [LOCAL] |
-| Progress dashboard | 2 | Future plan |  |
-| Levels and XP | 9 | Future plan |  |
-| Streaks | 9 | Future plan |  |
-| Avatar | 9 | Future plan |  |
+| Progress dashboard | 2 | Built |  |
+| Levels and XP | 9 | Built |  |
+| Streaks | 9 | Built |  |
+| Avatar | 9 | Built |  |
 | Celebrations | 9 | Future plan |  |
 
 #### Family and School

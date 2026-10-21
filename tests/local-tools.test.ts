@@ -396,3 +396,60 @@ describe("budget", () => {
     expect(monthSummary(l, "2026-08")).toEqual({ income: 0, spend: 0, save: 0, left: 0, saveRate: 0 });
   });
 });
+
+import { xpBreakdown, totalXp, levelOf, levelStart, levelName, LEVEL_NAMES, activeDays, streaks, BADGES, EMBLEMS, TINTS, usableAvatar, type Snapshot } from "../src/lib/progress";
+const emptySnap = (over: Partial<Snapshot> = {}): Snapshot => ({
+  now: "2026-10-20", homework: [], tasks: [], habits: [], focusLog: {}, sessions: [], routines: { steps: { morning: [], evening: [] }, done: {} }, attempts: [], plans: [], savedCount: 0,
+  volunteer: [], achievements: [], certs: [], moods: [], sleep: [], reflections: {}, cards: [], drills: [], ...over,
+});
+describe("xp, levels, streaks and badges", () => {
+  it("a new student has 0 XP, level 1 and no streak", () => {
+    expect(totalXp(emptySnap())).toBe(0);
+    expect(levelOf(0)).toMatchObject({ level: 1, xpInto: 0, xpNeeded: 50, pct: 0 });
+    expect(streaks(emptySnap())).toEqual({ current: 0, best: 0, activeCount: 0 });
+  });
+  it("adds XP for real work with the published amounts", () => {
+    const s = emptySnap({
+      homework: [{ id: "1", title: "a", cls: "", due: "2026-10-20", done: true }, { id: "2", title: "b", cls: "", due: "2026-10-20", done: false }],
+      tasks: [{ id: "t", title: "x", done: true, urgent: false, important: false, top: false, created: "2026-10-01" }],
+      habits: [{ id: "h", name: "read", done: ["2026-10-19", "2026-10-20"], created: "2026-10-01" }],
+      focusLog: { "2026-10-20": 45 }, sessions: [{ id: "s", date: "2026-10-20", subject: "m", minutes: 40, focus: 4 }], savedCount: 3,
+      volunteer: [{ id: "v", date: "2026-10-20", org: "o", hours: 2.5, supervisor: "", contact: "" }],
+    });
+    const by = Object.fromEntries(xpBreakdown(s).map((l) => [l.key, l.points]));
+    expect(by).toMatchObject({ homework: 5, tasks: 3, habits: 6, focus: 4, study: 2, saved: 6, volunteer: 20 });
+    expect(totalXp(s)).toBe(5 + 3 + 6 + 4 + 2 + 6 + 20);
+  });
+  it("level thresholds are 0, 50, 200, 450, 800 and each level maps back to itself", () => {
+    expect([1, 2, 3, 4, 5].map(levelStart)).toEqual([0, 50, 200, 450, 800]);
+    for (let l = 1; l <= 30; l++) { expect(levelOf(levelStart(l)).level).toBe(l); expect(levelOf(levelStart(l + 1) - 1).level).toBe(l); }
+    expect(levelOf(49)).toMatchObject({ level: 1, toNext: 1 });
+    expect(levelOf(125)).toMatchObject({ level: 2, xpInto: 75, xpNeeded: 150, pct: 50 });
+  });
+  it("level names exist for every level, even past the last name", () => {
+    expect(levelName(1).en).toBe("Trailhead");
+    expect(levelName(500)).toBe(LEVEL_NAMES[LEVEL_NAMES.length - 1]);
+  });
+  it("counts active days from dated records and builds streaks", () => {
+    const s = emptySnap({ habits: [{ id: "h", name: "r", done: ["2026-10-18", "2026-10-19"], created: "" }], moods: [{ date: "2026-10-20", mood: 3, note: "" }], focusLog: { "2026-10-10": 25, "2026-10-11": 0 } });
+    expect([...activeDays(s)].sort()).toEqual(["2026-10-10", "2026-10-18", "2026-10-19", "2026-10-20"]);
+    expect(streaks(s)).toEqual({ current: 3, best: 3, activeCount: 4 });
+  });
+  it("badges start locked, with progress, and unlock at the target", () => {
+    const b = (id: string) => BADGES.find((x) => x.id === id)!;
+    expect(b("first-save").value(emptySnap())).toBe(0);
+    expect(b("first-save").value(emptySnap({ savedCount: 1 }))).toBeGreaterThanOrEqual(b("first-save").target);
+    const plan = { id: "p", title: "", goal: "", summary: "", hoursPerWeek: 1, searchIdeas: [], createdAt: 0, source: "ai" as const, horizons: [{ horizon: "week" as const, steps: [{ id: "a", text: "x", done: true }, { id: "b", text: "y", done: false }] }] };
+    expect(b("plan-step").value(emptySnap({ plans: [plan] }))).toBe(1);
+    expect(b("plan-done").value(emptySnap({ plans: [plan] }))).toBe(0);
+    plan.horizons[0].steps[1].done = true;
+    expect(b("plan-done").value(emptySnap({ plans: [plan] }))).toBe(1);
+    expect(new Set(BADGES.map((x) => x.id)).size).toBe(BADGES.length);
+  });
+  it("avatar choices fall back to the default when not unlocked", () => {
+    expect(usableAvatar({ emblem: "rocket", tint: "ink" }, 1)).toEqual({ emblem: "compass", tint: "teal" });
+    expect(usableAvatar({ emblem: "mountain", tint: "ruby" }, 2)).toEqual({ emblem: "mountain", tint: "ruby" });
+    expect(usableAvatar({ emblem: "nope", tint: "nope" }, 99)).toEqual({ emblem: "compass", tint: "teal" });
+    expect(EMBLEMS.every((e) => e.level >= 1) && TINTS.every((t) => t.level >= 1)).toBe(true);
+  });
+});

@@ -15,6 +15,7 @@ import { FocusLogTool } from "./FocusLog";
 import { FractionsTool } from "./Fractions";
 import { GeometryTool } from "./Geometry";
 import { ReflectTool } from "./Reflect";
+import { ProgressTool } from "./Progress";
 import { RoutinesTool } from "./Routines";
 import { SmartTool } from "./Smart";
 import { StackingTool } from "./Stacking";
@@ -126,6 +127,11 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "wellbeing/sleep": clientOnly(SleepTool),
   "wellbeing/contacts": clientOnly(HelpTool),
   "profile/why": clientOnly(WhyTool),
+  "profile/progress": clientOnly(() => <ProgressTool view="progress" />),
+  "profile/levels": clientOnly(() => <ProgressTool view="levels" />),
+  "profile/streaks": clientOnly(() => <ProgressTool view="streaks" />),
+  "profile/avatar": clientOnly(() => <ProgressTool view="avatar" />),
+  "achievements/badges": clientOnly(() => <ProgressTool view="badges" />),
   "money/budget": clientOnly(BudgetTool),
   "habits/smart": clientOnly(SmartTool),
   "habits/weekly": clientOnly(() => <ReflectTool kind="weekly" />),

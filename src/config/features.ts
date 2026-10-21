@@ -125,6 +125,11 @@ export const BUILT = new Set<string>([
   "wellbeing/contacts",
   "profile/why",
   "money/budget",
+  "profile/progress",
+  "profile/levels",
+  "profile/streaks",
+  "profile/avatar",
+  "achievements/badges",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

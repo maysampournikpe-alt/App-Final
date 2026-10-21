@@ -130,6 +130,12 @@ export const BUILT = new Set<string>([
   "profile/streaks",
   "profile/avatar",
   "achievements/badges",
+  "math/periodic",
+  "math/molar",
+  "math/balancer",
+  "math/formulas",
+  "math/scientific",
+  "math/graphing",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

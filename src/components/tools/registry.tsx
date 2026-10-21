@@ -6,14 +6,17 @@ import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
 import { BragTool, CertificatesTool, ResumeTool, TrackerTool, VolunteerTool } from "./Achievements";
 import { BudgetTool } from "./Budget";
+import { BalancerTool, MolarTool, PeriodicTool } from "./ChemTools";
 import { CalendarTool } from "./CalendarTool";
 import { ConverterTool, CostTool, CreditsTool, RankTool } from "./CollegeTools";
 import { CornellTool } from "./Cornell";
 import { CountdownTool } from "./Countdown";
 import { DrillsTool } from "./Drills";
 import { FocusLogTool } from "./FocusLog";
+import { FormulasTool } from "./Formulas";
 import { FractionsTool } from "./Fractions";
 import { GeometryTool } from "./Geometry";
+import { GraphingTool, ScientificTool } from "./MathTools";
 import { ReflectTool } from "./Reflect";
 import { ProgressTool } from "./Progress";
 import { RoutinesTool } from "./Routines";
@@ -150,6 +153,12 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "math/drills": clientOnly(DrillsTool),
   "calendar/countdown": clientOnly(CountdownTool),
   "math/units": clientOnly(UnitsTool),
+  "math/periodic": clientOnly(PeriodicTool),
+  "math/molar": clientOnly(MolarTool),
+  "math/balancer": clientOnly(BalancerTool),
+  "math/formulas": clientOnly(FormulasTool),
+  "math/scientific": clientOnly(ScientificTool),
+  "math/graphing": clientOnly(GraphingTool),
   "money/compound": clientOnly(() => <MoneyTool view="compound" />),
   "money/savings": clientOnly(() => <MoneyTool view="savings" />),
   "money/paycheck": clientOnly(() => <MoneyTool view="paycheck" />),

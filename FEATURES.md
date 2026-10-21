@@ -4,7 +4,7 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**99 of 265 features built.**
+**105 of 265 features built.**
 
 ## By phase
 
@@ -13,7 +13,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 10 | 30 |
 | Phase 3: Discovery and college/career | 4 | 26 |
-| Phase 4: Study tools and skill building | 10 | 56 |
+| Phase 4: Study tools and skill building | 16 | 56 |
 | Phase 5: Planning, productivity and life skills | 14 | 40 |
 | Phase 6: People | 0 | 9 |
 | Phase 7: Wellbeing | 2 | 5 |
@@ -137,15 +137,15 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Scientific calculator | 4 | Future plan | [LOCAL] |
-| Graphing calculator | 4 | Future plan | [LOCAL] |
+| Scientific calculator | 4 | Built | [LOCAL] |
+| Graphing calculator | 4 | Built | [LOCAL] |
 | Fraction and percent helper | 4 | Built | [LOCAL] |
 | Geometry shape calculator | 4 | Built | [LOCAL] |
 | Unit converter | 4 | Built | [LOCAL] |
-| Formula sheets | 4 | Future plan | [LOCAL] |
-| Periodic table | 4 | Future plan | [LOCAL] |
-| Equation balancer | 4 | Future plan | [LOCAL] |
-| Molar mass calculator | 4 | Future plan | [LOCAL] |
+| Formula sheets | 4 | Built | [LOCAL] |
+| Periodic table | 4 | Built | [LOCAL] |
+| Equation balancer | 4 | Built | [LOCAL] |
+| Molar mass calculator | 4 | Built | [LOCAL] |
 | Math facts drills | 4 | Built | [LOCAL] |
 | Lab report template | 4 | Future plan | [LOCAL] |
 | Data table and graph maker | 4 | Future plan | [LOCAL] |

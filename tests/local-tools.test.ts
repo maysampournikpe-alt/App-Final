@@ -453,3 +453,123 @@ describe("xp, levels, streaks and badges", () => {
     expect(EMBLEMS.every((e) => e.level >= 1) && TINTS.every((t) => t.level >= 1)).toBe(true);
   });
 });
+
+import { ELEMENTS, BY_SYMBOL, position, periodOf, groupOf, stateOf, parseFormula, molarMass, balance, FormulaError } from "../src/lib/chem";
+describe("periodic table data", () => {
+  it("has 118 elements numbered in order with unique symbols and names", () => {
+    expect(ELEMENTS).toHaveLength(118);
+    ELEMENTS.forEach((e, i) => expect(e.z).toBe(i + 1));
+    expect(new Set(ELEMENTS.map((e) => e.sym)).size).toBe(118);
+    expect(new Set(ELEMENTS.map((e) => e.name)).size).toBe(118);
+    for (const e of ELEMENTS) { expect(e.mass).toBeGreaterThan(0); expect(e.sym).toMatch(/^[A-Z][a-z]?$/); }
+  });
+  it("known elements are right", () => {
+    expect(BY_SYMBOL.get("Fe")).toMatchObject({ z: 26, name: "Iron", mass: 55.845 });
+    expect(BY_SYMBOL.get("Au")).toMatchObject({ z: 79, name: "Gold" });
+    expect(BY_SYMBOL.get("Og")!.z).toBe(118);
+    expect(BY_SYMBOL.get("Na")!.cat).toBe("alkali");
+    expect(BY_SYMBOL.get("Ne")!.cat).toBe("noble");
+  });
+  it("mass rises with atomic number except at the six places where it really does not (K, Ni, I, Pa, Np, Am)", () => {
+    const bad = ELEMENTS.slice(1).filter((e, i) => e.mass < ELEMENTS[i].mass).map((e) => e.sym).sort();
+    expect(bad).toEqual(["Am", "I", "K", "Ni", "Np", "Pa"]);
+  });
+  it("grid positions are unique, inside 18 columns, and match groups", () => {
+    const seen = new Set<string>();
+    for (const e of ELEMENTS) { const p = position(e.z); expect(p.col).toBeGreaterThanOrEqual(1); expect(p.col).toBeLessThanOrEqual(18); const k = `${p.row},${p.col}`; expect(seen.has(k), e.sym).toBe(false); seen.add(k); }
+    expect([2, 10, 18, 36, 54, 86, 118].every((z) => groupOf(z) === 18)).toBe(true);
+    expect([1, 3, 11, 19, 37, 55, 87].every((z) => groupOf(z) === 1)).toBe(true);
+    expect([periodOf(26), periodOf(57), periodOf(92), groupOf(57)]).toEqual([4, 6, 7, null]);
+    expect(groupOf(26)).toBe(8); expect(groupOf(6)).toBe(14); expect(position(6)).toEqual({ row: 2, col: 14 });
+  });
+  it("states at room temperature", () => { expect([stateOf(1), stateOf(35), stateOf(80), stateOf(26), stateOf(118)]).toEqual(["gas", "liquid", "liquid", "solid", "unknown"]); });
+});
+describe("formulas and molar mass", () => {
+  it("parses brackets, hydrates and multi-letter symbols", () => {
+    expect([...parseFormula("Ca(OH)2")].sort()).toEqual([["Ca", 1], ["H", 2], ["O", 2]]);
+    expect(parseFormula("Al2(SO4)3").get("O")).toBe(12);
+    expect(parseFormula("CuSO4·5H2O").get("H")).toBe(10); expect(parseFormula("CuSO4.5H2O").get("O")).toBe(9);
+    expect(parseFormula("Co").get("Co")).toBe(1); expect(parseFormula("CO").get("C")).toBe(1);
+    expect(parseFormula("Mg(NO3)2").get("N")).toBe(2); expect(parseFormula("K4[Fe(CN)6]").get("C")).toBe(6);
+  });
+  it("rejects bad input", () => { for (const f of ["", "Xx2", "H2O)", "(H2O", "h2o", "H2O!"]) expect(() => parseFormula(f), f).toThrow(FormulaError); });
+  it("molar masses match textbook values", () => {
+    expect(molarMass("H2O").total).toBeCloseTo(18.015, 3);
+    expect(molarMass("NaCl").total).toBeCloseTo(58.44, 2);
+    expect(molarMass("CO2").total).toBeCloseTo(44.009, 3);
+    expect(molarMass("C6H12O6").total).toBeCloseTo(180.156, 2);
+    expect(molarMass("Ca(OH)2").total).toBeCloseTo(74.092, 2);
+    expect(molarMass("H2SO4").total).toBeCloseTo(98.07, 1);
+  });
+  it("percent composition adds to about 100", () => { const m = molarMass("C6H12O6"); expect(m.parts.reduce((n, p) => n + p.percent, 0)).toBeCloseTo(100, 1); expect(m.parts.find((p) => p.sym === "O")!.percent).toBeCloseTo(53.28, 1); });
+});
+describe("equation balancer", () => {
+  const show = (eq: string) => { const r = balance(eq); if (!r.ok) return r.reason; return [...r.value.reactants, ...r.value.products].map((x) => x.coeff); };
+  it("balances classic equations", () => {
+    expect(show("H2 + O2 -> H2O")).toEqual([2, 1, 2]);
+    expect(show("Fe + O2 -> Fe2O3")).toEqual([4, 3, 2]);
+    expect(show("C3H8 + O2 -> CO2 + H2O")).toEqual([1, 5, 3, 4]);
+    expect(show("Al + HCl -> AlCl3 + H2")).toEqual([2, 6, 2, 3]);
+    expect(show("KMnO4 + HCl -> KCl + MnCl2 + H2O + Cl2")).toEqual([2, 16, 2, 2, 8, 5]);
+    expect(show("Ca(OH)2 + H3PO4 -> Ca3(PO4)2 + H2O")).toEqual([3, 2, 1, 6]);
+  });
+  it("accepts arrows, equals signs and already-balanced input", () => { expect(show("N2 + H2 → NH3")).toEqual([1, 3, 2]); expect(show("2H2 + O2 = 2H2O")).toEqual([2, 1, 2]); expect(show("H2 + Cl2 -> HCl")).toEqual([1, 1, 2]); });
+  it("every balanced result really conserves atoms", () => {
+    for (const eq of ["C6H12O6 + O2 -> CO2 + H2O", "Na + H2O -> NaOH + H2", "Fe2O3 + CO -> Fe + CO2", "NH3 + O2 -> NO + H2O", "C2H6 + O2 -> CO2 + H2O"]) {
+      const r = balance(eq); expect(r.ok, eq).toBe(true); if (!r.ok) continue;
+      const tally = (side: { formula: string; coeff: number }[]) => { const t = new Map<string, number>(); side.forEach((s) => parseFormula(s.formula).forEach((n, el) => t.set(el, (t.get(el) ?? 0) + n * s.coeff))); return t; };
+      expect([...tally(r.value.reactants)].sort()).toEqual([...tally(r.value.products)].sort());
+    }
+  });
+  it("reports what went wrong", () => { expect(show("H2 + O2")).toBe("format"); expect(show("H2 + Zz -> H2Zz")).toBe("formula"); expect(show("H2 -> O2")).toBe("impossible"); expect(show("H2 + O2 -> H2O + O2")).not.toBeNull(); });
+});
+
+import { segments, roots, niceStep, zoom, pan, DEFAULT_VIEW } from "../src/lib/graph";
+import { evaluateExpression } from "../src/lib/calc";
+describe("graphing", () => {
+  it("samples a smooth curve in one piece", () => {
+    const s = segments((x) => x * x, DEFAULT_VIEW);
+    expect(s).toHaveLength(1);
+    expect(s[0][0]).toEqual({ x: -10, y: 100 }); expect(s[0].length).toBe(601);
+  });
+  it("breaks the curve at a gap instead of drawing a line across it", () => {
+    expect(segments((x) => 1 / x, { xmin: -5, xmax: 5, ymin: -5, ymax: 5 }).length).toBeGreaterThanOrEqual(2);
+    expect(segments((x) => Math.tan(x), { xmin: -5, xmax: 5, ymin: -5, ymax: 5 }).length).toBeGreaterThan(2);
+    expect(segments((x) => Math.sqrt(x), { xmin: -5, xmax: 5, ymin: -5, ymax: 5 })).toHaveLength(1);
+  });
+  it("finds roots exactly where they are", () => {
+    expect(roots((x) => x * x - 4, -10, 10)).toEqual([-2, 2]);
+    expect(roots((x) => 2 * x + 6, -10, 10)).toEqual([-3]);
+    expect(roots((x) => Math.sin(x), -7, 7).map((r) => Math.round(r * 1e4) / 1e4)).toEqual([-6.2832, -3.1416, 0, 3.1416, 6.2832]);
+    expect(roots((x) => x * x + 1, -10, 10)).toEqual([]);
+    expect(roots((x) => (x - 1) * (x - 2) * (x + 3), -10, 10)).toEqual([-3, 1, 2]);
+  });
+  it("does not report the gap in 1/x as a root", () => expect(roots((x) => 1 / x, -5, 5)).toEqual([]));
+  it("grid steps are 1, 2 or 5 times a power of ten; zoom and pan keep the shape", () => {
+    expect([niceStep(20), niceStep(2), niceStep(100), niceStep(0.5)]).toEqual([2, 0.2, 10, 0.05]);
+    expect(zoom(DEFAULT_VIEW, 0.5)).toEqual({ xmin: -5, xmax: 5, ymin: -5, ymax: 5 });
+    expect(pan(DEFAULT_VIEW, 0.1, 0)).toEqual({ xmin: -8, xmax: 12, ymin: -10, ymax: 10 });
+  });
+});
+describe("scientific calculator", () => {
+  const ev = async (e: string, deg = false, ans?: number) => { const r = await evaluateExpression(e, { deg, ans }); return r.ok ? r.text : "ERR"; };
+  it("does arithmetic with the right order of operations", async () => { expect(await ev("2+3*4")).toBe("14"); expect(await ev("(2+3)*4")).toBe("20"); expect(await ev("2^10")).toBe("1024"); expect(await ev("7×6÷3−1")).toBe("13"); });
+  it("functions and constants", async () => { expect(await ev("sqrt(144)")).toBe("12"); expect(await ev("5!")).toBe("120"); expect(await ev("log(1000)")).toBe("3"); expect(await ev("ln(e)")).toBe("1"); expect(await ev("π*2")).toBe("6.28318530718"); });
+  it("degrees and radians", async () => { expect(await ev("sin(30)", true)).toBe("0.5"); expect(await ev("cos(60)", true)).toBe("0.5"); expect(await ev("atan(1)", true)).toBe("45"); expect(await ev("sin(pi/6)", false)).toBe("0.5"); });
+  it("uses the previous answer", async () => expect(await ev("ans*2", false, 21)).toBe("42"));
+  it("shows ERR for nonsense, divide by zero and too-long input", async () => { for (const e of ["", "2+", "foo(", "1/0", "x+", "5 5 5", "a".repeat(300)]) expect(await ev(e), e).toBe("ERR"); });
+});
+
+import katex from "katex";
+import { SHEETS } from "../src/data/formulas";
+describe("formula sheets", () => {
+  it("every formula is valid LaTeX that KaTeX can draw", () => {
+    let n = 0;
+    for (const s of SHEETS) for (const it of s.items) { n++; expect(() => katex.renderToString(it.tex, { throwOnError: true, strict: "ignore" }), `${s.id}: ${it.en}`).not.toThrow(); }
+    expect(n).toBeGreaterThan(50);
+  });
+  it("every formula has English and Spanish names, and sheet ids are unique", () => {
+    for (const s of SHEETS) { expect(s.en && s.es).toBeTruthy(); for (const it of s.items) expect(it.en.trim() && it.es.trim(), it.en).toBeTruthy(); }
+    expect(new Set(SHEETS.map((s) => s.id)).size).toBe(SHEETS.length);
+  });
+});

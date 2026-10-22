@@ -15,7 +15,7 @@ import type { SavedListing } from "@/lib/saved";
 import { EVENTS_KEY, NO_EVENTS, type SchoolEvent } from "@/lib/schedule";
 import { useCopy } from "@/lib/use-copy";
 import { buttonClass, inputClass } from "../ui";
-import { Callout, Empty, Ext, Head } from "./shared";
+import { Callout, Empty, Head } from "./shared";
 
 const copy = {
   en: {
@@ -25,7 +25,6 @@ const copy = {
     suTitle: "Surprise me", suLead: "One idea for something you might never think to search for. Tap to see what is out there near you.", suBtn: "Surprise me", suWhy: "Why not try", suOutside: "Outside my interests", suAny: "Anything",
     siTitle: "Similar opportunities", siLead: "Pick something you saved and get searches for more like it.", siNone: "Save an opportunity in the Finder first. Then come back here.", siOpen: "Open the Finder", siPick: "A saved opportunity", siIdeas: "Searches to try", siQ: [(t: string) => `programs similar to ${t}`, (_t: string, o: string) => `${o || "youth programs"} other programs for students`, (_t: string, _o: string, c: string) => `${c || "student"} opportunities for teens near me`, (t: string) => `free alternatives to ${t}`],
     flTitle: "Printable flyers", flLead: "Fill in the details of an event or opportunity and print a flyer to post at school or share with friends. Always get permission before posting.", fName: "What is it?", fOrg: "Hosted by", fWhen: "When", fWhere: "Where", fCost: "Cost", fContact: "How to sign up (website or contact)", fAbout: "A few words about it", fFrom: "Fill from a saved opportunity", fPrint: "Print flyer", fPh: "Beginner chess club", fNone: "(none)", fPermission: "Check your school's rules and get a teacher's OK before you post a flyer. Only share contact details you are comfortable making public.", fFree: "Free",
-    mpTitle: "Map view", mpLead: "See where your saved opportunities are. Each one opens in Google Maps in a new tab.", mpNone: "None of your saved opportunities has a location yet.", mpOnline: "Online", mpNear: "Search near me", mpPlace: "City or ZIP code", mpTypes: ["youth centers", "libraries", "community centers", "parks and recreation", "colleges"], mpHead: "Find places near you", mpOpen: "Open in Maps",
     fyTitle: "Recommendation feed", fyLead: "Ideas picked from your interests and grade, each with a reason. These are things to search for, so you can find real, current listings.", wkTitle: "Picked for you this week", wkLead: "A short summary for this week: a few ideas that match you, one new thing, and what is coming up.", tnTitle: "Try something new", tnLead: "Ideas from outside your usual interests, so you can discover more. A new batch every week.", because: (n: string) => `Because you like ${n.toLowerCase()}`, general: "A popular place to start", fresh: "Something new to try", noInt: "Pick your interests in your Profile to get ideas that fit you.", prof: "Open my Profile", thisWeek: "This week", soon: "Coming up", nothingSoon: "Nothing due in the next 7 days.", reroll: "Show other ideas",
   },
   es: {
@@ -35,7 +34,6 @@ const copy = {
     suTitle: "Sorpréndeme", suLead: "Una idea de algo que quizás nunca pensaste buscar. Toca para ver qué hay cerca de ti.", suBtn: "Sorpréndeme", suWhy: "¿Por qué no probar", suOutside: "Fuera de mis intereses", suAny: "Lo que sea",
     siTitle: "Oportunidades parecidas", siLead: "Elige algo que guardaste y recibe búsquedas para encontrar más como eso.", siNone: "Primero guarda una oportunidad en el Buscador. Luego regresa aquí.", siOpen: "Abrir el Buscador", siPick: "Una oportunidad guardada", siIdeas: "Búsquedas para probar", siQ: [(t: string) => `programs similar to ${t}`, (_t: string, o: string) => `${o || "youth programs"} other programs for students`, (_t: string, _o: string, c: string) => `${c || "student"} opportunities for teens near me`, (t: string) => `free alternatives to ${t}`],
     flTitle: "Volantes para imprimir", flLead: "Llena los datos de un evento u oportunidad e imprime un volante para pegar en tu escuela o compartir con amigos. Siempre pide permiso antes de pegarlo.", fName: "¿Qué es?", fOrg: "Organiza", fWhen: "Cuándo", fWhere: "Dónde", fCost: "Costo", fContact: "Cómo inscribirse (sitio web o contacto)", fAbout: "Unas palabras sobre el evento", fFrom: "Llenar con una oportunidad guardada", fPrint: "Imprimir volante", fPh: "Club de ajedrez para principiantes", fNone: "(ninguna)", fPermission: "Revisa las reglas de tu escuela y pide el visto bueno de un maestro antes de pegar un volante. Comparte solo datos de contacto que te parezca bien hacer públicos.", fFree: "Gratis",
-    mpTitle: "Vista de mapa", mpLead: "Mira dónde están tus oportunidades guardadas. Cada una abre Google Maps en una pestaña nueva.", mpNone: "Ninguna de tus oportunidades guardadas tiene ubicación todavía.", mpOnline: "En línea", mpNear: "Buscar cerca de mí", mpPlace: "Ciudad o código postal", mpTypes: ["centros juveniles", "bibliotecas", "centros comunitarios", "parques y recreación", "universidades"], mpHead: "Encuentra lugares cerca de ti", mpOpen: "Abrir en Mapas",
     fyTitle: "Recomendaciones para ti", fyLead: "Ideas escogidas según tus intereses y tu grado, cada una con su razón. Son cosas para buscar, así encuentras opciones reales y actuales.", wkTitle: "Lo mejor de tu semana", wkLead: "Un resumen corto de esta semana: unas ideas que te van, algo nuevo y lo que viene.", tnTitle: "Prueba algo nuevo", tnLead: "Ideas fuera de tus intereses de siempre, para que descubras más. Un grupo nuevo cada semana.", because: (n: string) => `Porque te gusta ${n.toLowerCase()}`, general: "Un buen lugar para empezar", fresh: "Algo nuevo para probar", noInt: "Elige tus intereses en tu Perfil para recibir ideas que te queden.", prof: "Abrir mi Perfil", thisWeek: "Esta semana", soon: "Lo que viene", nothingSoon: "No vence nada en los próximos 7 días.", reroll: "Mostrar otras ideas",
   },
 };
@@ -133,24 +131,6 @@ export function FlyerTool() {
         {f.about ? <p className="mx-auto mt-4 max-w-prose text-lg">{f.about}</p> : null}
         <dl className="mx-auto mt-6 grid max-w-md gap-2 text-left text-lg">{[[c.fWhen, f.when], [c.fWhere, f.where], [c.fCost, f.cost]].filter(([, v]) => v).map(([k, v]) => <div key={k} className="flex gap-3 border-b-2 border-dotted border-line pb-1"><dt className="w-24 shrink-0 font-bold">{k}</dt><dd className="min-w-0 break-words">{v}</dd></div>)}</dl>
         {f.contact ? <p className="mt-6 break-words text-xl font-bold">{f.contact}</p> : null}</article> : null}
-    </Head>
-  );
-}
-
-export function MapTool() {
-  const c = useCopy(copy);
-  const [saved] = useLocalDoc<SavedListing[]>("saved-opportunities", NO_SAVED);
-  const [place] = useLocalDoc<string>("finder-place", "");
-  const [near, setNear] = useState(place);
-  const withLoc = saved.filter((s) => s.location && !s.online);
-  const maps = (q: string) => `https://www.google.com/maps/search/${encodeURIComponent(q)}`;
-  return (
-    <Head title={c.mpTitle} lead={c.mpLead}>
-      {saved.length === 0 || withLoc.length === 0 ? <Empty>{c.mpNone}</Empty> : <ul className="mt-5 space-y-2">{withLoc.map((s) => <li key={s.sourceUrl} className="guide-card flex flex-wrap items-center gap-3 p-3"><div className="min-w-0 flex-1"><p className="font-bold">{s.title}</p><p className="text-sm text-muted">{s.location}</p></div><Ext href={maps(`${s.organization ?? s.title} ${s.location}`)}>{c.mpOpen}</Ext></li>)}</ul>}
-      {saved.some((s) => s.online) ? <p className="mt-3 text-sm text-muted">{c.mpOnline}: {saved.filter((s) => s.online).map((s) => s.title).join(", ")}</p> : null}
-      <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.mpHead}</h2>
-      <label className="mt-3 block max-w-sm"><span className="block font-bold">{c.mpPlace}</span><input value={near} onChange={(e) => setNear(e.target.value)} maxLength={60} className={`${inputClass} mt-1`} /></label>
-      <ul className="mt-3 flex flex-wrap gap-3">{c.mpTypes.map((t) => <li key={t}><Ext href={maps(`${t} ${near}`.trim())}>{t}</Ext></li>)}</ul>
     </Head>
   );
 }

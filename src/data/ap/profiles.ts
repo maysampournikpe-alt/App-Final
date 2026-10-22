@@ -2,7 +2,7 @@
 // They keep AI-written notes and questions inside the right course (for example, no AP Chemistry
 // ideas in an AP Biology question). Written from the published course structure and checked against
 // public study guides; they are outline-level, so compare them with the official Course and Exam Description (CED).
-export interface Profile { about: string; avoid: string }
+export interface Profile { about: string; avoid: string; /** How real questions in this course are built. */ style?: string }
 
 const lang = (name: string, extra = ""): Profile => ({
   about: `Interpretive, interpersonal and presentational communication in ${name}, across six themes: families and communities, personal and public identities, beauty and aesthetics, science and technology, contemporary life, and global challenges. Text-only questions give a short written passage, message, email, article or chart entirely in ${name} (written in the prompt) and ask for the main idea, details, purpose, tone, inference, and vocabulary or grammar in context. Everything the student reads is in ${name}.${extra}`,

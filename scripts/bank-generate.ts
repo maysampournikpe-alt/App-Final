@@ -22,7 +22,7 @@ import { coursesFor } from "../src/lib/exam/courses";
 import { EXAMS } from "../src/lib/exam/config";
 import { LEVELS, specFor, type Level } from "../src/lib/exam/levels";
 import { extractJson } from "../src/lib/ai/finder";
-import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, normalizeStem, parseReview, parseSolved, topicOf, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
+import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, normalizeStem, parseReview, MIN_FIT, parseSolved, topicOf, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
 import type { Question } from "../src/lib/exam/types";
 
 const args = process.argv.slice(2);
@@ -98,8 +98,8 @@ async function run(spec: GenSpec) {
     const solve = buildSolvePrompt({ stem: item.stem, passage: item.passage, type: item.type, choices: item.choices });
     const solved = dup ? null : parseSolved(await chat(solve.system, solve.user, 0));
     const id = `${spec.exam}-${spec.section}-g${createHash("sha1").update(item.stem).digest("hex").slice(0, 8)}`;
-    let review: "in" | "out" | "inaccurate" | null = null;
-    if (!dup && solved) { const sp = buildReviewPrompt(spec, item); review = parseReview(await chat(sp.system, sp.user, 0)); }
+    let review: "in" | "out" | "inaccurate" | "weak" | null = null;
+    if (!dup && solved) { const sp = buildReviewPrompt(spec, item); review = parseReview(await chat(sp.system, sp.user, 0), spec.style ? MIN_FIT.exam : MIN_FIT.normal); }
     const verdict = dup ? ({ ok: false, reason: "duplicate" } as const) : verifyQuestion(item, spec, solved, id, review);
     if (verdict.ok) { bank.push(verdict.question); seen.add(normalizeStem(item.stem)); kept++; } else { tossed++; console.log(`  rejected: ${verdict.reason}`); }
   }

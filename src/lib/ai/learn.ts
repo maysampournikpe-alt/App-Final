@@ -35,8 +35,8 @@ export const cramSchema = z.object({
 });
 export type Cram = z.infer<typeof cramSchema>;
 
-export interface LessonRef { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[] }
-const where = (r: LessonRef) => `Course or test: ${r.section}\nUnit or skill: ${r.skill}${r.topic ? `\nTopic ${r.topicNum}: ${r.topic}` : ""}${r.cover ? `\nThe notes must cover: ${r.cover}` : ""}${!r.topic && r.unitTopics?.length ? `\nThis unit has these topics, so the overview should walk through all of them: ${r.unitTopics.join("; ")}` : ""}`;
+export interface LessonRef { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[]; about?: string; avoid?: string }
+const where = (r: LessonRef) => `Course or test: ${r.section}\nUnit or skill: ${r.skill}${r.topic ? `\nTopic ${r.topicNum}: ${r.topic}` : ""}${r.about ? `\nThe course is about: ${r.about}` : ""}${r.avoid ? `\nNever include in this course: ${r.avoid}` : ""}${r.cover ? `\n${r.topic ? "The notes must cover" : "The unit covers"}: ${r.cover}` : ""}${!r.topic && r.unitTopics?.length ? `\nThis unit has these topics, so the overview should walk through all of them: ${r.unitTopics.join("; ")}` : ""}`;
 const BASE = (track: Track, lang: "en" | "es") => [
   "You are Rumbo's study-path tutor for students aged 13 to 18 in South Texas.",
   "Be accurate. If you are not sure of a date, number or fact, leave it out instead of guessing. Do not quote copyrighted text. Explain in clear, friendly language.",
@@ -69,6 +69,7 @@ export function notesMessages(track: Track, topic: LessonRef, lang: "en" | "es")
     "\"keyIdeas\": 5 to 10 short, complete statements a student could memorize. \"terms\": 6 to 14 key terms with precise meanings. \"examples\": 2 to 4 worked examples or cases that show the idea in use: show every step for math, science and computer science; give a specific case with analysis for history, social science and arts; model an analysis of a short original sample for language and literature.",
     "\"mistakes\": 3 to 6 common mistakes and how to avoid them. \"howTested\": 3 to 5 points on how this topic shows up on the real test: question types, the skills or task verbs used, what a strong answer includes" + (ap ? ", for both the multiple-choice and free-response parts." : ", and how to approach them under time pressure."),
     "\"memoryTips\": 2 to 4 mnemonics, patterns or shortcuts that help recall (use an empty list if none fit). \"selfCheck\": 4 to 6 questions the student can ask themselves to test understanding.",
+    "Stay inside this course. Teach only what its own course description requires for this topic, and never teach content that belongs to a different course (for example AP Chemistry ideas in AP Biology). If a brief says what the topic covers, cover it and stay within it.",
     "Be accurate. If you are not sure of a date, number or fact, leave it out instead of guessing. Do not quote copyrighted text. Explain in clear, friendly language.",
     "Math and science: put formulas in LaTeX between dollar signs, like $v = d/t$. Write a literal dollar sign as \\$.",
     `Write everything in ${lang === "es" ? "Spanish (natural South Texas Spanish; keep standard English or subject terms in parentheses when that helps)" : "English"}.`,

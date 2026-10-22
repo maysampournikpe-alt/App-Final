@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CalendarCheck, Check, ClipboardCheck, Crown, ExternalLink, FileText, Flame, Gauge, Languages, Layers, ListChecks, Route, Target, Timer, Zap } from "lucide-react";
 import { diffDays, formatDay, isValidISO, today } from "@/lib/dates";
-import { AP_ALL_COURSES, apScore, hasQuestions } from "@/lib/exam/ap";
+import { AP_ALL_COURSES, apScore } from "@/lib/exam/ap";
 import { EXAMS, examPath } from "@/lib/exam/config";
 import type { ExamId } from "@/lib/exam/types";
 import { skillStats } from "@/lib/exam/engine";
@@ -26,7 +26,6 @@ export function ApCoursesTool() {
   const c = useCopy(examCopy);
   const lang = useLang();
   const [picked, setPicked] = useLocalDoc<string[]>("ap-courses", NO_COURSES);
-  const ready = new Set(AP_ALL_COURSES.filter((x) => hasQuestions(x.id)).map((x) => x.id));
   const toggle = (id: string) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id]);
   return (
     <Page>
@@ -41,7 +40,6 @@ export function ApCoursesTool() {
                 <input type="checkbox" checked={on} onChange={() => toggle(course.id)} className="peer sr-only" />
                 <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded border-2 border-current peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]`}>{on ? <Check size={16} strokeWidth={3} /> : null}</span>
                 <span className="min-w-0 flex-1 font-bold">{course[lang]}</span>
-                <span className={`shrink-0 rounded-sm border px-1.5 text-xs font-bold ${on ? "border-on-teal" : ready.has(course.id) ? "border-palm text-ink" : "border-line text-muted"}`}>{ready.has(course.id) ? c.ap.ready : c.ap.notReadyYet}</span>
               </label>
             </li>
           );

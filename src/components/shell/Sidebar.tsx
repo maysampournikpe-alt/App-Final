@@ -39,7 +39,7 @@ export function Sidebar({ collapsible = true, onNavigate }: { collapsible?: bool
     if (!q) return null;
     return ALL_TABS.flatMap((tab) =>
       tab.tools
-        .filter((tool) => !hidden.has(tool.key))
+        .filter((tool) => tool.status === "built" && !hidden.has(tool.key))
         .filter((tool) => [tool.name.en, tool.name.es, tab.name.en, tab.name.es].some((s) => norm(s).includes(q)))
         .map((tool) => ({ tool, tab })),
     );
@@ -156,9 +156,6 @@ function ToolLink({ tool, tabName, active, onNavigate }: { tool: Tool; tabName?:
           <span className="block truncate">{tool.name[lang]}</span>
           {tabName ? <span className={`block truncate text-xs ${active ? "" : "text-muted"}`}>{tabName}</span> : null}
         </span>
-        {tool.status === "soon" ? (
-          <span className={`shrink-0 rounded-sm border px-1 text-[0.7rem] font-bold leading-4 ${active ? "border-on-marigold" : "border-line text-muted"}`}>{t("comingSoon")}</span>
-        ) : null}
       </Link>
       <button onClick={() => togglePref("pinned", tool.key)} aria-pressed={pinned} aria-label={`${pinned ? t("unpin") : t("pin")}: ${tool.name[lang]}`} title={pinned ? t("unpin") : t("pin")}
         className={`mr-1 grid h-7 w-7 shrink-0 place-items-center rounded ${pinned ? "" : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-60"}`}>

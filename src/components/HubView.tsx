@@ -26,7 +26,7 @@ export function HubView({ hub }: { hub: Hub }) {
       </div>
       <Page>
         <div className="space-y-12">
-          {tabs.map((tab) => {
+          {tabs.filter((tab) => tab.tools.some((x) => x.status === "built")).map((tab) => {
             const Icon = ICONS[tab.icon];
             return (
               <section key={tab.id} id={`s-${tab.id}`} aria-labelledby={`h-${tab.id}`} className="scroll-mt-20">

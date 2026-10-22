@@ -113,12 +113,7 @@ export function TransparencyTool() {
              "One in five comes from outside your interests so you can discover new things, and it is labeled.",
              "You can reset your recommendations any time."]}
       />
-      <List
-        title={es ? "Lo que todavía no está" : "What is not live yet"}
-        items={es
-          ? ["Las funciones con la etiqueta “Próximamente” todavía no funcionan. Se explican en su página."]
-          : ["Features with the “Coming soon” badge are not live yet. Each one explains what it will do."]}
-      />
+
     </Page>
   );
 }

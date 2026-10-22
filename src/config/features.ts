@@ -259,6 +259,7 @@ export const BUILT = new Set<string>([
   "foryou/weekly",
   "foryou/trynew",
   "languages/conversation",
+  "study/chess",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */

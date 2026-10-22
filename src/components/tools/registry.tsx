@@ -21,6 +21,7 @@ import { ApFlashTool, ApNotesTool, ApPlanTool, AppTrackerTool, CitationTool } fr
 import { CelebrationsTool, ChallengesTool, ParentViewTool, PortfolioTool, RadarTool, YearReviewTool } from "./AchievementsPlus";
 import { FlyerTool, ForYouTool, HistoryTool, MapTool, SavedSearchesTool, SimilarTool, SurpriseTool } from "./FinderExtras";
 import { ExportTool as DataExportTool, NotificationsTool, OfflineTool, ReadAloudTool, SidebarTool, VoiceTool } from "./SettingsMore";
+import { ChessTool } from "./ChessTool";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -306,4 +307,5 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "foryou/weekly": clientOnly(() => <ForYouTool view="weekly" />),
   "foryou/trynew": clientOnly(() => <ForYouTool view="trynew" />),
   "languages/conversation": clientOnly(() => <CoachTool kind="language" />),
+  "study/chess": clientOnly(ChessTool),
 };

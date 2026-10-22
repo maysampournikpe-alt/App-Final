@@ -71,3 +71,18 @@ describe("exam page addresses", () => {
       }
   });
 });
+
+import { AP_CED } from "../src/data/ap-ced";
+import { AP_COURSES, AP_SECTIONS, hasQuestions } from "../src/lib/exam/ap";
+describe("AP course units from the CED list", () => {
+  it("every CED course name matches a real course, and every course gets numbered units", () => {
+    const names = new Set(AP_ALL_COURSES.map((c) => c.en));
+    for (const n of Object.keys(AP_CED)) expect(names.has(n), n).toBe(true);
+    for (const c of AP_COURSES) { expect(c.units.length, c.id).toBeGreaterThanOrEqual(4); expect(new Set(c.units.map((u) => u.id)).size).toBe(c.units.length); }
+    expect(AP_COURSES.length).toBeGreaterThanOrEqual(25);
+  });
+  it("mock exams only list courses that have questions", () => {
+    expect(AP_SECTIONS.map((s) => s.id).sort()).toEqual(["apstats", "apush", "aphug"].sort());
+    expect(hasQuestions("ap-biology")).toBe(false);
+  });
+});

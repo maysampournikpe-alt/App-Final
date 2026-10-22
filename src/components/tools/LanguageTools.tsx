@@ -1,10 +1,11 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { today } from "@/lib/dates";
 import { useLocalDoc } from "@/lib/local-doc";
 import { FLASHCARDS_KEY, newCard, NO_CARDS, type Card } from "@/lib/srs";
-import { conjugate, ENGLISH_IRREGULAR, PERSONS, sameForm, SPANISH_VERBS, type Tense } from "@/lib/verbs";
+import { conjugate, ENGLISH_IRREGULAR, sameForm, SPANISH_VERBS, type Tense } from "@/lib/verbs";
 import { useCopy } from "@/lib/use-copy";
 import { buttonClass, inputClass } from "../ui";
 import { Callout, Chips, Head } from "./shared";
@@ -21,7 +22,6 @@ const copy = {
     prTitle: "Práctica de pronunciación", prLead: "Escucha una palabra y luego dila en voz alta. Si tu navegador reconoce voz, te dice si entendió la palabra.", prLang: "Idioma", prWords: "Palabra", prListen: "Escuchar", prSay: "Decirla", prStop: "Parar", prHeard: (w: string) => `Escuché: "${w}"`, prMatch: "Coincide. Muy bien.", prNo: "No exactamente. Escucha otra vez e inténtalo de nuevo.", prNoSpeech: "Tu navegador no puede escuchar. Aun así puedes escuchar la palabra y practicar en voz alta.", prNoVoice: "Tu navegador no puede leer palabras en voz alta.", prPrivacy: "Cuando tocas Decirla, tu navegador puede enviar el sonido a su servicio de voz (por ejemplo Google en Chrome, Apple en Safari). Esta app no guarda nada.", prNext: "Otra palabra",
   },
 };
-type C = typeof copy.en;
 const strip = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 const pickRand = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 
@@ -43,6 +43,7 @@ export function ConjugationTool() {
     if (lang === "sp") setQ({ v: pickRand(pool).inf, p: Math.floor(Math.random() * 5) });
     else setQ({ v: "", p: 0, en: { base: pickRand(ENGLISH_IRREGULAR).base, form: Math.random() < 0.5 ? "past" : "participle" } });
   };
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
   useEffect(() => { if (mode === "quiz") { setTally({ ok: 0, n: 0 }); nextQ(); } }, [mode, lang, tense, irrOnly]); // eslint-disable-line react-hooks/exhaustive-deps
   const forms = conjugate(verb, tense);
   const check = (e: React.FormEvent) => {
@@ -95,7 +96,7 @@ export function TransCardsTool() {
         <label><span className="block font-bold">{c.esW}</span><input value={f.es} onChange={(e) => setF({ ...f, es: e.target.value })} lang="es" maxLength={60} className={`${inputClass} mt-1`} /></label>
         <button className={buttonClass.primary}><Plus size={18} />{c.tcAdd}</button>{err ? <p role="alert" className="font-bold text-ruby sm:col-span-3">{err}</p> : null}</form>
       <p className="mt-4 font-bold text-teal" aria-live="polite">{c.tcSaved(tr.length)}</p>
-      <a href="/t/notes/spaced" className={`${buttonClass.secondary} mt-3 inline-flex`}>{c.tcReview}</a>
+      <Link href="/t/notes/spaced" className={`${buttonClass.secondary} mt-3 inline-flex`}>{c.tcReview}</Link>
       <h2 className="mt-6 border-b-[1.5px] border-ink pb-1 text-2xl">{c.tcSide}</h2>
       {pairs.length === 0 ? <p className="mt-2 text-muted">{c.tcEmpty}</p> : <table className="mt-2 w-full max-w-xl border-collapse text-lg"><thead><tr className="text-left"><th scope="col" className="p-2">{c.enW}</th><th scope="col" className="p-2">{c.esW}</th></tr></thead><tbody>{pairs.map((p, i) => <tr key={i} className="border-t-2 border-dotted border-line"><td className="p-2" lang="en">{p.en}</td><td className="p-2" lang="es">{p.es}</td></tr>)}</tbody></table>}
     </Head>
@@ -112,6 +113,7 @@ export function PronunciationTool() {
   const [listening, setListening] = useState(false);
   const [support, setSupport] = useState<{ speech: boolean; voice: boolean }>({ speech: true, voice: true });
   const rec = useRef<InstanceType<SR> | null>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
   useEffect(() => { const w = window as unknown as { SpeechRecognition?: SR; webkitSpeechRecognition?: SR }; setSupport({ speech: !!(w.SpeechRecognition ?? w.webkitSpeechRecognition), voice: "speechSynthesis" in window }); return () => rec.current?.stop(); }, []);
   const word = WORDS[lang][i % WORDS[lang].length];
   const listen = () => { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(word); u.lang = lang === "es" ? "es-MX" : "en-US"; u.rate = 0.85; speechSynthesis.speak(u); } catch {} };

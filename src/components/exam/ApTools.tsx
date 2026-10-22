@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { diffDays, isValidISO, today } from "@/lib/dates";
-import { AP_ALL_COURSES, AP_PRACTICE_COURSES } from "@/lib/exam/ap";
+import { AP_ALL_COURSES, AP_COURSES, hasQuestions } from "@/lib/exam/ap";
 import { BANK } from "@/lib/exam/bank";
 import { buildTest, newSession, skillStats } from "@/lib/exam/engine";
 import { useLang } from "@/lib/i18n";
@@ -21,7 +21,7 @@ export function ApCoursesTool() {
   const c = useCopy(examCopy);
   const lang = useLang();
   const [picked, setPicked] = useLocalDoc<string[]>("ap-courses", NO_COURSES);
-  const ready = new Set(AP_PRACTICE_COURSES.map((x) => x.id));
+  const ready = new Set(AP_ALL_COURSES.filter((x) => hasQuestions(x.id)).map((x) => x.id));
   const toggle = (id: string) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id]);
   return (
     <Page>
@@ -56,7 +56,7 @@ export function ApDashboardTool() {
   const [picked] = useLocalDoc<string[]>("ap-courses", NO_COURSES);
   const [dates, setDates] = useLocalDoc<Record<string, string>>("ap-exam-dates", NO_DATES);
   const stats = skillStats(attempts.filter((a) => a.exam === "ap"));
-  const courses = AP_PRACTICE_COURSES.filter((x) => picked.includes(x.id));
+  const courses = AP_COURSES.filter((x) => picked.includes(x.id));
 
   const practice = (course: string, unit: string) => {
     const qids = buildTest(BANK, { exam: "ap", mode: "section", section: course, skill: unit, count: 10 });

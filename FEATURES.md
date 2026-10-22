@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**229 of 265 features built.**
+**234 of 270 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 61 | 73 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 66 | 78 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 22 | 30 |
 | Phase 3: Discovery and college/career | 24 | 26 |
 | Phase 4: Study tools and skill building | 53 | 56 |
@@ -185,6 +185,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Course picker | 1 | Built |  |
+| Study path | 1 | Built |  |
 | Course dashboard | 1 | Built |  |
 | Unit notes | 1 | Built |  |
 | Practice quizzes | 1 | Built |  |
@@ -201,6 +202,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Test overview | 1 | Built |  |
+| Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
 | Section practice | 1 | Built |  |
 | Full practice tests | 1 | Built |  |
@@ -216,6 +218,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Test overview | 1 | Built |  |
+| Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
 | Section practice | 1 | Built |  |
 | Full practice tests | 1 | Built |  |
@@ -231,6 +234,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Test overview | 1 | Built |  |
+| Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
 | Section practice | 1 | Built |  |
 | Full practice tests | 1 | Built |  |
@@ -246,6 +250,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Test overview | 1 | Built |  |
+| Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
 | Section practice | 1 | Built |  |
 | Full practice tests | 1 | Built |  |

@@ -22,6 +22,7 @@ import { CelebrationsTool, ChallengesTool, ParentViewTool, PortfolioTool, RadarT
 import { FlyerTool, ForYouTool, HistoryTool, MapTool, SavedSearchesTool, SimilarTool, SurpriseTool } from "./FinderExtras";
 import { ExportTool as DataExportTool, NotificationsTool, OfflineTool, ReadAloudTool, SidebarTool, VoiceTool } from "./SettingsMore";
 import { ChessTool } from "./ChessTool";
+import { StudyPathTool } from "../exam/StudyPath";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -308,4 +309,9 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "foryou/trynew": clientOnly(() => <ForYouTool view="trynew" />),
   "languages/conversation": clientOnly(() => <CoachTool kind="language" />),
   "study/chess": clientOnly(ChessTool),
+  "ap/path": clientOnly(() => <StudyPathTool track="ap" />),
+  "sat/path": clientOnly(() => <StudyPathTool track="sat" />),
+  "psat/path": clientOnly(() => <StudyPathTool track="psat" />),
+  "act/path": clientOnly(() => <StudyPathTool track="act" />),
+  "tsi/path": clientOnly(() => <StudyPathTool track="tsi" />),
 };

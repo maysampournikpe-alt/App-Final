@@ -181,11 +181,11 @@ export function FindTool() {
 
         {phase.kind === "done" ? (
           <>
-            <p className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 font-bold">
+            <h2 className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 font-sans text-base font-bold">
               <span>{c.confirmed(phase.result.listings.length)}</span>
               {phase.result.notConfirmed.length ? <span className="text-muted">{c.toAsk(phase.result.notConfirmed.length)}</span> : null}
               {phase.cached ? <span className="text-sm font-normal text-muted">{c.cached}</span> : null}
-            </p>
+            </h2>
             <div className="grid gap-6 md:grid-cols-2">
               {phase.result.listings.map((l) => <OpportunityCard key={l.id} listing={l} lang={lang} saved={isSaved(l)} onToggle={() => toggle(l)} />)}
             </div>

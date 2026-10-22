@@ -1,10 +1,11 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { planUnits } from "@/lib/apPlan";
 import { cite, citeText, EMPTY_SOURCE, type Kind, type Source, type Style } from "@/lib/citation";
 import { diffDays, formatDay, isValidISO, today } from "@/lib/dates";
-import { AP_PRACTICE_COURSES } from "@/lib/exam/ap";
+import { AP_COURSES } from "@/lib/exam/ap";
 import { HOMEWORK_KEY, NO_ASSIGNMENTS, type Assignment } from "@/lib/homework";
 import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
@@ -110,7 +111,7 @@ const NO_NOTES: Record<string, string> = {};
 function useUnit() {
   const lang = useLang();
   const [picked] = useLocalDoc<string[]>("ap-courses", NO_PICKED);
-  const courses = AP_PRACTICE_COURSES.filter((x) => picked.includes(x.id));
+  const courses = AP_COURSES.filter((x) => picked.includes(x.id));
   const [cid, setCid] = useState("");
   const course = courses.find((x) => x.id === cid) ?? courses[0];
   const [uid, setUid] = useState("");
@@ -124,7 +125,7 @@ function UnitPickers({ c, u }: { c: typeof copy.en; u: ReturnType<typeof useUnit
       <label><span className="block font-bold">{c.unit}</span><select value={u.unit?.id ?? ""} onChange={(e) => u.setUid(e.target.value)} className={`${inputClass} mt-1`}>{u.course?.units.map((x) => <option key={x.id} value={x.id}>{x[u.lang]}</option>)}</select></label></div>
   );
 }
-const NoCourses = ({ c }: { c: typeof copy.en }) => <><Empty>{c.noCourse}</Empty><a href="/t/ap/courses" className={`${buttonClass.primary} mt-3 inline-flex`}>{c.pick}</a></>;
+const NoCourses = ({ c }: { c: typeof copy.en }) => <><Empty>{c.noCourse}</Empty><Link href="/t/ap/courses" className={`${buttonClass.primary} mt-3 inline-flex`}>{c.pick}</Link></>;
 
 export function ApNotesTool() {
   const c = useCopy(copy);
@@ -171,7 +172,7 @@ export function ApFlashTool() {
           <button className={buttonClass.primary}><Plus size={18} />{c.addCard}</button>{err ? <p role="alert" className="font-bold text-ruby md:col-span-3">{err}</p> : null}</form>
         <p className="mt-4 font-bold text-teal" aria-live="polite">{c.afCount(mine.length)}</p>
         <ul className="mt-2 divide-y-2 divide-dotted divide-line">{mine.slice(0, 30).map((k) => <li key={k.id} className="flex items-center gap-3 py-2"><p className="min-w-0 flex-1"><span className="font-bold">{k.front}</span> <span className="text-muted">→ {k.back}</span></p>{rm(k.front, c.remove, () => setCards((p) => p.filter((x) => x.id !== k.id)))}</li>)}</ul>
-        <a href="/t/notes/spaced" className={`${buttonClass.secondary} mt-3 inline-flex`}>{c.review}</a>
+        <Link href="/t/notes/spaced" className={`${buttonClass.secondary} mt-3 inline-flex`}>{c.review}</Link>
         <p className="mt-3 text-sm text-muted">{c.afNote}</p></>}
     </Head>
   );
@@ -185,7 +186,7 @@ export function ApPlanTool() {
   const [, setHw] = useLocalDoc<Assignment[]>(HOMEWORK_KEY, NO_ASSIGNMENTS);
   const [msg, setMsg] = useState<Record<string, string>>({});
   const now = today();
-  const courses = AP_PRACTICE_COURSES.filter((x) => picked.includes(x.id));
+  const courses = AP_COURSES.filter((x) => picked.includes(x.id));
   const build = (id: string) => {
     const course = courses.find((x) => x.id === id)!;
     const exam = dates[id], p = isValidISO(exam) ? planUnits(course.units.length, now, exam) : null;
@@ -201,7 +202,7 @@ export function ApPlanTool() {
       {courses.length === 0 ? <NoCourses c={c} /> : <ul className="mt-6 space-y-4">{courses.map((course) => {
         const exam = dates[course.id] ?? "", valid = isValidISO(exam) && exam > now, p = valid ? planUnits(course.units.length, now, exam) : null;
         return <li key={course.id} className="guide-card p-5"><h2 className="text-2xl">{course[lang]}</h2>
-          {!isValidISO(exam) ? <><p className="mt-2 text-muted">{c.noDate}</p><a href="/t/ap/dashboard" className={`${buttonClass.secondary} mt-2 inline-flex`}>{c.dash}</a></> : !valid ? <p className="mt-2 text-ruby">{c.apPast}</p> : p ? <>
+          {!isValidISO(exam) ? <><p className="mt-2 text-muted">{c.noDate}</p><Link href="/t/ap/dashboard" className={`${buttonClass.secondary} mt-2 inline-flex`}>{c.dash}</Link></> : !valid ? <p className="mt-2 text-ruby">{c.apPast}</p> : p ? <>
             <p className="mt-1 font-bold text-teal">{c.examDate}: {formatDay(exam, lang)} · {c.apDays(diffDays(now, exam))}</p>
             <h3 className="mt-3 text-lg">{c.preview}</h3><ol className="mt-1 list-decimal pl-6">{course.units.map((un, i) => <li key={un.id}>{un[lang]} <span className="text-muted">· {formatDay(p.dates[i], lang)}</span></li>)}</ol>
             {p.tight ? <Callout tone="warn">{c.apTight}</Callout> : null}

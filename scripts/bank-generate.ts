@@ -1,7 +1,14 @@
 // Grows the practice question bank. Run on YOUR computer, where Groq is reachable:
 //
-//   GROQ_API_KEY=... npm run bank:generate -- --section math --skill algebra --count 12
-//   npm run bank:generate -- --all --per-skill 12        (every skill of both sections)
+//   GROQ_API_KEY=... npm run bank:generate -- --section math --skill algebra --count 12      (SAT, the default)
+//   npm run bank:generate -- --exam ap --section ap-biology --skill u3 --count 12            (one AP unit)
+//   npm run bank:generate -- --exam ap --section ap-biology --per-skill 12                   (every unit of one AP course)
+//   npm run bank:generate -- --exam act --all --per-skill 8                                  (the whole ACT)
+//   npm run bank:generate -- --exam tsi --all --per-skill 8
+//   npm run bank:generate -- --exam ap --all --per-skill 10                                  (every AP course: a lot of calls)
+//   npm run bank:generate -- --list                                                          (show exams, courses and units)
+//
+// The PSAT practices from the SAT bank, so generate with --exam sat.
 //
 // Each question is checked three ways before it is saved: its structure, an independent solve by a
 // second AI call that never sees the answer key, and a duplicate check. Rejected ones are thrown away.
@@ -9,15 +16,24 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { AI } from "../src/config/ai";
+import { AP_COURSES } from "../src/lib/exam/ap";
 import { EXAMS } from "../src/lib/exam/config";
 import { extractJson } from "../src/lib/ai/finder";
-import { buildGenPrompt, buildSolvePrompt, genBatch, normalizeStem, parseSolved, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
+import { buildGenPrompt, buildSolvePrompt, genBatch, normalizeStem, parseSolved, topicOf, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
 import type { Question } from "../src/lib/exam/types";
 
-const OUT = new URL("../src/data/bank/sat-generated.json", import.meta.url);
 const args = process.argv.slice(2);
+const EXAM = (args.includes("--exam") ? args[args.indexOf("--exam") + 1] : "sat") as GenSpec["exam"];
+if (!["sat", "act", "tsi", "ap"].includes(EXAM)) { console.error("--exam must be sat, act, tsi or ap"); process.exit(1); }
+const OUT = new URL(`../src/data/bank/${EXAM}-generated.json`, import.meta.url);
 const flag = (n: string) => args.includes(`--${n}`);
 const opt = (n: string, d?: string) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
+
+if (args.includes("--list")) {
+  for (const id of ["sat", "act", "tsi"] as const) console.log(`${id}: ` + EXAMS[id].sections.map((x) => `${x.id}[${x.skills.map((k) => k.id).join(",")}]`).join(" "));
+  for (const c of AP_COURSES) console.log(`ap ${c.id}: ${c.units.map((u) => u.id).join(",")}`);
+  process.exit(0);
+}
 
 function loadKey(): string {
   if (process.env.GROQ_API_KEY) return process.env.GROQ_API_KEY;
@@ -59,7 +75,7 @@ async function run(spec: GenSpec) {
     const dup = seen.has(normalizeStem(item.stem));
     const solve = buildSolvePrompt({ stem: item.stem, passage: item.passage, type: item.type, choices: item.choices });
     const solved = dup ? null : parseSolved(await chat(solve.system, solve.user, 0));
-    const id = `sat-${spec.section}-g${createHash("sha1").update(item.stem).digest("hex").slice(0, 8)}`;
+    const id = `${spec.exam}-${spec.section}-g${createHash("sha1").update(item.stem).digest("hex").slice(0, 8)}`;
     const verdict = dup ? ({ ok: false, reason: "duplicate" } as const) : verifyQuestion(item, spec, solved, id);
     if (verdict.ok) { bank.push(verdict.question); seen.add(normalizeStem(item.stem)); kept++; } else { tossed++; console.log(`  rejected: ${verdict.reason}`); }
   }
@@ -67,16 +83,17 @@ async function run(spec: GenSpec) {
 }
 
 async function main() {
-  const sat = EXAMS.sat.sections;
+  const sections = EXAM === "ap" ? AP_COURSES.map((c) => ({ id: c.id, skills: c.units })) : EXAMS[EXAM].sections;
   const per = Number(opt("per-skill", opt("count", "8")));
   const diffs: (1 | 2 | 3)[] = [1, 2, 2, 3];
   const jobs: GenSpec[] = [];
-  for (const sec of sat) for (const sk of sec.skills) {
+  for (const sec of sections) for (const sk of sec.skills) {
     if (!flag("all") && (opt("section") !== sec.id || (opt("skill") && opt("skill") !== sk.id))) continue;
+    if (!topicOf(EXAM, sec.id, sk.id)) continue;
     // Batches of 4 so each reply stays small and checkable.
-    for (let left = per, i = 0; left > 0; left -= 4, i++) jobs.push({ exam: "sat", section: sec.id, skill: sk.id, count: Math.min(4, left), difficulty: diffs[i % diffs.length] });
+    for (let left = per, i = 0; left > 0; left -= 4, i++) jobs.push({ exam: EXAM, section: sec.id, skill: sk.id, count: Math.min(4, left), difficulty: diffs[i % diffs.length] });
   }
-  if (!jobs.length) { console.error("Nothing to do. Use --all, or --section math|rw [--skill algebra] --count 12"); process.exit(1); }
+  if (!jobs.length) { console.error("Nothing to do. Use --all, or --section <id> [--skill <id>] --count 12 (see --list), with --exam sat|act|tsi|ap"); process.exit(1); }
   console.log(`${jobs.length} batch(es), model ${AI.models.chat}${dry ? " (dry run, nothing will be saved)" : ""}`);
   let kept = 0, tossed = 0;
   for (const job of jobs) {
@@ -85,6 +102,6 @@ async function main() {
     if (!dry) writeFileSync(OUT, JSON.stringify(bank, null, 2) + "\n"); // save as we go
   }
   console.log(`\nDone. Kept ${kept}, rejected ${tossed}. Bank now has ${bank.length} generated questions.`);
-  console.log("Next: read through a sample, then git add src/data/bank/sat-generated.json && git commit && git push");
+  console.log(`Next: read through a sample, then git add src/data/bank/${EXAM}-generated.json && git commit && git push`);
 }
 main().catch((e) => { console.error(e.message); process.exit(1); });

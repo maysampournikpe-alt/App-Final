@@ -81,14 +81,14 @@ export function HomeView() {
                 </h3>
                 <p className="mt-1 text-sm text-muted">{hub.blurb[lang]}</p>
                 <ul>
-                  {hub.tabs.map((id) => ALL_TABS.find((x) => x.id === id)).filter((x): x is NonNullable<typeof x> => !!x).map((tab) => {
+                  {hub.tabs.map((id) => ALL_TABS.find((x) => x.id === id)).filter((x): x is NonNullable<typeof x> => !!x && x.tools.some((y) => y.status === "built")).map((tab) => {
                     const ready = tab.tools.filter((x) => x.status === "built").length;
                     return (
                       <li key={tab.id}>
                         <Link href={`/t/${tab.id}`} className="flex items-center gap-3 py-2 hover:bg-sunken sm:px-2">
                           <span className="font-bold">{tab.name[lang]}</span>
                           <span aria-hidden className="mb-1 min-w-4 flex-1 self-end border-b-2 border-dotted border-line" />
-                          <span className={`text-sm ${ready ? "font-bold text-palm" : "text-muted"}`}>{ready}/{tab.tools.length}</span>
+                          <span className={`text-sm ${ready ? "font-bold text-palm" : "text-muted"}`}>{ready}</span>
                         </Link>
                       </li>
                     );

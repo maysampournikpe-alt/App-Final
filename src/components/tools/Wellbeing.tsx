@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { Phone, Plus, Trash2 } from "lucide-react";
 import { MOOD_KEY, needsSupportNudge, NO_MOODS, NO_SLEEP, SLEEP_KEY, sleepHours, sleepVerdict, type Mood, type Sleep } from "@/lib/career";
@@ -70,7 +71,7 @@ export function MoodTool() {
       </section>
       {needsSupportNudge(log, now) ? (
         <section className="guide-card mt-6 border-l-[6px] border-l-ruby p-5" role="note"><p className="text-lg">{c.nudge}</p><p className="mt-2 font-bold">{c.emergency}</p>
-          <a href="/t/wellbeing/contacts" className="mt-3 inline-block font-bold text-teal underline underline-offset-4">{c.help}</a></section>
+          <Link href="/t/wellbeing/contacts" className="mt-3 inline-block font-bold text-teal underline underline-offset-4">{c.help}</Link></section>
       ) : (
         <section className="guide-card mt-6 p-5"><h2 className="text-xl">{c.tipsTitle}</h2><p className="mt-1 text-lg">{tip}</p></section>
       )}

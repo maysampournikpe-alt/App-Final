@@ -1,9 +1,27 @@
 import { z } from "zod";
+import { AP_COURSES } from "./ap";
 import { EXAMS, sectionOf } from "./config";
 import { isCorrect, parseNumeric } from "./engine";
 import type { ExamId, Question } from "./types";
 
-export interface GenSpec { exam: "sat"; section: string; skill: string; count: number; difficulty: 1 | 2 | 3 }
+export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; count: number; difficulty: 1 | 2 | 3 }
+
+/** Readable names for a section and skill. AP courses come from the full CED list, so a course can be generated before it has any questions. */
+export function topicOf(exam: GenSpec["exam"], section: string, skill: string): { section: string; skill: string } | null {
+  if (exam === "ap") {
+    const c = AP_COURSES.find((x) => x.id === section), u = c?.units.find((x) => x.id === skill);
+    return c && u ? { section: c.en, skill: u.en } : null;
+  }
+  const sec = sectionOf(exam as ExamId, section), sk = sec?.skills.find((x) => x.id === skill);
+  return sec && sk ? { section: sec.en, skill: sk.en } : null;
+}
+
+const STYLE: Record<GenSpec["exam"], string> = {
+  sat: "the digital SAT for students in grades 8 to 11",
+  act: "the ACT for students in grades 9 to 12. Use exactly 4 answer choices",
+  tsi: "the Texas TSIA2 college-readiness test, for students heading to college in Texas",
+  ap: "College Board AP multiple-choice questions, aligned with the unit named below in the course's Course and Exam Description. Use realistic stimulus (a short passage, scenario or data described in words or a small text table) when it fits. Text only: never refer to an image, graph or map the student cannot see",
+};
 
 const genItem = z.object({
   stem: z.string().min(15).max(900),
@@ -17,16 +35,16 @@ const genItem = z.object({
 export const genBatch = z.object({ questions: z.array(genItem).min(1).max(12) });
 
 export function buildGenPrompt(spec: GenSpec): { system: string; user: string } {
-  const sec = sectionOf(spec.exam as ExamId, spec.section)!;
-  const skill = sec.skills.find((s) => s.id === spec.skill)!;
+  const topic = topicOf(spec.exam, spec.section, spec.skill)!;
+  const sec = { en: topic.section }, skill = { en: topic.skill };
   return {
     system: [
-      "You write ORIGINAL practice questions in the style of the digital SAT for students in grades 8 to 11.",
-      "Never copy or closely imitate real released questions. Invent new passages, numbers and situations.",
+      `You write ORIGINAL practice questions in the style of ${STYLE[spec.exam]}.`,
+      "Never copy or closely imitate real released questions or any published test, textbook or website. Invent new passages, numbers and situations.",
       "Every question must have exactly ONE correct answer, an answer key that is right, and a clear explanation that shows why.",
-      "Math: use LaTeX between dollar signs, like $3x+7=25$. Write a literal dollar sign as \\$. Use \"type\":\"grid\" for questions whose answer is a number the student types (no choices). Otherwise \"type\":\"mc\" with exactly 4 choices and answer \"A\", \"B\", \"C\" or \"D\".",
-      "Reading and Writing: always \"type\":\"mc\". Put any short passage (1 to 4 sentences) in \"passage\" and the question in \"stem\".",
-      "Content must be appropriate for ages 13 to 17 and avoid politics, religion and violence.",
+      "Math and science: use LaTeX between dollar signs, like $3x+7=25$. Write a literal dollar sign as \\$. Use \"type\":\"grid\" for questions whose answer is a number the student types (no choices). Otherwise \"type\":\"mc\" with exactly 4 choices and answer \"A\", \"B\", \"C\" or \"D\".",
+      "Reading, writing and all non-numeric subjects: always \"type\":\"mc\". Put any short passage (1 to 4 sentences) in \"passage\" and the question in \"stem\".",
+      "Content must be appropriate for ages 13 to 18. Teach history, government and social science accurately and neutrally.",
       "Return ONLY JSON: {\"questions\":[{\"stem\":\"\",\"passage\":null,\"type\":\"mc\",\"choices\":[\"\",\"\",\"\",\"\"],\"answer\":\"A\",\"accept\":null,\"explanation\":\"\"}]}",
     ].join("\n"),
     user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\nDifficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). Vary the position of the correct answer.`,

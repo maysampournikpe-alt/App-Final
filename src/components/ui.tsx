@@ -52,7 +52,6 @@ export function ComingSoon({ tool, tab }: { tool: Tool; tab: Tab }) {
 /** Contents-page row: name, one line, and a dotted leader to its status. */
 export function IndexRow({ tool, href }: { tool: Tool; href: string }) {
   const lang = useLang();
-  const t = useT();
   const Icon = ICONS[tool.icon];
   return (
     <Link href={href} className="group flex items-start gap-3 rounded-sm py-3 hover:bg-sunken sm:px-2">
@@ -60,12 +59,6 @@ export function IndexRow({ tool, href }: { tool: Tool; href: string }) {
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
           <span className="font-bold group-hover:underline">{tool.name[lang]}</span>
-          <span aria-hidden className="mb-1 min-w-4 flex-1 border-b-2 border-dotted border-line" />
-          {tool.status === "built" ? (
-            <span className="text-sm font-bold text-palm">{t("built")}</span>
-          ) : (
-            <span className="text-sm text-muted">{t("comingSoon")}</span>
-          )}
         </span>
         <span className="mt-0.5 block text-[0.95rem] text-muted">{tool.desc[lang]}</span>
       </span>
@@ -98,26 +91,12 @@ export function Field({
 }
 export const inputClass = "w-full rounded-md border-[1.5px] border-ink bg-surface px-3 py-2.5 text-lg placeholder:text-muted aria-[invalid=true]:border-ruby";
 
-/** Ready tools first as a contents list. Tools that are not built yet fold away so the page stays clean. */
+/** Only tools that work are listed. */
 export function ToolList({ tools }: { tools: Tool[] }) {
-  const t = useT();
   const ready = tools.filter((x) => x.status === "built");
-  const soon = tools.filter((x) => x.status !== "built");
-  return (
-    <>
-      {ready.length ? (
-        <ul className="divide-y-2 divide-dotted divide-line">
-          {ready.map((tool) => <li key={tool.key}><IndexRow tool={tool} href={`/t/${tool.key}`} /></li>)}
-        </ul>
-      ) : null}
-      {soon.length ? (
-        <details className="mt-2">
-          <summary className="cursor-pointer py-2 font-bold text-muted hover:text-ink">{t("comingSoon")} ({soon.length})</summary>
-          <ul className="divide-y-2 divide-dotted divide-line">
-            {soon.map((tool) => <li key={tool.key}><IndexRow tool={tool} href={`/t/${tool.key}`} /></li>)}
-          </ul>
-        </details>
-      ) : null}
-    </>
-  );
+  return ready.length ? (
+    <ul className="divide-y-2 divide-dotted divide-line">
+      {ready.map((tool) => <li key={tool.key}><IndexRow tool={tool} href={`/t/${tool.key}`} /></li>)}
+    </ul>
+  ) : null;
 }

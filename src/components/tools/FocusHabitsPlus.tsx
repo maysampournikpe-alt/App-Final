@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { MOOD_KEY, NO_MOODS, NO_SLEEP, SLEEP_KEY, sleepHours, type Mood, type Sleep } from "@/lib/career";
@@ -106,7 +107,7 @@ export function DistractionTool() {
     <Head title={c.dsTitle} lead={c.dsLead}>
       <ul className="mt-5 divide-y-2 divide-dotted divide-line">{c.dsItems.map((it, i) => <li key={it}><label className="flex items-center gap-3 py-3 text-lg"><input type="checkbox" checked={on[i] ?? false} onChange={() => setOn((p) => p.map((x, j) => (j === i ? !x : x)))} className="h-5 w-5 accent-[var(--c-teal)]" />{it}</label></li>)}</ul>
       <p className="mt-4 font-display text-2xl font-semibold text-teal" role="status">{left === 0 ? c.dsReady : c.dsLeft(left)}</p>
-      <div className="mt-4 flex flex-wrap gap-3"><a href="/t/focus/pomodoro" className={buttonClass.primary}>{c.dsGo}</a><button onClick={() => setOn(c.dsItems.map(() => false))} className={buttonClass.secondary}>{c.dsReset}</button></div>
+      <div className="mt-4 flex flex-wrap gap-3"><Link href="/t/focus/pomodoro" className={buttonClass.primary}>{c.dsGo}</Link><button onClick={() => setOn(c.dsItems.map(() => false))} className={buttonClass.secondary}>{c.dsReset}</button></div>
     </Head>
   );
 }
@@ -124,6 +125,7 @@ export function BrainGamesTool() {
   );
 }
 type BG = typeof copy.en;
+const rnd4 = () => Math.floor(Math.random() * 4);
 function MathSprint({ c, best, onBest }: { c: BG; best: number; onBest: (n: number) => void }) {
   const [q, setQ] = useState<{ a: number; b: number; op: "+" | "-" | "×" } | null>(null);
   const [score, setScore] = useState(0);
@@ -151,11 +153,11 @@ function MemoryGame({ c, best, onBest }: { c: BG; best: number; onBest: (n: numb
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   const play = (s: number[]) => { setPhase("show"); setPos(0); s.forEach((v, i) => { timers.current.push(setTimeout(() => setLit(v), 700 * i + 400), setTimeout(() => setLit(null), 700 * i + 800)); }); timers.current.push(setTimeout(() => setPhase("input"), 700 * s.length + 500)); };
-  const start = () => { const s = [Math.floor(Math.random() * 4)]; setSeq(s); play(s); };
+  const start = () => { const s = [rnd4()]; setSeq(s); play(s); };
   const press = (i: number) => {
     if (phase !== "input") return;
     if (seq[pos] !== i) { setPhase("lost"); onBest(seq.length - 1); return; }
-    if (pos + 1 === seq.length) { const s = [...seq, Math.floor(Math.random() * 4)]; setSeq(s); timers.current.push(setTimeout(() => play(s), 500)); setPhase("show"); } else setPos(pos + 1);
+    if (pos + 1 === seq.length) { const s = [...seq, rnd4()]; setSeq(s); timers.current.push(setTimeout(() => play(s), 500)); setPhase("show"); } else setPos(pos + 1);
   };
   const bg = ["bg-ruby text-on-ruby", "bg-teal text-on-teal", "bg-sage text-ink", "bg-marigold text-on-marigold"];
   return (
@@ -325,7 +327,7 @@ export function BurnoutTool() {
             <p className="mt-3 max-w-prose text-lg">{c.tips[r.level]}</p></section>
         </>
       )}
-      <a href="/t/wellbeing/contacts" className={`${buttonClass.secondary} mt-5 inline-flex`}>{c.help}</a>
+      <Link href="/t/wellbeing/contacts" className={`${buttonClass.secondary} mt-5 inline-flex`}>{c.help}</Link>
     </Head>
   );
 }

@@ -4,14 +4,18 @@ import { EXAMS, sectionOf } from "./config";
 import { isCorrect, parseNumeric } from "./engine";
 import type { ExamId, Question } from "./types";
 
-export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; count: number; difficulty: 1 | 2 | 3 }
+export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** AP only: one topic inside the unit. */ topic?: string; count: number; difficulty: 1 | 2 | 3 }
 
 /** Readable names for a section and skill. AP courses come from the full CED list, so a course can be generated before it has any questions. */
-export function topicOf(exam: GenSpec["exam"], section: string, skill: string): { section: string; skill: string } | null {
+export function topicOf(exam: GenSpec["exam"], section: string, skill: string, topic?: string): { section: string; skill: string; topic?: string; topicNum?: string } | null {
   if (exam === "ap") {
     const c = AP_COURSES.find((x) => x.id === section), u = c?.units.find((x) => x.id === skill);
-    return c && u ? { section: c.en, skill: u.en } : null;
+    if (!c || !u) return null;
+    if (!topic) return { section: c.en, skill: u.en };
+    const t = u.topics.find((x) => x.id === topic);
+    return t ? { section: c.en, skill: u.en, topic: t.en, topicNum: t.num } : null;
   }
+  if (topic) return null;
   const sec = sectionOf(exam as ExamId, section), sk = sec?.skills.find((x) => x.id === skill);
   return sec && sk ? { section: sec.en, skill: sk.en } : null;
 }
@@ -35,7 +39,7 @@ const genItem = z.object({
 export const genBatch = z.object({ questions: z.array(genItem).min(1).max(12) });
 
 export function buildGenPrompt(spec: GenSpec): { system: string; user: string } {
-  const topic = topicOf(spec.exam, spec.section, spec.skill)!;
+  const topic = topicOf(spec.exam, spec.section, spec.skill, spec.topic)!;
   const sec = { en: topic.section }, skill = { en: topic.skill };
   return {
     system: [
@@ -47,7 +51,7 @@ export function buildGenPrompt(spec: GenSpec): { system: string; user: string } 
       "Content must be appropriate for ages 13 to 18. Teach history, government and social science accurately and neutrally.",
       "Return ONLY JSON: {\"questions\":[{\"stem\":\"\",\"passage\":null,\"type\":\"mc\",\"choices\":[\"\",\"\",\"\",\"\"],\"answer\":\"A\",\"accept\":null,\"explanation\":\"\"}]}",
     ].join("\n"),
-    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\nDifficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). Vary the position of the correct answer.`,
+    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). Vary the position of the correct answer.`,
   };
 }
 
@@ -74,7 +78,7 @@ export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, sol
   if (/\b(all of the above|none of the above)\b/i.test(item.choices?.join(" ") ?? "")) return { ok: false, reason: "all/none of the above" };
 
   const q: Question = {
-    id, exam: spec.exam, section: spec.section, skill: spec.skill, difficulty: spec.difficulty, type: item.type,
+    id, exam: spec.exam, section: spec.section, skill: spec.skill, ...(spec.topic ? { topic: spec.topic } : {}), difficulty: spec.difficulty, type: item.type,
     stem: item.stem.trim(), ...(item.passage ? { passage: item.passage.trim() } : {}),
     ...(item.type === "mc" ? { choices: item.choices!.map((c) => c.trim()) } : { accept: item.accept ?? [] }),
     answer: item.answer.trim(), explanation: item.explanation.trim(), source: "generated",

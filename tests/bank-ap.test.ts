@@ -56,7 +56,7 @@ describe("AP starter bank", () => {
     const e = estimate("ap", grade(byId, session).items);
     expect(e.sections[0]).toMatchObject({ section: "apush", pct: 1, score: 5 });
     expect(e.total).toBeNull();
-    expect(EXAMS.ap.sections.map((s) => s.id)).toEqual(["apstats", "apush", "aphug"]);
+    expect(EXAMS.ap.sections.slice(0, 3).map((s) => s.id)).toEqual(["apstats", "apush", "aphug"]);
   });
 });
 
@@ -93,8 +93,9 @@ describe("AP outlines", () => {
     expect(AP_COURSES.find((c) => c.id === "ap-calculus-bc")!.units.length).toBe(10);
     expect(AP_COURSES.find((c) => c.id === "ap-calculus-ab")!.units.length).toBe(8);
   });
-  it("mock exams only list courses that have questions", () => {
-    expect(AP_SECTIONS.map((s) => s.id).sort()).toEqual(["apstats", "apush", "aphug"].sort());
+  it("every course is an exam section, and only some have a hand-written or generated bank", () => {
+    expect(AP_SECTIONS.length).toBe(AP_COURSES.length);
+    expect(hasQuestions("apush")).toBe(true);
     expect(hasQuestions("ap-biology")).toBe(false);
   });
 });

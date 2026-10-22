@@ -3,6 +3,7 @@
 //   GROQ_API_KEY=... npm run bank:generate -- --section math --skill algebra --count 12      (SAT, the default)
 //   npm run bank:generate -- --exam ap --section ap-biology --skill u3 --count 12            (one AP unit)
 //   npm run bank:generate -- --exam ap --section ap-biology --per-skill 12                   (every unit of one AP course)
+//   npm run bank:generate -- --exam ap --section ap-biology --topics --per-skill 4           (every topic, like 1.1 and 1.2)
 //   npm run bank:generate -- --exam act --all --per-skill 8                                  (the whole ACT)
 //   npm run bank:generate -- --exam tsi --all --per-skill 8
 //   npm run bank:generate -- --exam ap --all --per-skill 10                                  (every AP course: a lot of calls)
@@ -90,14 +91,18 @@ async function main() {
   for (const sec of sections) for (const sk of sec.skills) {
     if (!flag("all") && (opt("section") !== sec.id || (opt("skill") && opt("skill") !== sk.id))) continue;
     if (!topicOf(EXAM, sec.id, sk.id)) continue;
-    // Batches of 4 so each reply stays small and checkable.
-    for (let left = per, i = 0; left > 0; left -= 4, i++) jobs.push({ exam: EXAM, section: sec.id, skill: sk.id, count: Math.min(4, left), difficulty: diffs[i % diffs.length] });
+    // AP with --topics: one set of jobs per topic (1.1, 1.2, ...), so every topic quiz has its own questions.
+    const topics = EXAM === "ap" && flag("topics") ? (sk as { topics: { id: string }[] }).topics.map((t) => t.id) : [undefined];
+    for (const topic of topics) {
+      // Batches of 4 so each reply stays small and checkable.
+      for (let left = per, i = 0; left > 0; left -= 4, i++) jobs.push({ exam: EXAM, section: sec.id, skill: sk.id, ...(topic ? { topic } : {}), count: Math.min(4, left), difficulty: diffs[i % diffs.length] });
+    }
   }
   if (!jobs.length) { console.error("Nothing to do. Use --all, or --section <id> [--skill <id>] --count 12 (see --list), with --exam sat|act|tsi|ap"); process.exit(1); }
   console.log(`${jobs.length} batch(es), model ${AI.models.chat}${dry ? " (dry run, nothing will be saved)" : ""}`);
   let kept = 0, tossed = 0;
   for (const job of jobs) {
-    console.log(`${job.section}/${job.skill} x${job.count} (difficulty ${job.difficulty})`);
+    console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty})`);
     const r = await run(job); kept += r.kept; tossed += r.tossed;
     if (!dry) writeFileSync(OUT, JSON.stringify(bank, null, 2) + "\n"); // save as we go
   }

@@ -68,6 +68,7 @@ export const AP_PRACTICE_COURSES: ApCourse[] = AP_COURSES.filter((c) => PRACTICE
 const generatedCount = (id: string) => (generated as { section: string }[]).filter((q) => q.section === id).length;
 export const hasQuestions = (id: string) => AP_PRACTICE_COURSES.some((c) => c.id === id) || generatedCount(id) >= 12;
 
-export const AP_SECTIONS: SectionConfig[] = AP_COURSES.filter((c) => hasQuestions(c.id)).map((c) => ({
+/** Every course is a section, so mock exams, timed practice and score estimates work for all of them. */
+export const AP_SECTIONS: SectionConfig[] = AP_COURSES.map((c) => ({
   id: c.id, en: c.en, es: c.es, questions: 55, minutes: 80, skills: c.units.map((x) => ({ id: x.id, en: x.en, es: x.es })),
 }));

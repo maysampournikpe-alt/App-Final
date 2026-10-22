@@ -5,7 +5,8 @@ export interface Question {
   id: string;
   exam: "sat" | "act" | "tsi" | "ap";   // which bank it belongs to (the PSAT reuses the SAT bank)
   section: string;               // e.g. "rw", "math"
-  skill: string;                 // e.g. "algebra"
+  skill: string;                 // e.g. "algebra" (for AP, the unit id)
+  topic?: string;                // AP topic id inside the unit, like "u3-2" (Topic 3.2)
   difficulty: 1 | 2 | 3;
   type: "mc" | "grid";
   stem: string;

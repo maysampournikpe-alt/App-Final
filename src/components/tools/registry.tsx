@@ -57,6 +57,7 @@ import { GradeCalcTool } from "./GradeCalc";
 import { HomeworkTool } from "./Homework";
 import { ApCoursesTool, ApDashboardTool } from "../exam/ApTools";
 import { ExamTool } from "../exam/ExamTool";
+import { ApCramTool, ApPracticeTool, ApVocabTool } from "../exam/ApStudy";
 import { MistakesTool, WeakSpotsTool } from "../exam/StudyTools";
 import { PlanTool } from "./Plan";
 import { PomodoroTool } from "./Pomodoro";
@@ -123,8 +124,10 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "tsi/resources": clientOnly(() => <ExamTool exam="tsi" view="resources" />),
   "ap/courses": clientOnly(ApCoursesTool),
   "ap/dashboard": clientOnly(ApDashboardTool),
-  "ap/quizzes": clientOnly(() => <ExamTool exam="ap" view="sections" />),
-  "ap/exam": clientOnly(() => <ExamTool exam="ap" view="full" />),
+  "ap/quizzes": clientOnly(() => <ApPracticeTool kind="quiz" />),
+  "ap/vocab": clientOnly(ApVocabTool),
+  "ap/cram": clientOnly(ApCramTool),
+  "ap/exam": clientOnly(() => <ApPracticeTool kind="mock" />),
   "ap/score": clientOnly(() => <ExamTool exam="ap" view="scores" />),
   "ap/weak": clientOnly(WeakSpotsTool),
   "ap/resources": clientOnly(() => <ExamTool exam="ap" view="resources" />),

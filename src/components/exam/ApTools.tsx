@@ -1,16 +1,19 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
-import { diffDays, isValidISO, today } from "@/lib/dates";
-import { AP_ALL_COURSES, AP_COURSES, hasQuestions } from "@/lib/exam/ap";
-import { BANK } from "@/lib/exam/bank";
-import { buildTest, newSession, skillStats } from "@/lib/exam/engine";
+import { useSearchParams } from "next/navigation";
+import { CalendarCheck, Check, Crown, FileText, Flame, Gauge, Languages, Layers, ListChecks, Route, Target, Timer, Zap } from "lucide-react";
+import { diffDays, formatDay, isValidISO, today } from "@/lib/dates";
+import { AP_ALL_COURSES, apScore, hasQuestions } from "@/lib/exam/ap";
+import { skillStats } from "@/lib/exam/engine";
 import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
+import { levelName, levelOf } from "@/lib/progress";
 import { useCopy } from "@/lib/use-copy";
+import { streakOf } from "@/lib/xp";
 import { buttonClass, inputClass, Page } from "../ui";
 import { examCopy } from "./copy";
+import { TrademarkNote } from "./TrademarkNote";
+import { levelOfProg, usePathProgress, useApCourse, useXp } from "./useAp";
 import { useExamData } from "./useExam";
 
 const NO_COURSES: string[] = [];
@@ -47,73 +50,130 @@ export function ApCoursesTool() {
   );
 }
 
-/** Units in the official order, with accuracy so far and a shortcut to practice each one. */
+const hub = {
+  en: {
+    title: "AP", course: "Course", cont: "Continue", allDone: "You passed every topic. Try a mock exam.", start: "Start the path", overall: (d: number, n: number) => `${d} of ${n} topics passed`, mastered: (n: number) => `${n} mastered`,
+    tools: { path: "Study path", pathD: "Topic by topic, with videos, notes and a quiz", quiz: "Practice quizzes", quizD: "Pick a unit or the whole course", mock: "Mock exams", mockD: "A timed multiple choice exam", vocab: "Vocabulary", vocabD: "Key terms to test yourself", cram: "Cram sheet", cramD: "One page for the night before", flash: "Flashcards", flashD: "Your cards, on a spaced schedule", weak: "Weak spots", weakD: "What to review next", score: "Score estimate", scoreD: "A 1 to 5 range, estimate only", plan: "Study plan", planD: "Spread every unit before exam day" },
+    units: "Units", unitDone: (d: number, n: number) => `${d} of ${n} topics`, study: "Study", quiz: "Quiz", recent: "Recent practice", noRecent: "No practice yet. Take a quiz or a mock exam and your results show up here.", pct: (a: number, b: number) => `${a} of ${b} right`,
+    xpWord: "XP", dayStreak: (n: number) => `${n}-day streak`, estimate: "Estimate only, not an official score.",
+  },
+  es: {
+    title: "AP", course: "Curso", cont: "Continuar", allDone: "Aprobaste todos los temas. Prueba un examen de práctica.", start: "Empezar la ruta", overall: (d: number, n: number) => `${d} de ${n} temas aprobados`, mastered: (n: number) => `${n} dominados`,
+    tools: { path: "Ruta de estudio", pathD: "Tema por tema, con videos, apuntes y cuestionario", quiz: "Cuestionarios de práctica", quizD: "Elige una unidad o todo el curso", mock: "Exámenes de práctica", mockD: "Un examen de opción múltiple con tiempo", vocab: "Vocabulario", vocabD: "Términos clave para ponerte a prueba", cram: "Hoja de repaso", cramD: "Una página para la noche anterior", flash: "Tarjetas", flashD: "Tus tarjetas, en un calendario espaciado", weak: "Puntos débiles", weakD: "Qué repasar después", score: "Puntaje estimado", scoreD: "Un rango de 1 a 5, solo un estimado", plan: "Plan de estudio", planD: "Reparte cada unidad antes del examen" },
+    units: "Unidades", unitDone: (d: number, n: number) => `${d} de ${n} temas`, study: "Estudiar", quiz: "Cuestionario", recent: "Práctica reciente", noRecent: "Todavía no has practicado. Haz un cuestionario o un examen de práctica y tus resultados aparecen aquí.", pct: (a: number, b: number) => `${a} de ${b} correctas`,
+    xpWord: "XP", dayStreak: (n: number) => `Racha de ${n} días`, estimate: "Es solo un estimado, no un puntaje oficial.",
+  },
+};
+
+/** The AP home: where you are, what to do next, and every study tool for the course. */
 export function ApDashboardTool() {
   const c = useCopy(examCopy);
+  const h = useCopy(hub);
   const lang = useLang();
-  const router = useRouter();
-  const { attempts, setSession } = useExamData();
-  const [picked] = useLocalDoc<string[]>("ap-courses", NO_COURSES);
+  const params = useSearchParams();
+  const { course, list, hasPicked, setCurrent } = useApCourse(params.get("course"));
+  const { attempts } = useExamData();
+  const { prog } = usePathProgress();
+  const xp = useXp();
   const [dates, setDates] = useLocalDoc<Record<string, string>>("ap-exam-dates", NO_DATES);
   const stats = skillStats(attempts.filter((a) => a.exam === "ap"));
-  const courses = AP_COURSES.filter((x) => picked.includes(x.id));
-
-  const practice = (course: string, unit: string) => {
-    const qids = buildTest(BANK, { exam: "ap", mode: "section", section: course, skill: unit, count: 10 });
-    if (!qids.length) return;
-    setSession(newSession("ap", "section", qids, null));
-    router.push("/t/ap/quizzes?go");
-  };
-
+  const date = dates[course.id] ?? "";
+  const left = isValidISO(date) ? diffDays(today(), date) : null;
+  const key = (id: string) => `ap/${course.id}/${id}`;
+  const topics = course.units.flatMap((u) => u.topics.map((t) => ({ u, t })));
+  const passed = topics.filter(({ t }) => levelOfProg(prog[key(t.id)]) >= 2).length;
+  const gold = topics.filter(({ t }) => levelOfProg(prog[key(t.id)]) >= 3).length;
+  const next = topics.find(({ t }) => levelOfProg(prog[key(t.id)]) < 2);
+  const lvl = levelOf(xp.xp);
+  const recent = [...attempts].filter((a) => a.exam === "ap" && a.items[0]?.section === course.id).sort((a, b) => b.finishedAt - a.finishedAt).slice(0, 5);
+  const q = `?course=${course.id}`;
+  const tools = [
+    { href: `/t/ap/path${q}`, Icon: Route, t: h.tools.path, d: h.tools.pathD },
+    { href: `/t/ap/quizzes${q}`, Icon: ListChecks, t: h.tools.quiz, d: h.tools.quizD },
+    { href: `/t/ap/exam${q}`, Icon: Timer, t: h.tools.mock, d: h.tools.mockD },
+    { href: `/t/ap/vocab${q}`, Icon: Languages, t: h.tools.vocab, d: h.tools.vocabD },
+    { href: `/t/ap/cram${q}`, Icon: FileText, t: h.tools.cram, d: h.tools.cramD },
+    { href: `/t/ap/flash`, Icon: Layers, t: h.tools.flash, d: h.tools.flashD },
+    { href: `/t/ap/weak`, Icon: Target, t: h.tools.weak, d: h.tools.weakD },
+    { href: `/t/ap/score`, Icon: Gauge, t: h.tools.score, d: h.tools.scoreD },
+    { href: `/t/ap/plan`, Icon: CalendarCheck, t: h.tools.plan, d: h.tools.planD },
+  ];
   return (
     <Page>
-      <h1 className="text-3xl sm:text-4xl">AP</h1>
-      <p className="mt-2 max-w-prose text-muted">{c.ap.dashLead}</p>
-      <p className="mt-2 max-w-prose text-sm text-muted">{c.ap.mcOnly}</p>
-      {courses.length === 0 ? (
-        <p className="guide-card mt-6 max-w-xl p-5 text-lg">{c.ap.none} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.ap.picked}</Link></p>
-      ) : (
-        <div className="mt-8 space-y-12">
-          {courses.map((course) => {
-            const date = dates[course.id] ?? "";
-            const left = isValidISO(date) ? diffDays(today(), date) : null;
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <h1 className="text-3xl sm:text-4xl">{h.title}</h1>
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Zap size={16} aria-hidden />{xp.xp} {h.xpWord}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Crown size={16} aria-hidden />{levelName(lvl.level)[lang]}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Flame size={16} aria-hidden />{h.dayStreak(streakOf(xp.days, today()))}</span>
+        </div>
+      </div>
+      {!hasPicked ? <p className="guide-card mt-4 max-w-xl p-4">{c.ap.none} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.ap.picked}</Link></p> : null}
+
+      <div className="mt-5 flex flex-wrap items-end gap-4">
+        <label className="min-w-0 max-w-md flex-1"><span className="block font-bold">{h.course}</span>
+          <select value={course.id} onChange={(e) => setCurrent(e.target.value)} className={`${inputClass} mt-1`}>{list.map((x) => <option key={x.id} value={x.id}>{x[lang]}</option>)}</select></label>
+        <label className="text-sm"><span className="block font-bold">{c.ap.examDate}</span>
+          <input type="date" value={date} onChange={(e) => setDates({ ...dates, [course.id]: e.target.value })} className={`${inputClass} !w-auto !py-1.5`} /></label>
+        {left !== null ? <p className="pb-2 font-bold text-terracotta" aria-live="polite">{c.ap.daysTo(left)}</p> : null}
+      </div>
+
+      <section className="guide-card mt-6 p-5" aria-labelledby="cont-h">
+        <h2 id="cont-h" className="text-2xl">{course[lang]}</h2>
+        <div className="mt-3 flex items-center gap-3">
+          <div className="h-4 flex-1 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" aria-hidden="true"><div className="h-full bg-teal" style={{ width: `${Math.round((passed / Math.max(1, topics.length)) * 100)}%` }} /></div>
+          <p className="shrink-0 font-bold tabular-nums">{h.overall(passed, topics.length)}{gold ? ` · ${h.mastered(gold)}` : ""}</p>
+        </div>
+        <div className="mt-4">
+          {next
+            ? <Link href={`/t/ap/path?course=${course.id}&topic=${next.t.id}`} className={buttonClass.primary}>{passed ? h.cont : h.start}: {next.t.num} {next.t[lang]}</Link>
+            : <p className="font-bold text-teal">{h.allDone}</p>}
+        </div>
+      </section>
+
+      <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map(({ href, Icon, t, d }) => (
+          <li key={href}><Link href={href} className="guide-card flex h-full items-start gap-3 p-4 hover:bg-sunken"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-md border-[1.5px] border-ink bg-marigold text-on-marigold"><Icon size={20} aria-hidden /></span><span className="min-w-0"><span className="block font-bold">{t}</span><span className="block text-sm text-muted">{d}</span></span></Link></li>
+        ))}
+      </ul>
+
+      <section className="mt-10" aria-labelledby="units-h">
+        <h2 id="units-h" className="border-b-[1.5px] border-ink pb-1 text-2xl">{h.units}</h2>
+        <ol className="mt-3 divide-y-2 divide-dotted divide-line">
+          {course.units.map((unit) => {
+            const done = unit.topics.filter((t) => levelOfProg(prog[key(t.id)]) >= 2).length;
+            const st = stats.find((x) => x.section === course.id && x.skill === unit.id);
             return (
-              <section key={course.id} aria-labelledby={`c-${course.id}`}>
-                <div className="flex flex-wrap items-end justify-between gap-4 border-b-[1.5px] border-ink pb-2">
-                  <h2 id={`c-${course.id}`} className="text-2xl sm:text-3xl">{course[lang]}</h2>
-                  <label className="text-sm"><span className="block font-bold">{c.ap.examDate}</span>
-                    <input type="date" value={date} onChange={(e) => setDates({ ...dates, [course.id]: e.target.value })} className={`${inputClass} !w-auto !py-1.5`} />
-                    {left !== null ? <span className="mt-1 block font-bold text-terracotta" aria-live="polite">{c.ap.daysTo(left)}</span> : null}
-                  </label>
+              <li key={unit.id} className="py-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="min-w-0 font-bold"><span className="mr-2 tabular-nums text-terracotta">{unit.no}</span>{unit[lang].replace(/^(Unit|Unidad) \d+:\s*/, "")}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href={`/t/ap/path?course=${course.id}&unit=${unit.id}`} className={`${buttonClass.quiet} !py-1`}><span aria-hidden>{h.study}</span><span className="sr-only">{h.study}: {unit[lang]}</span></Link>
+                    <Link href={`/t/ap/quizzes?course=${course.id}&unit=${unit.id}`} className={`${buttonClass.quiet} !py-1`}><span aria-hidden>{h.quiz}</span><span className="sr-only">{h.quiz}: {unit[lang]}</span></Link>
+                  </div>
                 </div>
-                <ol className="mt-3 divide-y-2 divide-dotted divide-line">
-                  {course.units.map((unit, i) => {
-                    const n = BANK.filter((x) => x.exam === "ap" && x.section === course.id && x.skill === unit.id).length;
-                    const st = stats.find((x) => x.section === course.id && x.skill === unit.id);
-                    return (
-                      <li key={unit.id} className="py-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="font-bold"><span className="mr-2 tabular-nums text-terracotta">{i + 1}</span>{unit[lang]}</p>
-                          <div className="flex flex-wrap gap-2">
-                            <Link href={`/t/ap/path?course=${course.id}&unit=${unit.id}`} className={`${buttonClass.quiet} !py-1`} aria-label={`${c.ap.studyUnit}: ${unit[lang]}`}>{c.ap.studyUnit}</Link>
-                            <button disabled={!n} onClick={() => practice(course.id, unit.id)} className={`${buttonClass.quiet} !py-1`}>{n ? c.ap.practiceUnit : c.ap.noQs}</button>
-                          </div>
-                        </div>
-                        <div className="mt-2 flex items-center gap-3">
-                          <div className="h-3 flex-1 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" aria-hidden="true">
-                            {st ? <div className={`h-full ${st.pct >= 0.7 ? "bg-palm" : st.pct >= 0.4 ? "bg-marigold" : "bg-ruby"}`} style={{ width: `${Math.round(st.pct * 100)}%` }} /> : null}
-                          </div>
-                          <span className="w-40 shrink-0 text-right text-sm text-muted">{st ? `${c.ap.acc}: ${st.correct}/${st.total}` : n ? `${c.ap.unitQs(n)} · ${c.ap.noData}` : ""}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </section>
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="h-3 flex-1 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" aria-hidden="true">
+                    <div className="h-full bg-teal" style={{ width: `${Math.round((done / Math.max(1, unit.topics.length)) * 100)}%` }} /></div>
+                  <span className="w-44 shrink-0 text-right text-sm text-muted">{h.unitDone(done, unit.topics.length)}{st ? ` · ${c.ap.acc}: ${st.correct}/${st.total}` : ""}</span>
+                </div>
+              </li>
             );
           })}
-        </div>
-      )}
+        </ol>
+      </section>
+
+      <section className="mt-10" aria-labelledby="recent-h">
+        <h2 id="recent-h" className="border-b-[1.5px] border-ink pb-1 text-2xl">{h.recent}</h2>
+        {recent.length ? (
+          <ul className="mt-3 divide-y-2 divide-dotted divide-line">{recent.map((a) => {
+            const ok = a.items.filter((i) => i.correct).length;
+            return <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 py-2"><span className="font-bold">{c.mode[a.mode]} <span className="font-normal text-muted">· {formatDay(new Date(a.finishedAt).toISOString().slice(0, 10), lang, false)}</span></span><span className="tabular-nums">{h.pct(ok, a.items.length)} · AP {apScore(ok / Math.max(1, a.items.length))}</span></li>;
+          })}</ul>
+        ) : <p className="mt-3 max-w-prose text-muted">{h.noRecent}</p>}
+        <p className="mt-2 text-sm text-muted">{h.estimate} {c.ap.mcOnly}</p>
+      </section>
+    <TrademarkNote />
     </Page>
   );
 }

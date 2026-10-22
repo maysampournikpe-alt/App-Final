@@ -16,6 +16,7 @@ import { ConjugationTool, PronunciationTool, TransCardsTool } from "./LanguageTo
 import { DataGraphTool, LabReportTool, MindMapTool, OutlineTool, PalaceTool } from "./NotesTools";
 import { DailyTool, DebateTool, MethodsTool, ScienceFairTool, SpeakingTool, TestDayTool, TimedTool } from "./StudyMore";
 import { CounterTool, EssayOutlineTool, ParaphraseTool, ReadLevelTool, ReadLogTool, ReadSpeedTool, ThesisTool, TypingTool, VocabBuilderTool, VocabCtxTool } from "./WritingTools";
+import { AssistTool } from "./AssistTools";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -260,4 +261,17 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "study/speaking": clientOnly(SpeakingTool),
   "study/debate": clientOnly(DebateTool),
   "study/sciencefair": clientOnly(ScienceFairTool),
+  "notes/summarizer": clientOnly(() => <AssistTool task="summarizer" />),
+  "notes/notestoquiz": clientOnly(() => <AssistTool task="notestoquiz" />),
+  "notes/mnemonic": clientOnly(() => <AssistTool task="mnemonic" />),
+  "study/feynman": clientOnly(() => <AssistTool task="feynman" />),
+  "math/stepchecker": clientOnly(() => <AssistTool task="stepchecker" />),
+  "writing/grammar": clientOnly(() => <AssistTool task="grammar" />),
+  "college/essayfeedback": clientOnly(() => <AssistTool task="essayfeedback" />),
+  "college/emailhelper": clientOnly(() => <AssistTool task="emailhelper" />),
+  "college/reclett": clientOnly(() => <AssistTool task="reclett" />),
+  "homework/taskbreaker": clientOnly(() => <AssistTool task="taskbreaker" />),
+  "languages/bilingual": clientOnly(() => <AssistTool task="bilingual" />),
+  "ap/frq": clientOnly(() => <AssistTool task="frq" />),
+  "coach/interview": clientOnly(() => <CoachTool kind="practice" />),
 };

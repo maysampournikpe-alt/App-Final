@@ -137,6 +137,7 @@ const fixture = (kind?: string): ChatReply => kind === "plan" ? ({
 });
 
 export async function groqChat(args: ChatArgs): Promise<ChatReply> {
+  if (process.env.AI_FIXTURES === "1" && args.messages[0]?.content.includes("study helper")) return { content: "Fixture reply for testing.\n1. First step\n2. Second step", searched: [] };
   if (process.env.AI_FIXTURES === "1") return fixture(args.messages[0]?.content.includes("goal plans") ? "plan" : undefined); // local testing without a key
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AiError("unavailable");

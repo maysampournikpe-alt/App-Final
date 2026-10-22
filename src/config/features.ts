@@ -218,6 +218,19 @@ export const BUILT = new Set<string>([
   "study/speaking",
   "study/debate",
   "study/sciencefair",
+  "notes/summarizer",
+  "notes/notestoquiz",
+  "notes/mnemonic",
+  "study/feynman",
+  "math/stepchecker",
+  "writing/grammar",
+  "college/essayfeedback",
+  "college/emailhelper",
+  "college/reclett",
+  "homework/taskbreaker",
+  "languages/bilingual",
+  "ap/frq",
+  "coach/interview",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */
@@ -319,7 +332,7 @@ export const GROUPS: Group[] = [
       t("coach", "chat", "message", "Coach chat", "Chat con tu entrenador", "Talk through goals, homework, applications or anything else.", "Habla de tus metas, tarea, solicitudes o lo que quieras.", 1),
       t("coach", "homework", "lightbulb", "Homework mode", "Modo tarea", "Teaches step by step and asks guiding questions instead of just giving answers.", "Te enseña paso a paso y hace preguntas en vez de solo dar la respuesta.", 1),
       t("coach", "practice", "swords", "Practice modes", "Modos de práctica", "Mock interview, debate opponent, or quiz me.", "Entrevista de práctica, rival de debate o preguntas de repaso.", 1),
-      t("coach", "interview", "briefcase", "Interview practice for an opportunity", "Entrevista para una oportunidad", "Practice for a specific saved opportunity.", "Practica para una oportunidad que guardaste.", 2),
+      t("coach", "interview", "briefcase", "Interview practice", "Práctica de entrevistas", "A mock interview with the Coach. Say what you are interviewing for.", "Una entrevista de práctica con el Entrenador. Dile para qué te entrevistan.", 2),
       t("coach", "eli12", "lightbulb", "Explain like I'm 12", "Explícamelo fácil", "Simplifies any concept.", "Explica cualquier tema de forma sencilla.", 4),
     ]),
     tab("study", "brain", "Study", "Estudiar", [

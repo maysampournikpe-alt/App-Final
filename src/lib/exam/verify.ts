@@ -8,7 +8,7 @@ import type { Question } from "./types";
 export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** One topic inside the unit or skill, like 1.2. */ topic?: string; count: number; difficulty: 1 | 2 | 3; /** "exam" asks for real-exam-style questions. */ style?: "exam" }
 
 /** Readable names for a section and skill. AP courses come from the full CED list, so a course can be generated before it has any questions. */
-export interface TopicRef { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[]; others?: string[]; /** AP course profile: what the course is about, and what must never be tested in it. */ about?: string; avoid?: string }
+export interface TopicRef { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[]; others?: string[]; /** AP course profile: what the course is about, and what must never be tested in it. */ about?: string; avoid?: string; /** How real questions in this course are built. */ style?: string; /** Good settings for questions on this topic (AP Biology). */ contexts?: string }
 export function topicOf(exam: GenSpec["exam"], section: string, skill: string, topic?: string): TopicRef | null {
   const c = coursesFor(exam).find((x) => x.id === section), u = c?.units.find((x) => x.id === skill);
   if (!c || !u) return null;
@@ -61,7 +61,7 @@ export function buildGenPrompt(spec: GenSpec): { system: string; user: string } 
       "Content must be appropriate for ages 13 to 18. Teach history, government and social science accurately and neutrally.",
       "Return ONLY JSON: {\"questions\":[{\"stem\":\"\",\"passage\":null,\"type\":\"mc\",\"choices\":[\"\",\"\",\"\",\"\"],\"answer\":\"A\",\"accept\":null,\"explanation\":\"\"}]}",
     ].join("\n"),
-    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.about ? `Course: ${topic.about}\nNEVER use or test: ${topic.avoid ?? "ideas from other courses"}\n` : ""}${topic.others?.length ? `Other topics in this unit, which you must NOT test: ${topic.others.slice(0, 14).join("; ")}\n` : ""}${topic.cover ? `${topic.topic ? "What this topic covers" : "What this unit covers"} (draw the question content from this and stay inside it): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
+    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.about ? `Course: ${topic.about}\nNEVER use or test: ${topic.avoid ?? "ideas from other courses"}\n` : ""}${topic.others?.length ? `Other topics in this unit, which you must NOT test: ${topic.others.slice(0, 14).join("; ")}\n` : ""}${topic.style ? `How real questions in this course are built: ${topic.style}\n` : ""}${topic.contexts ? `Good settings for questions on this topic (use a different one for each question): ${topic.contexts}\n` : ""}${topic.cover ? `${topic.topic ? "What this topic covers" : "What this unit covers"} (draw the question content from this and stay inside it): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
   };
 }
 
@@ -78,26 +78,32 @@ export function buildSolvePrompt(q: { stem: string; passage?: string | null; typ
 /** A third check: is the question on this course and topic, scientifically and factually correct, and fair? */
 export function buildReviewPrompt(spec: GenSpec, q: { stem: string; passage?: string | null; choices?: string[] | null; answer: string; explanation?: string }): { system: string; user: string } {
   const t = topicOf(spec.exam, spec.section, spec.skill, spec.topic);
-  const where = t ? [`Course or test: ${t.section}`, `Unit or skill: ${t.skill}`, t.topic ? `Topic ${t.topicNum}: ${t.topic}` : "", t.about ? `The course is about: ${t.about}` : "", t.avoid ? `Never in this course: ${t.avoid}` : "", t.cover ? `The ${t.topic ? "topic" : "unit"} covers: ${t.cover}` : ""].filter(Boolean).join("\n") : "";
+  const where = t ? [`Course or test: ${t.section}`, `Unit or skill: ${t.skill}`, t.topic ? `Topic ${t.topicNum}: ${t.topic}` : "", t.about ? `The course is about: ${t.about}` : "", t.avoid ? `Never in this course: ${t.avoid}` : "", t.style ? `Real questions in this course are built like this: ${t.style}` : "", t.cover ? `The ${t.topic ? "topic" : "unit"} covers: ${t.cover}` : ""].filter(Boolean).join("\n") : "";
   return {
     system: [
       "You are a strict content reviewer for practice questions. Review ONE question on two points.",
       "SCOPE is IN only if ALL of these are true: (1) it tests the named topic, not just a nearby idea or a different topic of the same unit; (2) a student who has learned only this course's content for that topic could answer it, with no ideas from another course or from college-level courses (for example no AP Chemistry or AP Physics ideas in an AP Biology topic, unless that course's own description includes them); (3) the content and difficulty fit the real exam for this course.",
-      "ACCURATE is YES only if ALL of these are true: every fact, sign, unit and number in the stem, the choices and the explanation is correct and consistent with real science or history; exactly one choice is best, and the key is that choice; the stem gives everything needed (nothing relies on a comparison, fact or premise that is not given or that a student could not know); the stimulus really supports the answer and does not claim more than it shows; the three wrong choices are clearly wrong, not arguable.",
-      "Check each choice, then reply with two final lines exactly like these (and nothing after them):",
+      "ACCURATE is YES only if ALL of these are true: every fact, sign, unit and number in the stem, the choices and the explanation is correct and consistent with real science or history; exactly one choice is best, and the key is that choice; the stem gives everything needed (nothing relies on a comparison, fact or premise that is not given or that a student could not know); the stimulus really supports the answer and does not claim more than it shows; the three wrong choices are clearly wrong, not arguable; and the correct answer is the explanation that the course itself teaches, not a nuanced or research-level explanation. If an expert could reasonably argue for a second choice, or the best explanation is only partly true or mixes several causes, ACCURATE is NO.",
+      "FIT is how closely this question matches a real exam question for this exact course and topic, from 1 to 10. Be harsh, as a veteran AP teacher would. Take points off for: content that belongs to another course or is more chemistry or physics than the course needs; no connection to the course's own kind of context; an unrealistic setup or invented data; a stem that is wordy, vague or tests trivia; weak or implausible wrong choices; and wording that real exams do not use. A 10 would pass as a released exam question.",
+      "Check each choice, then reply with three final lines exactly like these (and nothing after them):",
       "SCOPE: IN or SCOPE: OUT",
       "ACCURATE: YES or ACCURATE: NO",
+      "FIT: a whole number from 1 to 10",
     ].join("\n"),
     user: [where, "", "Question:", q.passage ?? "", q.stem, (q.choices ?? []).map((c, i) => `${"ABCD"[i]}. ${c}`).join("\n"), `Key: ${q.answer}`, q.explanation ? `Explanation given: ${q.explanation}` : ""].filter((x) => x !== undefined).join("\n"),
   };
 }
-/** Reads the reviewer's two final lines. "in" means on scope and accurate. */
-export function parseReview(text: string): "in" | "out" | "inaccurate" | null {
+/** The lowest FIT score a question may have. Real-exam-style questions must be closer to the real thing. */
+export const MIN_FIT = { normal: 8, exam: 9 } as const;
+/** Reads the reviewer's three final lines. "in" means on scope, accurate and close enough to a real exam question. */
+export function parseReview(text: string, minFit: number = MIN_FIT.normal): "in" | "out" | "inaccurate" | "weak" | null {
   const sc = [...text.matchAll(/SCOPE:\s*(IN|OUT)\b/gi)].pop()?.[1]?.toUpperCase();
   const ac = [...text.matchAll(/ACCURATE:\s*(YES|NO)\b/gi)].pop()?.[1]?.toUpperCase();
+  const fit = Number([...text.matchAll(/FIT:\s*(\d{1,2})\b/gi)].pop()?.[1]);
   if (sc === "OUT") return "out";
   if (ac === "NO") return "inaccurate";
-  return sc === "IN" && ac === "YES" ? "in" : null;
+  if (sc !== "IN" || ac !== "YES" || !Number.isFinite(fit)) return null;
+  return fit >= minFit ? "in" : "weak";
 }
 
 export const parseSolved = (text: string): string | null => /ANSWER:\s*([^\n]+?)\s*$/im.exec(text)?.[1]?.replace(/[`*$]/g, "").replace(/\.+$/, "").trim() ?? null;
@@ -105,7 +111,7 @@ export const parseSolved = (text: string): string | null => /ANSWER:\s*([^\n]+?)
 export type Verdict = { ok: true; question: Question } | { ok: false; reason: string };
 
 /** Structural checks, then agreement with an independent solve. Both must pass. */
-export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, solved: string | null, id: string, review: "in" | "out" | "inaccurate" | null): Verdict {
+export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, solved: string | null, id: string, review: "in" | "out" | "inaccurate" | "weak" | null): Verdict {
   if (item.type === "mc") {
     if (!item.choices || new Set(item.choices.map((c) => c.trim().toLowerCase())).size !== 4) return { ok: false, reason: "choices missing or duplicated" };
     if (!/^[ABCD]$/.test(item.answer)) return { ok: false, reason: "answer is not A to D" };
@@ -120,7 +126,7 @@ export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, sol
   };
   if (!solved) return { ok: false, reason: "checker gave no answer" };
   if (!isCorrect(q, solved)) return { ok: false, reason: `checker disagreed (key ${q.answer}, checker ${solved})` };
-  if (review !== "in") return { ok: false, reason: review === "out" ? "out of scope for this course or topic" : review === "inaccurate" ? "reviewer found an error or an unfair question" : "review gave no answer" };
+  if (review !== "in") return { ok: false, reason: review === "out" ? "out of scope for this course or topic" : review === "inaccurate" ? "reviewer found an error or an unfair question" : review === "weak" ? "not close enough to a real exam question" : "review gave no answer" };
   return { ok: true, question: q };
 }
 

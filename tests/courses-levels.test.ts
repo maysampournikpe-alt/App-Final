@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { coursesFor } from "@/lib/exam/courses";
 import { EXAMS } from "@/lib/exam/config";
 import { LEVELS, levelOfQuestion, matchesLevel, specFor } from "@/lib/exam/levels";
-import { buildGenPrompt, buildReviewPrompt, parseReview, topicOf, verifyQuestion } from "@/lib/exam/verify";
+import { buildGenPrompt, buildReviewPrompt, MIN_FIT, parseReview, topicOf, verifyQuestion } from "@/lib/exam/verify";
 import { AP_COURSES } from "@/lib/exam/ap";
 import { AP_PROFILES, AP_TOPIC_BRIEFS, AP_UNIT_BRIEFS } from "@/data/ap/briefs";
 import { ID_MAX, notesMessages, notesSchema } from "@/lib/ai/learn";
@@ -83,16 +83,31 @@ describe("review keeps questions on their course and topic, and correct", () => 
     expect(p.user).toMatch(/Never in this course: AP Chemistry content/); expect(p.user).toMatch(/hydrogen bonds/);
     expect(p.system).toMatch(/no ideas from another course/); expect(p.system).toMatch(/ACCURATE/);
   });
-  it("reads both verdict lines, and either one can reject", () => {
-    expect(parseReview("fine\nSCOPE: IN\nACCURATE: YES")).toBe("in");
-    expect(parseReview("uses colligative properties\nSCOPE: OUT\nACCURATE: YES")).toBe("out");
-    expect(parseReview("the sign is wrong\nSCOPE: IN\nACCURATE: NO")).toBe("inaccurate");
-    expect(parseReview("SCOPE: IN")).toBeNull(); expect(parseReview("no verdict")).toBeNull();
-    expect(parseReview("SCOPE: IN maybe\nSCOPE: OUT\nACCURATE: YES")).toBe("out");
+  it("reads the three verdict lines; scope, accuracy and fit can each reject", () => {
+    expect(parseReview("fine\nSCOPE: IN\nACCURATE: YES\nFIT: 9")).toBe("in");
+    expect(parseReview("uses colligative properties\nSCOPE: OUT\nACCURATE: YES\nFIT: 9")).toBe("out");
+    expect(parseReview("the sign is wrong\nSCOPE: IN\nACCURATE: NO\nFIT: 9")).toBe("inaccurate");
+    expect(parseReview("a bit chemistry-heavy\nSCOPE: IN\nACCURATE: YES\nFIT: 7")).toBe("weak");
+    expect(parseReview("SCOPE: IN\nACCURATE: YES")).toBeNull(); expect(parseReview("SCOPE: IN")).toBeNull(); expect(parseReview("no verdict")).toBeNull();
+    expect(parseReview("SCOPE: IN maybe\nSCOPE: OUT\nACCURATE: YES\nFIT: 9")).toBe("out");
+  });
+  it("normal questions need a fit of 8 and real-exam-style questions need 9", () => {
+    expect(MIN_FIT).toEqual({ normal: 8, exam: 9 });
+    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 8")).toBe("in");
+    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 8", MIN_FIT.exam)).toBe("weak");
+    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 10", MIN_FIT.exam)).toBe("in");
+    const weak = verifyQuestion(item, spec, "B", "x", "weak"); expect(!weak.ok && weak.reason).toMatch(/not close enough/);
+  });
+  it("the reviewer is told to be harsh, to reject arguable answers, and sees how real questions are built", () => {
+    const p = buildReviewPrompt(spec, item);
+    expect(p.system).toMatch(/Be harsh/); expect(p.system).toMatch(/ACCURATE is NO/); expect(p.system).toMatch(/FIT: a whole number/); expect(p.system).toMatch(/research-level/);
+    expect(p.user).toMatch(/Real questions in this course are built like this: Set every question in a biological context/);
   });
   it("the writer is told to stay in scope, be accurate, avoid what the course excludes and skip sibling topics", () => {
     const u = buildGenPrompt(spec);
     expect(u.system).toMatch(/STAY IN SCOPE/); expect(u.system).toMatch(/SCIENCE AND FACT ACCURACY/); expect(u.system).toMatch(/enthalpy of vaporization is positive/);
+    expect(u.user).toMatch(/How real questions in this course are built: Set every question in a biological context/);
+    expect(u.user).toMatch(/Good settings for questions on this topic.*water strider/);
     expect(u.user).toMatch(/NEVER use or test: AP Chemistry content/); expect(u.user).toMatch(/must NOT test: .*1\.2/); expect(u.user).toMatch(/What this topic covers.*hydrogen bonds/s);
   });
 });

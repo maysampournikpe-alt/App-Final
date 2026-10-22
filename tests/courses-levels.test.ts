@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { coursesFor } from "@/lib/exam/courses";
 import { EXAMS } from "@/lib/exam/config";
 import { LEVELS, levelOfQuestion, matchesLevel, specFor } from "@/lib/exam/levels";
-import { buildGenPrompt, buildScopePrompt, parseScope, topicOf, verifyQuestion } from "@/lib/exam/verify";
+import { buildGenPrompt, buildReviewPrompt, parseReview, topicOf, verifyQuestion } from "@/lib/exam/verify";
+import { AP_COURSES } from "@/lib/exam/ap";
+import { AP_PROFILES, AP_TOPIC_BRIEFS, AP_UNIT_BRIEFS } from "@/data/ap/briefs";
 import { ID_MAX, notesMessages, notesSchema } from "@/lib/ai/learn";
 import { localPool } from "@/lib/exam/gather";
 
@@ -66,27 +68,55 @@ describe("difficulty levels", () => {
   });
 });
 
-describe("scope check keeps questions on their own course and topic", () => {
+describe("review keeps questions on their course and topic, and correct", () => {
   const item = { stem: "A long enough question stem here?", passage: "Stimulus.", type: "mc" as const, choices: ["a", "b", "c", "d"], answer: "B", explanation: "Because B is right, for this reason." };
   const spec = { exam: "ap" as const, section: "ap-biology", skill: "u1", topic: "u1-1", count: 2, difficulty: 2 as const };
-  it("rejects out-of-scope, unanswered and unchecked questions, and accepts in-scope ones", () => {
+  it("rejects out-of-scope, inaccurate, unanswered and unchecked questions, and accepts good ones", () => {
     expect(verifyQuestion(item, spec, "B", "x", "in").ok).toBe(true);
     const out = verifyQuestion(item, spec, "B", "x", "out"); expect(!out.ok && out.reason).toMatch(/out of scope/);
+    const bad = verifyQuestion(item, spec, "B", "x", "inaccurate"); expect(!bad.ok && bad.reason).toMatch(/error or an unfair/);
     const none = verifyQuestion(item, spec, "B", "x", null); expect(!none.ok && none.reason).toMatch(/no answer/);
   });
-  it("the reviewer prompt names the course, unit and topic and shows the key", () => {
-    const p = buildScopePrompt(spec, item);
+  it("the reviewer prompt names the course, unit and topic, the course profile and the key", () => {
+    const p = buildReviewPrompt(spec, item);
     expect(p.user).toMatch(/AP Biology/); expect(p.user).toMatch(/Topic 1\.1/); expect(p.user).toMatch(/Key: B/);
-    expect(p.system).toMatch(/no ideas from another course/);
+    expect(p.user).toMatch(/Never in this course: AP Chemistry content/); expect(p.user).toMatch(/hydrogen bonds/);
+    expect(p.system).toMatch(/no ideas from another course/); expect(p.system).toMatch(/ACCURATE/);
   });
-  it("reads the verdict from the last SCOPE line", () => {
-    expect(parseScope("It uses colligative properties.\nSCOPE: OUT")).toBe("out");
-    expect(parseScope("fine\nSCOPE: IN")).toBe("in"); expect(parseScope("no verdict")).toBeNull();
-    expect(parseScope("SCOPE: IN maybe\nSCOPE: OUT")).toBe("out");
+  it("reads both verdict lines, and either one can reject", () => {
+    expect(parseReview("fine\nSCOPE: IN\nACCURATE: YES")).toBe("in");
+    expect(parseReview("uses colligative properties\nSCOPE: OUT\nACCURATE: YES")).toBe("out");
+    expect(parseReview("the sign is wrong\nSCOPE: IN\nACCURATE: NO")).toBe("inaccurate");
+    expect(parseReview("SCOPE: IN")).toBeNull(); expect(parseReview("no verdict")).toBeNull();
+    expect(parseReview("SCOPE: IN maybe\nSCOPE: OUT\nACCURATE: YES")).toBe("out");
   });
-  it("the writer is told to stay in scope and which other topics not to test", () => {
+  it("the writer is told to stay in scope, be accurate, avoid what the course excludes and skip sibling topics", () => {
     const u = buildGenPrompt(spec);
-    expect(u.system).toMatch(/STAY IN SCOPE/); expect(u.system).toMatch(/AP Chemistry/); expect(u.user).toMatch(/must NOT test: .*1\.2/);
+    expect(u.system).toMatch(/STAY IN SCOPE/); expect(u.system).toMatch(/SCIENCE AND FACT ACCURACY/); expect(u.system).toMatch(/enthalpy of vaporization is positive/);
+    expect(u.user).toMatch(/NEVER use or test: AP Chemistry content/); expect(u.user).toMatch(/must NOT test: .*1\.2/); expect(u.user).toMatch(/What this topic covers.*hydrogen bonds/s);
+  });
+});
+
+describe("every AP course has a profile and every unit has a brief", () => {
+  it("profiles exist for all courses", () => { for (const c of AP_COURSES) { expect(AP_PROFILES[c.en]?.about.length, c.en).toBeGreaterThan(80); expect(AP_PROFILES[c.en]?.avoid.length, c.en).toBeGreaterThan(20); } });
+  it("unit briefs line up with the units and each topic gets a brief", () => {
+    for (const c of AP_COURSES) {
+      expect(AP_UNIT_BRIEFS[c.en]?.length, c.en).toBe(c.units.length);
+      for (const u of c.units) {
+        const unit = topicOf("ap", c.id, u.id)!; expect(unit.cover?.length, `${c.en} unit ${u.no}`).toBeGreaterThan(60); expect(unit.about?.length, c.en).toBeGreaterThan(80);
+        for (const t of u.topics) { const r = topicOf("ap", c.id, u.id, t.id)!; expect(r.cover?.length, `${c.en} ${t.num}`).toBeGreaterThan(60); expect(r.avoid?.length, c.en).toBeGreaterThan(20); }
+      }
+    }
+  });
+  it("topic briefs line up topic for topic in the science courses", () => {
+    for (const [name, units] of Object.entries(AP_TOPIC_BRIEFS)) {
+      const c = AP_COURSES.find((x) => x.en === name)!; expect(units.length, name).toBe(c.units.length);
+      c.units.forEach((u, i) => expect(units[i].length, `${name} unit ${u.no}`).toBe(u.topics.length));
+    }
+  });
+  it("AP biology 1.1 is held to biology, not chemistry", () => {
+    const t = topicOf("ap", "ap-biology", "u1", "u1-1")!;
+    expect(t.cover).toMatch(/cohesion/i); expect(t.cover).toMatch(/Not tested: enthalpy/); expect(t.avoid).toMatch(/enthalpy/i); expect(t.avoid).toMatch(/HF/);
   });
 });
 

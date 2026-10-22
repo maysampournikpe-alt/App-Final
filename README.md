@@ -53,7 +53,10 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 - `/api/learn` powers the study paths (`/t/ap/path`, `/t/sat/path`, `/t/psat/path`, `/t/act/path`, `/t/tsi/path`). It takes only ids from our own lists (course, unit), writes unit notes, and writes practice questions that a second AI call solves blind; only questions where both agree are kept. Questions from the checked bank are always used first.
 - AP courses, units and topics (1.1, 1.2, 1.3 ...) live in `src/data/ap/` (`stem.ts`, `social.ts`, `humanities.ts`) and are turned into the course list in `src/lib/exam/ap.ts`. They follow the usual College Board course outlines but were written without opening the official Course and Exam Descriptions, so topic names and numbers can differ slightly. Compare with apcentral.collegeboard.org and fix any entry in those files.
 - `/api/learn` takes `kind`: `notes` (one topic), `quiz` (questions for a unit or a topic), `terms` (vocabulary for a unit) and `cram` (a one-page cram sheet). Questions made by the AI are saved in the shared `question_bank` table (migration `0004_question_bank.sql`, run it in the Supabase SQL editor) so the next student gets them without another AI call.
-- AP section screens: `src/components/exam/StudyPath.tsx` (topic by topic path with YouTube and Khan Academy search links, notes, quiz, XP), `ApTools.tsx` (course picker and AP home), `ApStudy.tsx` (practice quizzes, mock exams, vocabulary, cram sheets). Questions are collected by `src/lib/exam/gather.ts`: bank first, then the AI, then kept on the device.
+- SAT, PSAT, ACT and TSI sub-skills (1.1, 1.2 ...) live in `src/data/exam-topics.ts`. `src/lib/exam/courses.ts` shapes every test like an AP course (section = course, skill = unit, sub-skill = topic) so the path, home, quizzes, mock exams, vocabulary and cram sheets are the same screens for all five tests.
+- Quiz difficulty levels are mixed, easy, medium, hard and real exam style (`src/lib/exam/levels.ts`). The question writer gets a different prompt for real exam style: a stimulus first, then a question that applies a skill.
+- Practice screens live in `src/components/exam/PracticeTools.tsx` (quizzes, mock exams, vocabulary, cram sheets), the home in `ApTools.tsx` (`ExamHubTool`), the path in `StudyPath.tsx`. Study notes are detailed (sections, examples, how it is tested, memory tips); bump `NOTES_VERSION` in `src/lib/ai/learn.ts` when that shape changes.
+- AP section screens (older note): `src/components/exam/StudyPath.tsx` (topic by topic path with YouTube and Khan Academy search links, notes, quiz, XP), `ApTools.tsx` (course picker and AP home), `ApStudy.tsx` (practice quizzes, mock exams, vocabulary, cram sheets). Questions are collected by `src/lib/exam/gather.ts`: bank first, then the AI, then kept on the device.
 - Google Maps features (bus map and finder maps) are switched off until after the 2026 Congressional App Challenge. See COMPLIANCE.md.
 - AI features need `GROQ_API_KEY` on the server. With `AI_FIXTURES=1` the helpers return a fixed reply, which is
   how the screens are tested without a key.
@@ -84,6 +87,7 @@ npm run bank:generate -- --all --per-skill 12     # every skill, both SAT sectio
 npm run bank:generate -- --section math --skill algebra --count 8
 npm run bank:generate -- --exam ap --section ap-biology --per-skill 12   # one AP course, every unit
 npm run bank:generate -- --exam ap --section ap-biology --topics --per-skill 4   # every topic (1.1, 1.2 ...)
+npm run bank:generate -- --exam sat --all --topics --level exam --per-skill 4   # real-exam-style, every sub-skill (--level mixed|easy|medium|hard|exam)
 npm run bank:generate -- --exam act --all --per-skill 8
 npm run bank:generate -- --exam tsi --all --per-skill 8
 npm run bank:generate -- --list                   # exams, course ids and unit ids

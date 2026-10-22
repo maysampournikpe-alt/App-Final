@@ -4,7 +4,8 @@ import { z } from "zod";
 import { AI } from "@/config/ai";
 import { AiError, groqChat } from "@/lib/ai/groq";
 import { extractJson } from "@/lib/ai/finder";
-import { cramMessages, cramSchema, notesMessages, notesSchema, termsMessages, termsSchema, TRACKS } from "@/lib/ai/learn";
+import { specFor } from "@/lib/exam/levels";
+import { ID_MAX, cramMessages, cramSchema, notesMessages, notesSchema, termsMessages, termsSchema, TRACKS } from "@/lib/ai/learn";
 import { fromBank, toBank } from "@/lib/ai/qbank";
 import { buildGenPrompt, buildSolvePrompt, genBatch, parseSolved, topicOf, verifyQuestion, type GenSpec } from "@/lib/exam/verify";
 import type { Question } from "@/lib/exam/types";
@@ -16,11 +17,12 @@ export const dynamic = "force-dynamic";
 
 const schema = z.object({
   track: z.enum(TRACKS as [string, ...string[]]),
-  section: z.string().max(60),
-  skill: z.string().max(20),
-  topic: z.string().max(24).optional(),
+  section: z.string().max(ID_MAX.section),
+  skill: z.string().max(ID_MAX.skill),
+  topic: z.string().max(ID_MAX.topic).optional(),
   kind: z.enum(["notes", "quiz", "terms", "cram"]),
   lang: z.enum(["en", "es"]).default("en"),
+  level: z.enum(["mixed", "easy", "medium", "hard", "exam"]).default("mixed"),
   count: z.number().int().min(1).max(10).default(5),
   seen: z.array(z.string().max(80)).max(120).default([]),
 });
@@ -28,9 +30,9 @@ const headers = { "Cache-Control": "no-store" };
 const err = (error: string, status: number) => NextResponse.json({ ok: false, error }, { status, headers });
 const codeOf = (e: unknown) => { const c = e instanceof AiError ? e.code : "upstream"; return c === "rate" ? err("busy", 429) : c === "unavailable" || c === "auth" || c === "model" ? err("unavailable", 503) : err(c === "timeout" ? "slow" : "failed", 502); };
 
-async function jsonOf<T>(messages: { role: "system" | "user"; content: string }[], parse: (j: unknown) => T | null, maxTokens: number): Promise<T | null> {
+async function jsonOf<T>(messages: { role: "system" | "user"; content: string }[], parse: (j: unknown) => T | null, maxTokens: number, timeoutSeconds: number = AI.chatTimeoutSeconds): Promise<T | null> {
   for (let attempt = 0; attempt < 2; attempt++) {
-    const r = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0.3, maxTokens, messages });
+    const r = await groqChat({ model: AI.models.chat, timeoutSeconds, temperature: 0.3, maxTokens, messages });
     const j = extractJson(r.content), v = j ? parse(j) : null;
     if (v) return v;
   }
@@ -42,7 +44,7 @@ export async function POST(request: Request) {
   try { json = await request.json(); } catch { return err("bad_request", 400); }
   const parsed = schema.safeParse(json);
   if (!parsed.success) return err("bad_request", 400);
-  const { track, section, skill, topic, kind, lang, count, seen } = parsed.data;
+  const { track, section, skill, topic, kind, lang, count, seen, level } = parsed.data;
   const exam = track as GenSpec["exam"];
   const ref = topicOf(exam, section, skill, topic);
   if (!ref) return err("bad_request", 400);
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
 
   try {
     if (kind === "notes") {
-      const notes = await jsonOf(notesMessages(exam, ref, lang), (j) => { const r = notesSchema.safeParse(j); return r.success ? r.data : null; }, 1500);
+      const notes = await jsonOf(notesMessages(exam, ref, lang), (j) => { const r = notesSchema.safeParse(j); return r.success ? r.data : null; }, 4200, 60);
       return notes ? NextResponse.json({ ok: true, notes }, { headers }) : err("failed", 502);
     }
     if (kind === "terms") {
@@ -69,13 +71,13 @@ export async function POST(request: Request) {
     }
 
     // Quiz. First the shared bank of questions that were already checked, then write the rest fresh.
-    const key = { exam, section, skill, topic, lang };
+    const key = { exam, section, skill, topic, lang, level };
     const questions: Question[] = await fromBank(key, seen, count);
     const need = count - questions.length;
     if (need > 0) {
-      const spec: GenSpec = { exam, section, skill, topic, count: Math.min(6, need + 1), difficulty: 2 };
+      const spec: GenSpec = { exam, section, skill, topic, count: Math.min(6, need + 1), ...specFor(level, Math.floor(Math.random() * 4)) };
       const { system, user } = buildGenPrompt(spec);
-      const gen = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0.8, maxTokens: 2400, messages: [{ role: "system", content: system }, { role: "user", content: user }] });
+      const gen = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0.8, maxTokens: spec.style ? 3600 : 2600, messages: [{ role: "system", content: system }, { role: "user", content: user }] });
       const j = extractJson(gen.content), batch = j ? genBatch.safeParse(j) : null;
       if (batch?.success) {
         // A second call solves each question without seeing the key. Only questions where both agree are kept.

@@ -4,6 +4,7 @@
 //   npm run bank:generate -- --exam ap --section ap-biology --skill u3 --count 12            (one AP unit)
 //   npm run bank:generate -- --exam ap --section ap-biology --per-skill 12                   (every unit of one AP course)
 //   npm run bank:generate -- --exam ap --section ap-biology --topics --per-skill 4           (every topic, like 1.1 and 1.2)
+//   npm run bank:generate -- --exam sat --all --topics --level exam --per-skill 4              (real-exam-style, every sub-skill)
 //   npm run bank:generate -- --exam act --all --per-skill 8                                  (the whole ACT)
 //   npm run bank:generate -- --exam tsi --all --per-skill 8
 //   npm run bank:generate -- --exam ap --all --per-skill 10                                  (every AP course: a lot of calls)
@@ -17,8 +18,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { AI } from "../src/config/ai";
-import { AP_COURSES } from "../src/lib/exam/ap";
+import { coursesFor } from "../src/lib/exam/courses";
 import { EXAMS } from "../src/lib/exam/config";
+import { LEVELS, specFor, type Level } from "../src/lib/exam/levels";
 import { extractJson } from "../src/lib/ai/finder";
 import { buildGenPrompt, buildSolvePrompt, genBatch, normalizeStem, parseSolved, topicOf, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
 import type { Question } from "../src/lib/exam/types";
@@ -32,7 +34,7 @@ const opt = (n: string, d?: string) => { const i = args.indexOf(`--${n}`); retur
 
 if (args.includes("--list")) {
   for (const id of ["sat", "act", "tsi"] as const) console.log(`${id}: ` + EXAMS[id].sections.map((x) => `${x.id}[${x.skills.map((k) => k.id).join(",")}]`).join(" "));
-  for (const c of AP_COURSES) console.log(`ap ${c.id}: ${c.units.map((u) => u.id).join(",")}`);
+  for (const c of coursesFor("ap")) console.log(`ap ${c.id}: ${c.units.map((u) => u.id).join(",")}`);
   process.exit(0);
 }
 
@@ -84,25 +86,26 @@ async function run(spec: GenSpec) {
 }
 
 async function main() {
-  const sections = EXAM === "ap" ? AP_COURSES.map((c) => ({ id: c.id, skills: c.units })) : EXAMS[EXAM].sections;
+  const sections = coursesFor(EXAM).map((c) => ({ id: c.id, skills: c.units }));
   const per = Number(opt("per-skill", opt("count", "8")));
-  const diffs: (1 | 2 | 3)[] = [1, 2, 2, 3];
+  const level = opt("level", "mixed") as Level;
+  if (!LEVELS.includes(level)) { console.error("--level must be one of " + LEVELS.join(", ")); process.exit(1); }
   const jobs: GenSpec[] = [];
   for (const sec of sections) for (const sk of sec.skills) {
     if (!flag("all") && (opt("section") !== sec.id || (opt("skill") && opt("skill") !== sk.id))) continue;
     if (!topicOf(EXAM, sec.id, sk.id)) continue;
     // AP with --topics: one set of jobs per topic (1.1, 1.2, ...), so every topic quiz has its own questions.
-    const topics = EXAM === "ap" && flag("topics") ? (sk as { topics: { id: string }[] }).topics.map((t) => t.id) : [undefined];
+    const topics = flag("topics") ? (sk as { topics: { id: string }[] }).topics.map((t) => t.id) : [undefined];
     for (const topic of topics) {
       // Batches of 4 so each reply stays small and checkable.
-      for (let left = per, i = 0; left > 0; left -= 4, i++) jobs.push({ exam: EXAM, section: sec.id, skill: sk.id, ...(topic ? { topic } : {}), count: Math.min(4, left), difficulty: diffs[i % diffs.length] });
+      for (let left = per, i = 0; left > 0; left -= 4, i++) jobs.push({ exam: EXAM, section: sec.id, skill: sk.id, ...(topic ? { topic } : {}), count: Math.min(4, left), ...specFor(level, i) });
     }
   }
   if (!jobs.length) { console.error("Nothing to do. Use --all, or --section <id> [--skill <id>] --count 12 (see --list), with --exam sat|act|tsi|ap"); process.exit(1); }
   console.log(`${jobs.length} batch(es), model ${AI.models.chat}${dry ? " (dry run, nothing will be saved)" : ""}`);
   let kept = 0, tossed = 0;
   for (const job of jobs) {
-    console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty})`);
+    console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty}${job.style ? ", real exam style" : ""})`);
     const r = await run(job); kept += r.kept; tossed += r.tossed;
     if (!dry) writeFileSync(OUT, JSON.stringify(bank, null, 2) + "\n"); // save as we go
   }

@@ -15,6 +15,8 @@ export interface Question {
   answer: string;                // mc: "A" to "D"; grid: the main accepted answer
   accept?: string[];             // grid: other accepted spellings, e.g. ["7.5", "15/2"]
   explanation: string;
+  /** "exam" marks real-exam-style questions: a stimulus plus an application of skills. */
+  style?: "exam";
   source?: "seed" | "generated";
 }
 

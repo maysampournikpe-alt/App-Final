@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**234 of 272 features built.**
+**242 of 280 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 68 | 80 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 76 | 88 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 22 | 30 |
 | Phase 3: Discovery and college/career | 23 | 26 |
 | Phase 4: Study tools and skill building | 53 | 56 |
@@ -203,11 +203,13 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Test overview | 1 | Built |  |
+| Home | 1 | Built |  |
 | Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
-| Section practice | 1 | Built |  |
-| Full practice tests | 1 | Built |  |
+| Practice quizzes | 1 | Built |  |
+| Mock exams | 1 | Built |  |
+| Vocabulary | 1 | Built |  |
+| Cram sheets | 1 | Built |  |
 | Strategy lessons | 1 | Future plan |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
@@ -219,11 +221,13 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Test overview | 1 | Built |  |
+| Home | 1 | Built |  |
 | Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
-| Section practice | 1 | Built |  |
-| Full practice tests | 1 | Built |  |
+| Practice quizzes | 1 | Built |  |
+| Mock exams | 1 | Built |  |
+| Vocabulary | 1 | Built |  |
+| Cram sheets | 1 | Built |  |
 | Strategy lessons | 1 | Future plan |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
@@ -235,11 +239,13 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Test overview | 1 | Built |  |
+| Home | 1 | Built |  |
 | Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
-| Section practice | 1 | Built |  |
-| Full practice tests | 1 | Built |  |
+| Practice quizzes | 1 | Built |  |
+| Mock exams | 1 | Built |  |
+| Vocabulary | 1 | Built |  |
+| Cram sheets | 1 | Built |  |
 | Strategy lessons | 1 | Future plan |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
@@ -251,11 +257,13 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Test overview | 1 | Built |  |
+| Home | 1 | Built |  |
 | Study path | 1 | Built |  |
 | Diagnostic test | 1 | Built |  |
-| Section practice | 1 | Built |  |
-| Full practice tests | 1 | Built |  |
+| Practice quizzes | 1 | Built |  |
+| Mock exams | 1 | Built |  |
+| Vocabulary | 1 | Built |  |
+| Cram sheets | 1 | Built |  |
 | Strategy lessons | 1 | Future plan |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |

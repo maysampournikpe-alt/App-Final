@@ -28,7 +28,7 @@ describe("study path prompts", () => {
     expect(notesMessages("sat", { section: "Math", skill: "Algebra" }, "en")[0].content).toMatch(/digital SAT/);
   });
   it("accepts well-formed notes and rejects thin ones", () => {
-    const good = { summary: "A summary that is long enough to count as a real summary of the lesson.", keyIdeas: ["Idea one here.", "Idea two here.", "Idea three here."], terms: [{ term: "a", meaning: "meaning a" }, { term: "b", meaning: "meaning b" }, { term: "c", meaning: "meaning c" }], example: null, mistakes: ["A mistake students make."], selfCheck: ["Can I explain it?", "Can I give one example?"] };
+    const good = { summary: "A summary that is long enough to count as a real summary of the lesson.", sections: [1, 2, 3].map((n) => ({ heading: `Part ${n}`, body: "A section body that explains the idea in enough words to pass the check." })), keyIdeas: ["Idea one here.", "Idea two here.", "Idea three here.", "Idea four here."], terms: ["a", "b", "c", "d"].map((t) => ({ term: t, meaning: `meaning ${t}` })), examples: [{ title: "Example", body: "A worked example that shows the idea in action, step by step." }], mistakes: ["A mistake students make.", "Another mistake to avoid."], howTested: ["Shows up as a stimulus question.", "Free response asks you to explain."], selfCheck: ["Can I explain it?", "Can I give one example?", "Can I spot the trap?"] };
     expect(notesSchema.safeParse(good).success).toBe(true);
     expect(notesSchema.safeParse({ ...good, keyIdeas: ["x"] }).success).toBe(false);
     expect(notesSchema.safeParse({ ...good, summary: "short" }).success).toBe(false);

@@ -1,8 +1,9 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { matchesLevel, type Level } from "@/lib/exam/levels";
 import type { Question } from "@/lib/exam/types";
 
-export interface BankKey { exam: string; section: string; skill: string; topic?: string; lang: string }
+export interface BankKey { exam: string; section: string; skill: string; topic?: string; lang: string; level?: Level }
 
 /** Questions other students already got, so a lesson loads instantly and costs no AI call. A broken or missing table just returns nothing. */
 export async function fromBank(key: BankKey, exclude: string[], n: number): Promise<Question[]> {
@@ -12,7 +13,7 @@ export async function fromBank(key: BankKey, exclude: string[], n: number): Prom
     const { data, error } = await q;
     if (error) throw error;
     const skip = new Set(exclude);
-    const pool = (data ?? []).filter((r) => !skip.has(r.id)).map((r) => r.data as Question);
+    const pool = (data ?? []).filter((r) => !skip.has(r.id)).map((r) => r.data as Question).filter((q) => matchesLevel(q, key.level));
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     return pool.slice(0, n);
   } catch (e) {

@@ -35,6 +35,7 @@ Two different things need to be described honestly.
 
 ## Third-party content
 
+- Study notes, vocabulary lists, cram sheets and extra practice questions are written by the AI at the time a student asks, not copied from any publisher. Real-exam-style questions imitate the format of the tests, never specific released questions.
 - Practice questions are original, from the app's own seed files or written by the app's AI. They are not copied from College Board, ACT or Khan Academy.
 - The YouTube and Khan Academy buttons only open a search page on those sites in a new tab. The app does not copy, embed or download their videos or text.
 - AP topic names follow the usual public course outlines, which College Board publishes. They were not checked against the official Course and Exam Descriptions, so verify them before you claim they are exact.

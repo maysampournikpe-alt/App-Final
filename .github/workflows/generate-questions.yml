@@ -1,0 +1,78 @@
+# Writes practice questions ahead of time, in the cloud, so nobody has to run anything on their own computer.
+# Run it from GitHub: Actions tab > "Generate practice questions" > Run workflow.
+# One-time setup: Settings > Secrets and variables > Actions > New repository secret, name GROQ_API_KEY.
+# The new questions go on their own branch (bank/...), never straight to main. Read a sample, then merge it.
+name: Generate practice questions
+
+on:
+  workflow_dispatch:
+    inputs:
+      exam:
+        description: "Which test"
+        type: choice
+        options: [sat, act, tsi, ap]
+        default: sat
+      section:
+        description: "One section or AP course id (like math or ap-biology). Leave empty for every section."
+        type: string
+        default: ""
+      level:
+        description: "Difficulty"
+        type: choice
+        options: [mixed, easy, medium, hard, exam]
+        default: mixed
+      per_skill:
+        description: "Questions per unit or topic (4 to 12 is plenty)"
+        type: string
+        default: "4"
+      topics:
+        description: "Write for every topic (1.1, 1.2, ...) instead of every unit"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      IN_EXAM: ${{ inputs.exam }}
+      IN_SECTION: ${{ inputs.section }}
+      IN_LEVEL: ${{ inputs.level }}
+      IN_PER: ${{ inputs.per_skill }}
+      IN_TOPICS: ${{ inputs.topics }}
+    steps:
+      - name: Check the key is set
+        run: |
+          if [ -z "$GROQ_API_KEY" ]; then echo "::error::Add a repository secret named GROQ_API_KEY first (Settings > Secrets and variables > Actions)."; exit 1; fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generate
+        run: |
+          case "$IN_EXAM" in sat|act|tsi|ap) ;; *) echo "bad exam"; exit 1;; esac
+          case "$IN_LEVEL" in mixed|easy|medium|hard|exam) ;; *) echo "bad level"; exit 1;; esac
+          echo "$IN_PER" | grep -Eq '^[0-9]{1,2}$' || { echo "per_skill must be a number"; exit 1; }
+          echo "$IN_SECTION" | grep -Eq '^[a-z0-9-]*$' || { echo "section must be lowercase letters, numbers and dashes"; exit 1; }
+          args=(--exam "$IN_EXAM" --level "$IN_LEVEL" --per-skill "$IN_PER")
+          if [ -n "$IN_SECTION" ]; then args+=(--section "$IN_SECTION"); else args+=(--all); fi
+          if [ "$IN_TOPICS" = "true" ]; then args+=(--topics); fi
+          npm run bank:generate -- "${args[@]}"
+      - name: Commit the new questions to their own branch
+        if: always()
+        run: |
+          if git diff --quiet -- src/data/bank; then echo "No new questions were saved."; exit 0; fi
+          branch="bank/${IN_EXAM}-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add src/data/bank
+          git commit -m "Add generated ${IN_EXAM} practice questions (${IN_LEVEL}, ${IN_PER} per skill)"
+          git push origin "$branch"
+          echo "Pushed branch $branch. Read a sample of the questions, then merge it." >> "$GITHUB_STEP_SUMMARY"

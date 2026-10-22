@@ -7,7 +7,7 @@ import { type ApCourse } from "@/lib/exam/ap";
 import { EXAMS } from "@/lib/exam/config";
 import { gather } from "@/lib/exam/gather";
 import type { ExamId, Question } from "@/lib/exam/types";
-import type { Notes } from "@/lib/ai/learn";
+import { NOTES_VERSION, type Notes } from "@/lib/ai/learn";
 import { today } from "@/lib/dates";
 import { useLang } from "@/lib/i18n";
 import { khanSearch, lessonQuery, youtubeSearch } from "@/lib/links";
@@ -19,7 +19,7 @@ import { lessonXp, streakOf } from "@/lib/xp";
 import { buttonClass, inputClass, Page } from "../ui";
 import { MathText } from "./MathText";
 import { TrademarkNote } from "./TrademarkNote";
-import { GOLD, levelOfProg, PASS, useApCourse, usePathProgress, useXp, type Prog } from "./useAp";
+import { GOLD, levelOfProg, PASS, useCourse, usePathProgress, useXp, type Prog } from "./useAp";
 import { useExamData } from "./useExam";
 
 const copy = {
@@ -27,10 +27,10 @@ const copy = {
     titles: { ap: "AP study path", sat: "SAT study path", psat: "PSAT study path", act: "ACT study path", tsi: "TSI study path" } as Record<string, string>,
     lead: "Go topic by topic. Each lesson has videos to watch, short notes, then a quiz. Pass the quiz to climb to the next level and earn XP.",
     course: "AP course", section: "Section", pick: "Pick AP courses", noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.", upNext: "Up next",
-    lvl: ["Not started", "Notes read", "Quiz passed", "Mastered"], done: (d: number, n: number) => `${d} of ${n} lessons passed`, unit: "Unit", unitReview: (u: string) => `${u} review`,
+    lvl: ["Not started", "Notes read", "Quiz passed", "Mastered"], done: (d: number, n: number) => `${d} of ${n} lessons passed`, unit: "Unit", skillWord: "Skill", unitReview: (u: string) => `${u} review`,
     topicsDone: (d: number, n: number) => `${d} of ${n} topics`, reviewHint: "A mixed quiz on the whole unit", cram: "Cram sheet", back: "Back to the path",
     learn: "Learn", quiz: "Quiz", watch: "Watch and learn", watchLead: "Short videos are a great way to start. These links open a search on another site in a new tab, and you pick the video.", yt: "Search YouTube", khan: "Search Khan Academy", opens: "(opens in a new tab)",
-    notesLoading: "Writing your notes…", retry: "Try again", toQuiz: "Go to the quiz", summary: "The big picture", ideas: "Key ideas", terms: "Key terms", example: "Example", mistakes: "Common mistakes", selfCheck: "Ask yourself",
+    notesLoading: "Writing your notes…", retry: "Try again", toQuiz: "Go to the quiz", summary: "The big picture", ideas: "Key ideas", terms: "Key terms", example: "Example", mistakes: "Common mistakes", selfCheck: "Ask yourself", howTested: "How it is tested", memory: "Memory tips",
     notesNote: "These notes were written by an AI from the course outline and can have mistakes. Compare them with your class notes and the official course guide.", addTerms: "Add these terms to my flashcards", termsAdded: (n: number) => `${n} flashcards added.`, termsDup: "These terms are already in your flashcards.",
     quizLoading: "Getting your questions…", qOf: (i: number, n: number) => `Question ${i} of ${n}`, check: "Check answer", next: "Next question", finish: "See my result", right: "Correct.", wrong: (a: string) => `Not quite. The answer is ${a}.`, explain: "Why",
     verified: "Checked question", aiChecked: "AI question, checked by a second AI. It can still be wrong.", choose: "Choose an answer",
@@ -43,10 +43,10 @@ const copy = {
     titles: { ap: "Ruta de estudio AP", sat: "Ruta de estudio SAT", psat: "Ruta de estudio PSAT", act: "Ruta de estudio ACT", tsi: "Ruta de estudio TSI" } as Record<string, string>,
     lead: "Avanza tema por tema. Cada lección tiene videos para ver, apuntes cortos y un cuestionario. Pasa el cuestionario para subir de nivel y ganar XP.",
     course: "Curso AP", section: "Sección", pick: "Elegir cursos AP", noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.", upNext: "Sigue",
-    lvl: ["Sin empezar", "Apuntes leídos", "Cuestionario aprobado", "Dominado"], done: (d: number, n: number) => `${d} de ${n} lecciones aprobadas`, unit: "Unidad", unitReview: (u: string) => `Repaso de ${u}`,
+    lvl: ["Sin empezar", "Apuntes leídos", "Cuestionario aprobado", "Dominado"], done: (d: number, n: number) => `${d} de ${n} lecciones aprobadas`, unit: "Unidad", skillWord: "Habilidad", unitReview: (u: string) => `Repaso de ${u}`,
     topicsDone: (d: number, n: number) => `${d} de ${n} temas`, reviewHint: "Un cuestionario mixto de toda la unidad", cram: "Hoja de repaso", back: "Volver a la ruta",
     learn: "Aprender", quiz: "Cuestionario", watch: "Mira y aprende", watchLead: "Los videos cortos son una buena forma de empezar. Estos enlaces abren una búsqueda en otro sitio en una pestaña nueva, y tú eliges el video.", yt: "Buscar en YouTube", khan: "Buscar en Khan Academy", opens: "(se abre en una pestaña nueva)",
-    notesLoading: "Escribiendo tus apuntes…", retry: "Intentar otra vez", toQuiz: "Ir al cuestionario", summary: "Visión general", ideas: "Ideas clave", terms: "Términos clave", example: "Ejemplo", mistakes: "Errores comunes", selfCheck: "Pregúntate",
+    notesLoading: "Escribiendo tus apuntes…", retry: "Intentar otra vez", toQuiz: "Ir al cuestionario", summary: "Visión general", ideas: "Ideas clave", terms: "Términos clave", example: "Ejemplo", mistakes: "Errores comunes", selfCheck: "Pregúntate", howTested: "Cómo se evalúa", memory: "Trucos para recordar",
     notesNote: "Estos apuntes los escribió una IA a partir del temario del curso y pueden tener errores. Compáralos con tus apuntes de clase y la guía oficial del curso.", addTerms: "Agregar estos términos a mis tarjetas", termsAdded: (n: number) => `${n} tarjetas agregadas.`, termsDup: "Estos términos ya están en tus tarjetas.",
     quizLoading: "Preparando tus preguntas…", qOf: (i: number, n: number) => `Pregunta ${i} de ${n}`, check: "Revisar respuesta", next: "Siguiente pregunta", finish: "Ver mi resultado", right: "Correcto.", wrong: (a: string) => `No exactamente. La respuesta es ${a}.`, explain: "Por qué",
     verified: "Pregunta revisada", aiChecked: "Pregunta de IA, revisada por una segunda IA. Aun así puede estar mal.", choose: "Elige una respuesta",
@@ -77,23 +77,16 @@ const apGroup = (track: ExamId, course: ApCourse, lang: "en" | "es", unitIdx: nu
 export function StudyPathTool({ track }: { track: ExamId }) {
   const c = useCopy(copy);
   const lang = useLang();
-  const cfg = EXAMS[track];
   const params = useSearchParams();
   const wantCourse = params.get("course"), wantUnit = params.get("unit"), wantTopic = params.get("topic");
-  const { course, list, hasPicked, setCurrent } = useApCourse(track === "ap" ? wantCourse : null);
+  const { course, list, hasPicked, setCurrent } = useCourse(track, wantCourse);
   const { prog, update } = usePathProgress();
   const xp = useXp();
-  const [secId, setSecId] = useState(track === "ap" ? "" : wantCourse ?? "");
-  const sec = track === "ap" ? undefined : cfg.sections.find((s) => s.id === secId) ?? cfg.sections[0];
 
-  const groups: Group[] = useMemo(() => {
-    if (track === "ap") return course.units.map((_, i) => apGroup(track, course, lang, i));
-    return [{ id: sec!.id, title: sec![lang], no: 0, items: sec!.skills.map((k) => ({ key: `${track}/${sec!.id}/${k.id}`, track, section: sec!.id, sectionLabel: sec![lang], sectionEn: sec!.en, skill: k.id, skillLabel: k[lang], skillEn: k.en })) }];
-  }, [track, course, sec, lang]);
+  const groups: Group[] = useMemo(() => course.units.map((_, i) => apGroup(track, course, lang, i)), [track, course, lang]);
   const flat = useMemo(() => groups.flatMap((g) => [...g.items, ...(g.review ? [g.review] : [])]), [groups]);
 
   const [open, setOpen] = useState<LessonRef | null>(() => {
-    if (track !== "ap") return wantUnit ? flat.find((r) => r.skill === wantUnit) ?? null : null;
     if (wantTopic) return flat.find((r) => r.topic === wantTopic) ?? null;
     if (wantUnit) return flat.find((r) => r.skill === wantUnit && !r.review) ?? null;
     return null;
@@ -104,6 +97,7 @@ export function StudyPathTool({ track }: { track: ExamId }) {
   const next = lessons.find((r) => levelOfProg(prog[r.key]) < 2)?.key;
   const rows = [0, 2.2, 3.5, 2.2, 0, -2.2, -3.5, -2.2];
   const lvl = levelOf(xp.xp);
+  const uw = track === "ap" ? c.unit : c.skillWord;
 
   if (open) {
     const i = flat.findIndex((r) => r.key === open.key);
@@ -124,9 +118,7 @@ export function StudyPathTool({ track }: { track: ExamId }) {
       </div>
       <div className="mt-5 flex flex-wrap items-end gap-4">
         <label className="min-w-0 max-w-md flex-1"><span className="block font-bold">{track === "ap" ? c.course : c.section}</span>
-          {track === "ap"
-            ? <select value={course.id} onChange={(e) => setCurrent(e.target.value)} className={`${inputClass} mt-1`}>{list.map((x) => <option key={x.id} value={x.id}>{x[lang]}</option>)}</select>
-            : <select value={sec!.id} onChange={(e) => setSecId(e.target.value)} className={`${inputClass} mt-1`}>{cfg.sections.map((s) => <option key={s.id} value={s.id}>{s[lang]}</option>)}</select>}</label>
+          <select value={course.id} onChange={(e) => setCurrent(e.target.value)} className={`${inputClass} mt-1`}>{list.map((x) => <option key={x.id} value={x.id}>{x[lang]}</option>)}</select></label>
         <p className="pb-3 font-bold text-teal" aria-live="polite">{c.done(passedCount, lessons.length)}</p></div>
       {track === "ap" && !hasPicked ? <p className="mt-2 text-sm text-muted">{c.noPicked} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.pick}</Link></p> : null}
       {track === "ap" ? <p className="mt-2 flex flex-wrap items-center gap-x-4 text-sm text-muted">{c.numbering} <a href="https://apcentral.collegeboard.org/courses" target="_blank" rel="noopener noreferrer" className="font-bold text-teal underline underline-offset-4">{c.official}<span className="sr-only"> {c.opens}</span></a></p> : null}
@@ -139,23 +131,23 @@ export function StudyPathTool({ track }: { track: ExamId }) {
           const all = [...g.items, ...(g.review ? [g.review] : [])];
           return (
             <section key={g.id} aria-labelledby={`g-${g.id}`}>
-              {track === "ap" ? (
+              {(
                 <div className={`rounded-xl border-[1.5px] border-ink p-4 ${tone}`}>
-                  <p className="text-sm font-bold uppercase tracking-wide">{c.unit} {g.no}</p>
+                  <p className="text-sm font-bold uppercase tracking-wide">{uw} {g.no}</p>
                   <h2 id={`g-${g.id}`} className="font-display text-2xl font-semibold leading-tight">{g.title.replace(/^(Unit|Unidad) \d+:\s*/, "")}</h2>
                   <p className="mt-1 text-sm font-bold">{c.topicsDone(done, g.items.length)}</p>
                 </div>
-              ) : <h2 id={`g-${g.id}`} className="sr-only">{g.title}</h2>}
+              )}
               <ol className="mt-4">
                 {all.map((it, i) => {
                   const lv = levelOfProg(prog[it.key]);
                   const isNext = it.key === next;
                   const Icon = it.review ? Layers : lv === 3 ? Crown : lv === 2 ? Check : lv === 1 ? BookOpen : Star;
                   const off = rows[n++ % rows.length];
-                  const label = it.review ? c.unitReview(`${c.unit} ${it.groupNo}`) : it.topicNum ? `${it.topicNum} ${it.topicLabel}` : it.skillLabel;
+                  const label = it.review ? c.unitReview(`${uw} ${it.groupNo}`) : it.topicNum ? `${it.topicNum} ${it.topicLabel}` : it.skillLabel;
                   return (
                     <li key={it.key} className="relative" style={{ paddingLeft: `${Math.max(0, off) * 1.5}rem`, paddingRight: `${Math.max(0, -off) * 1.5}rem`, textAlign: off < 0 ? "right" : "left" }}>
-                      <button onClick={() => { setOpen(it); if (track === "ap") setCurrent(it.section); }} className={`group inline-flex max-w-full items-center gap-4 rounded-full py-2 ${off < 0 ? "flex-row-reverse text-right" : "text-left"}`}>
+                      <button onClick={() => { setOpen(it); setCurrent(it.section); }} className={`group inline-flex max-w-full items-center gap-4 rounded-full py-2 ${off < 0 ? "flex-row-reverse text-right" : "text-left"}`}>
                         <span className={`grid h-16 w-16 shrink-0 place-items-center rounded-full border-[2px] border-ink shadow-[0_4px_0_0_var(--c-ink)] group-hover:translate-y-[1px] ${lv === 3 ? "bg-marigold text-on-marigold" : lv === 2 ? "bg-teal text-on-teal" : lv === 1 ? "bg-sage text-ink" : isNext ? "bg-ruby text-on-ruby" : "bg-sunken text-ink"}`}><Icon size={26} strokeWidth={2} aria-hidden /></span>
                         <span className="min-w-0"><span className="block font-bold group-hover:underline">{label}</span><span className="block text-sm text-muted">{isNext ? <span className="font-bold text-ruby">{c.upNext}</span> : it.review ? c.reviewHint : c.lvl[lv]}</span></span>
                       </button>
@@ -164,7 +156,7 @@ export function StudyPathTool({ track }: { track: ExamId }) {
                   );
                 })}
               </ol>
-              {track === "ap" && g.review ? <p className="mt-2"><Link href={`/t/ap/cram?course=${course.id}&unit=${g.id}`} className="font-bold text-teal underline underline-offset-4">{c.cram}: {c.unit} {g.no}</Link></p> : null}
+              {g.review ? <p className="mt-2"><Link href={`/t/${track}/cram?course=${course.id}&unit=${g.id}`} className="font-bold text-teal underline underline-offset-4">{c.cram}: {uw} {g.no}</Link></p> : null}
             </section>
           );
         })}
@@ -236,7 +228,7 @@ function NotesView({ r, lang, onRead }: { r: LessonRef; lang: "en" | "es"; onRea
   const apiTrack = r.track === "psat" ? "sat" : r.track;
   const [cache, setCache] = useLocalDoc<Record<string, Notes>>(`learn-notes-${apiTrack}-${r.section}`, NO_NOTES);
   const [cards, setCards] = useLocalDoc<Card[]>(FLASHCARDS_KEY, NO_CARDS);
-  const key = `${r.skill}/${r.topic ?? ""}/${lang}`;
+  const key = `${NOTES_VERSION}/${r.skill}/${r.topic ?? ""}/${lang}`;
   const have = cache[key];
   const [err, setErr] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -264,15 +256,20 @@ function NotesView({ r, lang, onRead }: { r: LessonRef; lang: "en" | "es"; onRea
     setCards((p) => [...p, ...fresh.map((t) => newCard(t.term, t.meaning, deck, today()))]);
     setMsg(c.termsAdded(fresh.length));
   };
+  const H = (text: string) => <h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{text}</h2>;
+  const bullets = (items: string[]) => <ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{items.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul>;
   return (
-    <article className="mt-6 space-y-6">
+    <article className="mt-6 space-y-7">
       <section className="guide-card p-5"><h2 className="text-xl">{c.summary}</h2><MathText text={n.summary} className="mt-1 text-lg" /></section>
-      <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.ideas}</h2><ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{n.keyIdeas.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul></section>
-      <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.terms}</h2><dl className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{n.terms.map((t, i) => <div key={i} className="guide-card p-3"><dt className="font-bold">{t.term}</dt><dd><MathText text={t.meaning} /></dd></div>)}</dl>
+      {n.sections.map((sec, i) => <section key={i}>{H(sec.heading)}<MathText text={sec.body} className="mt-2 text-lg leading-relaxed" /></section>)}
+      <section>{H(c.ideas)}{bullets(n.keyIdeas)}</section>
+      <section>{H(c.terms)}<dl className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{n.terms.map((t, i) => <div key={i} className="guide-card p-3"><dt className="font-bold">{t.term}</dt><dd><MathText text={t.meaning} /></dd></div>)}</dl>
         <div className="mt-3 flex flex-wrap items-center gap-3"><button onClick={addTerms} className={buttonClass.secondary}>{c.addTerms}</button><span className="font-bold text-teal" role="status">{msg}</span></div></section>
-      {n.example ? <section className="guide-card border-l-[6px] border-l-marigold p-5"><h2 className="text-xl">{c.example}: {n.example.title}</h2><MathText text={n.example.body} className="mt-1 text-lg" /></section> : null}
-      <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.mistakes}</h2><ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{n.mistakes.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul></section>
-      <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.selfCheck}</h2><ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{n.selfCheck.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul></section>
+      {n.examples.map((ex, i) => <section key={i} className="guide-card border-l-[6px] border-l-marigold p-5"><h2 className="text-xl">{c.example}: {ex.title}</h2><MathText text={ex.body} className="mt-1 text-lg" /></section>)}
+      <section>{H(c.mistakes)}{bullets(n.mistakes)}</section>
+      <section>{H(c.howTested)}{bullets(n.howTested)}</section>
+      {n.memoryTips?.length ? <section>{H(c.memory)}{bullets(n.memoryTips)}</section> : null}
+      <section>{H(c.selfCheck)}{bullets(n.selfCheck)}</section>
       <p className="text-sm text-muted">{c.notesNote}</p>
       <button onClick={onRead} className={buttonClass.primary}>{c.toQuiz}</button>
     </article>

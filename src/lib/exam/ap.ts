@@ -2,7 +2,7 @@ import generated from "@/data/bank/ap-generated.json";
 import { AP_OUTLINE } from "@/data/ap";
 import type { SectionConfig } from "./types";
 
-export interface ApTopic { id: string; num: string; en: string; es: string }
+export interface ApTopic { id: string; num: string; en: string; es: string; /** What the notes and questions must cover (test-prep topics only). */ cover?: string }
 export interface ApUnit { id: string; en: string; es: string; no: number; topics: ApTopic[] }
 export interface ApCourse { id: string; en: string; es: string; units: ApUnit[] }
 type RawUnit = Omit<ApUnit, "no" | "topics">;

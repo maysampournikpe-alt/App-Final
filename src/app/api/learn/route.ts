@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
   try {
     if (kind === "notes") {
-      const notes = await jsonOf(notesMessages(exam, ref, lang), (j) => { const r = notesSchema.safeParse(j); return r.success ? r.data : null; }, 4200, 60);
+      const notes = await jsonOf(notesMessages(exam, ref, lang), (j) => { const r = notesSchema.safeParse(j); return r.success ? r.data : null; }, 7000, 58);
       return notes ? NextResponse.json({ ok: true, notes }, { headers }) : err("failed", 502);
     }
     if (kind === "terms") {

@@ -7,12 +7,12 @@ import type { Question } from "./types";
 export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** One topic inside the unit or skill, like 1.2. */ topic?: string; count: number; difficulty: 1 | 2 | 3; /** "exam" asks for real-exam-style questions. */ style?: "exam" }
 
 /** Readable names for a section and skill. AP courses come from the full CED list, so a course can be generated before it has any questions. */
-export function topicOf(exam: GenSpec["exam"], section: string, skill: string, topic?: string): { section: string; skill: string; topic?: string; topicNum?: string } | null {
+export function topicOf(exam: GenSpec["exam"], section: string, skill: string, topic?: string): { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[] } | null {
   const c = coursesFor(exam).find((x) => x.id === section), u = c?.units.find((x) => x.id === skill);
   if (!c || !u) return null;
-  if (!topic) return { section: c.en, skill: u.en };
+  if (!topic) return { section: c.en, skill: u.en, unitTopics: u.topics.map((t) => `${t.num} ${t.en}`) };
   const t = u.topics.find((x) => x.id === topic);
-  return t ? { section: c.en, skill: u.en, topic: t.en, topicNum: t.num } : null;
+  return t ? { section: c.en, skill: u.en, topic: t.en, topicNum: t.num, ...(t.cover ? { cover: t.cover } : {}) } : null;
 }
 
 const STYLE: Record<GenSpec["exam"], string> = {
@@ -54,7 +54,7 @@ export function buildGenPrompt(spec: GenSpec): { system: string; user: string } 
       "Content must be appropriate for ages 13 to 18. Teach history, government and social science accurately and neutrally.",
       "Return ONLY JSON: {\"questions\":[{\"stem\":\"\",\"passage\":null,\"type\":\"mc\",\"choices\":[\"\",\"\",\"\",\"\"],\"answer\":\"A\",\"accept\":null,\"explanation\":\"\"}]}",
     ].join("\n"),
-    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
+    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.cover ? `What this topic covers (draw the question types from this): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
   };
 }
 

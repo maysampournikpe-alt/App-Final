@@ -19,12 +19,12 @@ import { CounterTool, EssayOutlineTool, ParaphraseTool, ReadLevelTool, ReadLogTo
 import { AssistTool } from "./AssistTools";
 import { ApFlashTool, ApNotesTool, ApPlanTool, AppTrackerTool, CitationTool } from "./MoreLocal";
 import { CelebrationsTool, ChallengesTool, ParentViewTool, PortfolioTool, RadarTool, YearReviewTool } from "./AchievementsPlus";
-import { FlyerTool, ForYouTool, HistoryTool, MapTool, SavedSearchesTool, SimilarTool, SurpriseTool } from "./FinderExtras";
+import { FlyerTool, ForYouTool, HistoryTool, SavedSearchesTool, SimilarTool, SurpriseTool } from "./FinderExtras";
 import { ExportTool as DataExportTool, NotificationsTool, OfflineTool, ReadAloudTool, SidebarTool, VoiceTool } from "./SettingsMore";
 import { ChessTool } from "./ChessTool";
 import { StudyPathTool } from "../exam/StudyPath";
 import { GuideTool } from "./GuideTool";
-import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
+import { BusTool, EventsTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
 import { BreaksTool, StressTool } from "./WellbeingExtra";
 import { BudgetTool } from "./Budget";
@@ -57,6 +57,7 @@ import { GradeCalcTool } from "./GradeCalc";
 import { HomeworkTool } from "./Homework";
 import { ApCoursesTool, ApDashboardTool } from "../exam/ApTools";
 import { ExamTool } from "../exam/ExamTool";
+import { ApCramTool, ApPracticeTool, ApVocabTool } from "../exam/ApStudy";
 import { MistakesTool, WeakSpotsTool } from "../exam/StudyTools";
 import { PlanTool } from "./Plan";
 import { PomodoroTool } from "./Pomodoro";
@@ -123,8 +124,10 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "tsi/resources": clientOnly(() => <ExamTool exam="tsi" view="resources" />),
   "ap/courses": clientOnly(ApCoursesTool),
   "ap/dashboard": clientOnly(ApDashboardTool),
-  "ap/quizzes": clientOnly(() => <ExamTool exam="ap" view="sections" />),
-  "ap/exam": clientOnly(() => <ExamTool exam="ap" view="full" />),
+  "ap/quizzes": clientOnly(() => <ApPracticeTool kind="quiz" />),
+  "ap/vocab": clientOnly(ApVocabTool),
+  "ap/cram": clientOnly(ApCramTool),
+  "ap/exam": clientOnly(() => <ApPracticeTool kind="mock" />),
   "ap/score": clientOnly(() => <ExamTool exam="ap" view="scores" />),
   "ap/weak": clientOnly(WeakSpotsTool),
   "ap/resources": clientOnly(() => <ExamTool exam="ap" view="resources" />),
@@ -151,12 +154,11 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "grades/txgrad": clientOnly(TxGradTool),
   "grades/txadmit": clientOnly(TxAdmitTool),
   "money/laborlaw": clientOnly(LaborLawTool),
-  "local/map": clientOnly(LocalMapTool),
   "local/bus": clientOnly(BusTool),
   "local/events": clientOnly(EventsTool),
-  "local/tutoring": clientOnly(() => <GuideTool id="local/tutoring" maps={[{ label: { en: "Libraries", es: "Bibliotecas" }, q: "public library" }, { label: { en: "Tutoring centers", es: "Centros de tutoría" }, q: "free tutoring" }]} />),
-  "local/wifi": clientOnly(() => <GuideTool id="local/wifi" maps={[{ label: { en: "Libraries", es: "Bibliotecas" }, q: "public library free wifi" }, { label: { en: "Community centers", es: "Centros comunitarios" }, q: "community center" }]} />),
-  "local/gear": clientOnly(() => <GuideTool id="local/gear" maps={[{ label: { en: "Boys and Girls Clubs", es: "Boys and Girls Clubs" }, q: "Boys and Girls Club" }, { label: { en: "Community centers", es: "Centros comunitarios" }, q: "community center" }]} />),
+  "local/tutoring": clientOnly(() => <GuideTool id="local/tutoring" />),
+  "local/wifi": clientOnly(() => <GuideTool id="local/wifi" />),
+  "local/gear": clientOnly(() => <GuideTool id="local/gear" />),
   "local/feewaiver": clientOnly(() => <GuideTool id="local/feewaiver" />),
   "wellbeing/stress": clientOnly(StressTool),
   "wellbeing/breaks": clientOnly(BreaksTool),
@@ -290,7 +292,6 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "find/surprise": clientOnly(SurpriseTool),
   "find/similar": clientOnly(SimilarTool),
   "find/flyer": clientOnly(FlyerTool),
-  "find/map": clientOnly(MapTool),
   "foryou/challenge": clientOnly(ChallengesTool),
   "achievements/challenges": clientOnly(ChallengesTool),
   "achievements/portfolio": clientOnly(PortfolioTool),

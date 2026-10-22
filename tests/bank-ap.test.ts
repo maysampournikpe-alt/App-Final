@@ -56,7 +56,7 @@ describe("AP starter bank", () => {
     const e = estimate("ap", grade(byId, session).items);
     expect(e.sections[0]).toMatchObject({ section: "apush", pct: 1, score: 5 });
     expect(e.total).toBeNull();
-    expect(EXAMS.ap.sections.map((s) => s.id)).toEqual(["apstats", "apush", "aphug"]);
+    expect(EXAMS.ap.sections.slice(0, 3).map((s) => s.id)).toEqual(["apstats", "apush", "aphug"]);
   });
 });
 
@@ -72,17 +72,30 @@ describe("exam page addresses", () => {
   });
 });
 
-import { AP_CED } from "../src/data/ap-ced";
-import { AP_COURSES, AP_SECTIONS, hasQuestions } from "../src/lib/exam/ap";
-describe("AP course units from the CED list", () => {
-  it("every CED course name matches a real course, and every course gets numbered units", () => {
-    const names = new Set(AP_ALL_COURSES.map((c) => c.en));
-    for (const n of Object.keys(AP_CED)) expect(names.has(n), n).toBe(true);
-    for (const c of AP_COURSES) { expect(c.units.length, c.id).toBeGreaterThanOrEqual(4); expect(new Set(c.units.map((u) => u.id)).size).toBe(c.units.length); }
-    expect(AP_COURSES.length).toBeGreaterThanOrEqual(25);
+import { AP_ALL_COURSES as ALL, AP_COURSES, AP_SECTIONS, hasQuestions } from "../src/lib/exam/ap";
+describe("AP outlines", () => {
+  it("every AP course has units, and every unit has numbered topics", () => {
+    expect(AP_COURSES.map((c) => c.id).sort()).toEqual(ALL.map((c) => c.id).sort());
+    for (const c of AP_COURSES) {
+      expect(c.units.length, c.id).toBeGreaterThanOrEqual(4);
+      expect(new Set(c.units.map((u) => u.id)).size).toBe(c.units.length);
+      for (const u of c.units) {
+        expect(u.topics.length, `${c.id} ${u.id}`).toBeGreaterThanOrEqual(3);
+        expect(new Set(u.topics.map((t) => t.id)).size).toBe(u.topics.length);
+        u.topics.forEach((t, i) => { expect(t.num).toBe(`${u.no}.${i + 1}`); expect(t.en.length).toBeGreaterThan(3); });
+      }
+    }
   });
-  it("mock exams only list courses that have questions", () => {
-    expect(AP_SECTIONS.map((s) => s.id).sort()).toEqual(["apstats", "apush", "aphug"].sort());
+  it("keeps the old unit ids for the courses with starter questions and numbers Physics 2 from Unit 9", () => {
+    expect(AP_COURSES.find((c) => c.id === "apush")!.units[0].id).toBe("p1");
+    expect(AP_COURSES.find((c) => c.id === "apstats")!.units[8].topics[0].num).toBe("9.1");
+    expect(AP_COURSES.find((c) => c.id === "ap-physics-2")!.units[0].no).toBe(9);
+    expect(AP_COURSES.find((c) => c.id === "ap-calculus-bc")!.units.length).toBe(10);
+    expect(AP_COURSES.find((c) => c.id === "ap-calculus-ab")!.units.length).toBe(8);
+  });
+  it("every course is an exam section, and only some have a hand-written or generated bank", () => {
+    expect(AP_SECTIONS.length).toBe(AP_COURSES.length);
+    expect(hasQuestions("apush")).toBe(true);
     expect(hasQuestions("ap-biology")).toBe(false);
   });
 });

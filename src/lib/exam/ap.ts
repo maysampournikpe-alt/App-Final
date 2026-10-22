@@ -1,13 +1,16 @@
 import generated from "@/data/bank/ap-generated.json";
-import { AP_CED } from "@/data/ap-ced";
+import { AP_OUTLINE } from "@/data/ap";
 import type { SectionConfig } from "./types";
 
-export interface ApUnit { id: string; en: string; es: string }
+export interface ApTopic { id: string; num: string; en: string; es: string }
+export interface ApUnit { id: string; en: string; es: string; no: number; topics: ApTopic[] }
 export interface ApCourse { id: string; en: string; es: string; units: ApUnit[] }
-const u = (id: string, en: string, es = en): ApUnit => ({ id, en, es });
+type RawUnit = Omit<ApUnit, "no" | "topics">;
+type RawCourse = { id: string; en: string; es: string; units: RawUnit[] };
+const u = (id: string, en: string, es = en): RawUnit => ({ id, en, es });
 
 /** Courses with practice questions. Units follow the College Board framework for each course. */
-export const AP_PRACTICE_COURSES: ApCourse[] = [
+const PRACTICE_RAW: RawCourse[] = [
   { id: "apstats", en: "AP Statistics", es: "AP Estadística", units: [
     u("u1", "Unit 1: Exploring one-variable data", "Unidad 1: Datos de una variable"), u("u2", "Unit 2: Exploring two-variable data", "Unidad 2: Datos de dos variables"),
     u("u3", "Unit 3: Collecting data", "Unidad 3: Recolección de datos"), u("u4", "Unit 4: Probability and random variables", "Unidad 4: Probabilidad y variables aleatorias"),
@@ -27,7 +30,7 @@ export const AP_PRACTICE_COURSES: ApCourse[] = [
 
 /** Every course a student can pick. */
 export const AP_ALL_COURSES: { id: string; en: string; es: string }[] = [
-  ...AP_PRACTICE_COURSES.map(({ id, en, es }) => ({ id, en, es })),
+  ...PRACTICE_RAW.map(({ id, en, es }) => ({ id, en, es })),
   ...[
     "AP African American Studies", "AP Art History", "AP Biology", "AP Calculus AB", "AP Calculus BC", "AP Chemistry", "AP Comparative Government and Politics",
     "AP Computer Science A", "AP Computer Science Principles", "AP English Language and Composition", "AP English Literature and Composition", "AP Environmental Science",
@@ -43,18 +46,29 @@ export function apScore(pct: number): 1 | 2 | 3 | 4 | 5 {
   return pct >= 0.72 ? 5 : pct >= 0.58 ? 4 : pct >= 0.45 ? 3 : pct >= 0.32 ? 2 : 1;
 }
 
-/** Every course that has a unit list: the ones with hand-written starter questions plus those from the CED list. Each gets a study path. */
-export const AP_COURSES: ApCourse[] = [
-  ...AP_PRACTICE_COURSES,
-  ...AP_ALL_COURSES.filter((c) => AP_CED[c.en] && !AP_PRACTICE_COURSES.some((p) => p.id === c.id)).map((c) => ({
-    ...c, units: AP_CED[c.en].map((t, i) => u(`u${i + 1}`, `Unit ${i + 1}: ${t}`, `Unidad ${i + 1}: ${t}`)),
-  })),
-];
+/** Every course, each with its units and topics (1.1, 1.2, ...). Topic names follow the usual CED outline. */
+export const AP_COURSES: ApCourse[] = AP_ALL_COURSES.flatMap((c) => {
+  const outline = AP_OUTLINE[c.en];
+  if (!outline) return [];
+  const first = outline.first ?? 1;
+  const raw = PRACTICE_RAW.find((p) => p.id === c.id);
+  const units: ApUnit[] = outline.units.map((ou, i) => {
+    const no = first + i;
+    const base: RawUnit = raw?.units[i] ?? u(`u${no}`, `Unit ${no}: ${ou.title}`, `Unidad ${no}: ${ou.title}`);
+    return { ...base, no, topics: ou.topics.map((t, j) => ({ id: `${base.id}-${j + 1}`, num: `${no}.${j + 1}`, en: t, es: t })) };
+  });
+  return [{ id: c.id, en: c.en, es: c.es, units }];
+});
+export const courseById = (id: string) => AP_COURSES.find((c) => c.id === id);
+
+/** The three courses with hand-written starter questions. */
+export const AP_PRACTICE_COURSES: ApCourse[] = AP_COURSES.filter((c) => PRACTICE_RAW.some((p) => p.id === c.id));
 
 /** Courses that can run a mock exam: starter questions, or at least 12 verified questions made by `npm run bank:generate`. */
 const generatedCount = (id: string) => (generated as { section: string }[]).filter((q) => q.section === id).length;
 export const hasQuestions = (id: string) => AP_PRACTICE_COURSES.some((c) => c.id === id) || generatedCount(id) >= 12;
 
-export const AP_SECTIONS: SectionConfig[] = AP_COURSES.filter((c) => hasQuestions(c.id)).map((c) => ({
+/** Every course is a section, so mock exams, timed practice and score estimates work for all of them. */
+export const AP_SECTIONS: SectionConfig[] = AP_COURSES.map((c) => ({
   id: c.id, en: c.en, es: c.es, questions: 55, minutes: 80, skills: c.units.map((x) => ({ id: x.id, en: x.en, es: x.es })),
 }));

@@ -4,20 +4,20 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**234 of 270 features built.**
+**234 of 272 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 66 | 78 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 68 | 80 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 22 | 30 |
-| Phase 3: Discovery and college/career | 24 | 26 |
+| Phase 3: Discovery and college/career | 23 | 26 |
 | Phase 4: Study tools and skill building | 53 | 56 |
 | Phase 5: Planning, productivity and life skills | 40 | 40 |
 | Phase 6: People | 0 | 9 |
 | Phase 7: Wellbeing | 5 | 5 |
-| Phase 8: Local resources | 7 | 7 |
+| Phase 8: Local resources | 6 | 7 |
 | Phase 9: Motivation and fun | 13 | 14 |
 | Phase 10: Extra accessibility and trust | 4 | 5 |
 
@@ -44,7 +44,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Opportunity search | 1 | Built |  |
 | My Saved | 1 | Built |  |
 | Scam warning guide | 1 | Built |  |
-| Map view | 3 | Built |  |
+| Map view | 3 | Future plan |  |
 | Surprise me | 3 | Built |  |
 | Trending near you | 3 | Future plan |  |
 | Similar opportunities | 3 | Built |  |
@@ -79,7 +79,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Local resource map | 8 | Built |  |
+| Local resource map | 8 | Future plan |  |
 | Bus route helper | 8 | Built |  |
 | Free tutoring finder | 8 | Built |  |
 | Local events feed | 8 | Built |  |
@@ -189,7 +189,9 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Course dashboard | 1 | Built |  |
 | Unit notes | 1 | Built |  |
 | Practice quizzes | 1 | Built |  |
-| Full practice exams | 1 | Built |  |
+| Mock exams | 1 | Built |  |
+| Vocabulary | 1 | Built |  |
+| Cram sheets | 1 | Built |  |
 | Free response feedback | 1 | Built |  |
 | Flashcards | 1 | Built |  |
 | Weak spot report | 1 | Built |  |

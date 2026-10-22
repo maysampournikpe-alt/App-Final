@@ -47,7 +47,6 @@ export function Empty({ children }: { children: React.ReactNode }) {
 
 export const searchLink = (q: string) => `/t/find/search?q=${encodeURIComponent(q)}`;
 export const FindLink = ({ q, children }: { q: string; children: React.ReactNode }) => <Link href={searchLink(q)} className="font-bold text-teal underline underline-offset-4">{children}</Link>;
-export const mapsSearch = (q: string) => `https://www.google.com/maps/search/${encodeURIComponent(q)}`;
 export const webSearch = (q: string) => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
 export const youtubeSearch = (q: string) => `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
 export const spotifySearch = (q: string) => `https://open.spotify.com/search/${encodeURIComponent(q)}`;

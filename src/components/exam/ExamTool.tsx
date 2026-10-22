@@ -14,6 +14,7 @@ import { buttonClass, inputClass, Page } from "../ui";
 import { examCopy, type ExamCopy } from "./copy";
 import { Results } from "./Results";
 import { Runner } from "./Runner";
+import { TrademarkNote } from "./TrademarkNote";
 import { useExamData } from "./useExam";
 
 export type ExamView = "overview" | "diagnostic" | "sections" | "full" | "scores" | "resources";
@@ -71,6 +72,7 @@ export function ExamTool({ exam, view }: { exam: ExamId; view: ExamView }) {
       {view === "full" ? <FullSetup exam={exam} c={c} usable={usable} onStart={(timed, section) => start({ mode: "full", section }, timed)} /> : null}
       {view === "scores" ? <Scores exam={exam} c={c} attempts={attempts.filter((a) => a.exam === exam)} onPractice={(section, skill) => start({ mode: "section", section, skill, count: 8 }, false)} onOpen={setResultId} /> : null}
       {view === "resources" ? <Resources c={c} exam={exam} /> : null}
+    <TrademarkNote />
     </Page>
   );
 }

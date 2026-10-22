@@ -51,7 +51,10 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
   never a prompt: the reviewed prompts live in `src/lib/ai/assist.ts`. It has input limits, a rate limit, and the same
   crisis handling as the Coach.
 - `/api/learn` powers the study paths (`/t/ap/path`, `/t/sat/path`, `/t/psat/path`, `/t/act/path`, `/t/tsi/path`). It takes only ids from our own lists (course, unit), writes unit notes, and writes practice questions that a second AI call solves blind; only questions where both agree are kept. Questions from the checked bank are always used first.
-- AP unit lists live in `src/data/ap-ced.ts`. They follow each College Board Course and Exam Description, and some courses are left out where the current structure was not confirmed. Compare with apcentral.collegeboard.org before relying on a list.
+- AP courses, units and topics (1.1, 1.2, 1.3 ...) live in `src/data/ap/` (`stem.ts`, `social.ts`, `humanities.ts`) and are turned into the course list in `src/lib/exam/ap.ts`. They follow the usual College Board course outlines but were written without opening the official Course and Exam Descriptions, so topic names and numbers can differ slightly. Compare with apcentral.collegeboard.org and fix any entry in those files.
+- `/api/learn` takes `kind`: `notes` (one topic), `quiz` (questions for a unit or a topic), `terms` (vocabulary for a unit) and `cram` (a one-page cram sheet). Questions made by the AI are saved in the shared `question_bank` table (migration `0004_question_bank.sql`, run it in the Supabase SQL editor) so the next student gets them without another AI call.
+- AP section screens: `src/components/exam/StudyPath.tsx` (topic by topic path with YouTube and Khan Academy search links, notes, quiz, XP), `ApTools.tsx` (course picker and AP home), `ApStudy.tsx` (practice quizzes, mock exams, vocabulary, cram sheets). Questions are collected by `src/lib/exam/gather.ts`: bank first, then the AI, then kept on the device.
+- Google Maps features (bus map and finder maps) are switched off until after the 2026 Congressional App Challenge. See COMPLIANCE.md.
 - AI features need `GROQ_API_KEY` on the server. With `AI_FIXTURES=1` the helpers return a fixed reply, which is
   how the screens are tested without a key.
 - `chess.js` (BSD license) validates moves in the chess opening trainer.
@@ -80,6 +83,7 @@ Needs to run on a computer that can reach Groq, with `GROQ_API_KEY` in `.env.loc
 npm run bank:generate -- --all --per-skill 12     # every skill, both SAT sections
 npm run bank:generate -- --section math --skill algebra --count 8
 npm run bank:generate -- --exam ap --section ap-biology --per-skill 12   # one AP course, every unit
+npm run bank:generate -- --exam ap --section ap-biology --topics --per-skill 4   # every topic (1.1, 1.2 ...)
 npm run bank:generate -- --exam act --all --per-skill 8
 npm run bank:generate -- --exam tsi --all --per-skill 8
 npm run bank:generate -- --list                   # exams, course ids and unit ids

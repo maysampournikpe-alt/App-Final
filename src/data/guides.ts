@@ -117,7 +117,7 @@ export const GUIDES: Record<string, Guide> = {
       { h: l("Get your own home internet for less", "Internet en casa por menos"), li: [l("Ask your school if it lends hotspots.", "Pregunta en tu escuela si presta puntos de acceso a internet."), l("Ask internet and phone companies about low-income plans. The federal Lifeline program gives a monthly discount to eligible households.", "Pregunta a las compañías de internet y teléfono por planes para bajos ingresos. El programa federal Lifeline da un descuento mensual a los hogares elegibles."), l("Call 211 Texas for other local help.", "Llama al 211 Texas para otra ayuda local.")], links: [{ label: l("211 Texas", "211 Texas"), url: "https://www.211texas.org/" }] },
       { h: l("Stay safe on public WiFi", "Cuídate en el WiFi público"), li: [l("Do not enter passwords or bank information on open WiFi unless the site shows a lock and https.", "No escribas contraseñas ni información bancaria en WiFi abierto, a menos que el sitio muestre un candado y https."), l("Log out when you finish on a shared computer.", "Cierra sesión cuando termines en una computadora compartida.")] },
     ],
-    note: l("Use the Local resource map to open a map search for libraries and community centers near you.", "Usa el Mapa de recursos locales para abrir una búsqueda en el mapa de bibliotecas y centros comunitarios cerca de ti."),
+    note: l("Use Find opportunities to search for libraries and community centers near you.", "Usa Buscar oportunidades para buscar bibliotecas y centros comunitarios cerca de ti."),
   },
 };
 

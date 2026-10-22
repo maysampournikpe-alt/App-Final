@@ -2,144 +2,227 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Check, Crown, RotateCcw, Star } from "lucide-react";
-import { AP_COURSES, hasQuestions } from "@/lib/exam/ap";
-import { BANK } from "@/lib/exam/bank";
+import { BookOpen, Check, Crown, ExternalLink, Flame, Layers, RotateCcw, Star, Zap } from "lucide-react";
+import { type ApCourse } from "@/lib/exam/ap";
 import { EXAMS } from "@/lib/exam/config";
+import { gather } from "@/lib/exam/gather";
 import type { ExamId, Question } from "@/lib/exam/types";
 import type { Notes } from "@/lib/ai/learn";
 import { today } from "@/lib/dates";
 import { useLang } from "@/lib/i18n";
+import { khanSearch, lessonQuery, youtubeSearch } from "@/lib/links";
 import { useLocalDoc } from "@/lib/local-doc";
+import { levelName, levelOf } from "@/lib/progress";
+import { FLASHCARDS_KEY, newCard, NO_CARDS, type Card } from "@/lib/srs";
 import { useCopy } from "@/lib/use-copy";
+import { lessonXp, streakOf } from "@/lib/xp";
 import { buttonClass, inputClass, Page } from "../ui";
 import { MathText } from "./MathText";
+import { TrademarkNote } from "./TrademarkNote";
+import { GOLD, levelOfProg, PASS, useApCourse, usePathProgress, useXp, type Prog } from "./useAp";
 import { useExamData } from "./useExam";
-
-type Prog = { notes?: boolean; best?: number; tries?: number; at?: string };
-const NO_PROG: Record<string, Prog> = {};
-const NO_PICKED: string[] = [];
-const PASS = 0.6, GOLD = 0.9, QUIZ_N = 5;
 
 const copy = {
   en: {
     titles: { ap: "AP study path", sat: "SAT study path", psat: "PSAT study path", act: "ACT study path", tsi: "TSI study path" } as Record<string, string>,
-    lead: "Work down the path one lesson at a time. Each lesson has short notes, then a quiz. Pass the quiz to climb to the next level.",
-    course: "AP course", section: "Section", pick: "Pick AP courses", noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.", upNext: "Up next", start: "Start", again: "Do it again",
-    lvl: ["Not started", "Notes read", "Quiz passed", "Mastered"], units: (d: number, n: number) => `${d} of ${n} lessons passed`,
-    back: "Back to the path", notes: "Notes", quiz: "Quiz", notesLoading: "Writing your notes…", quizLoading: "Getting your questions…", retry: "Try again", toQuiz: "Go to the quiz", summary: "The big picture", ideas: "Key ideas", terms: "Key terms", example: "Example", mistakes: "Common mistakes", selfCheck: "Ask yourself",
-    notesNote: "These notes were written by an AI from the course outline and can have mistakes. Compare them with your class notes and the official course guide.", realNote: "Check the official guide for the full list of what is tested.", official: "Official course guides (CED)",
-    qOf: (i: number, n: number) => `Question ${i} of ${n}`, check: "Check answer", next: "Next question", finish: "See my result", right: "Correct.", wrong: (a: string) => `Not quite. The answer is ${a}.`, explain: "Why",
+    lead: "Go topic by topic. Each lesson has videos to watch, short notes, then a quiz. Pass the quiz to climb to the next level and earn XP.",
+    course: "AP course", section: "Section", pick: "Pick AP courses", noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.", upNext: "Up next",
+    lvl: ["Not started", "Notes read", "Quiz passed", "Mastered"], done: (d: number, n: number) => `${d} of ${n} lessons passed`, unit: "Unit", unitReview: (u: string) => `${u} review`,
+    topicsDone: (d: number, n: number) => `${d} of ${n} topics`, reviewHint: "A mixed quiz on the whole unit", cram: "Cram sheet", back: "Back to the path",
+    learn: "Learn", quiz: "Quiz", watch: "Watch and learn", watchLead: "Short videos are a great way to start. These links open a search on another site in a new tab, and you pick the video.", yt: "Search YouTube", khan: "Search Khan Academy", opens: "(opens in a new tab)",
+    notesLoading: "Writing your notes…", retry: "Try again", toQuiz: "Go to the quiz", summary: "The big picture", ideas: "Key ideas", terms: "Key terms", example: "Example", mistakes: "Common mistakes", selfCheck: "Ask yourself",
+    notesNote: "These notes were written by an AI from the course outline and can have mistakes. Compare them with your class notes and the official course guide.", addTerms: "Add these terms to my flashcards", termsAdded: (n: number) => `${n} flashcards added.`, termsDup: "These terms are already in your flashcards.",
+    quizLoading: "Getting your questions…", qOf: (i: number, n: number) => `Question ${i} of ${n}`, check: "Check answer", next: "Next question", finish: "See my result", right: "Correct.", wrong: (a: string) => `Not quite. The answer is ${a}.`, explain: "Why",
     verified: "Checked question", aiChecked: "AI question, checked by a second AI. It can still be wrong.", choose: "Choose an answer",
-    score: (a: number, b: number) => `You got ${a} of ${b}`, passed: "Lesson passed. Nice work.", tryAgain: "Not yet. Read the notes again and give it another try.", gold: "Mastered this lesson.", nextLesson: "Next lesson", errors: { rate_limited: "You have used a lot of lessons this hour. Take a break and try again in a few minutes.", busy: "The AI is busy. Try again in a minute.", slow: "That took too long. Try again.", unavailable: "AI lessons are not switched on in this version yet.", failed: "Something went wrong on our side. Try again in a minute.", offline: "You are offline. Lessons you opened before still work.", empty: "No questions are available for this lesson yet." } as Record<string, string>,
-    source: "Practice questions come from our checked bank first. If a lesson needs more, an AI writes new original ones and a second AI checks them.",
+    score: (a: number, b: number) => `You got ${a} of ${b}`, passed: "Lesson passed. Nice work.", tryAgain: "Not yet. Read the notes again and give it another try.", gold: "Mastered this lesson.", nextLesson: "Next lesson", again: "Do it again", xpGain: (n: number) => `+${n} XP`, level: (l: number, n: string) => `Level ${l}: ${n}`, streak: (n: number) => `${n}-day streak`,
+    short: (n: number) => `Only ${n} questions could be made this time.`,
+    errors: { rate_limited: "You have used a lot of lessons this hour. Take a break and try again in a few minutes.", busy: "The AI is busy. Try again in a minute.", slow: "That took too long. Try again.", unavailable: "AI lessons are not switched on in this version yet.", failed: "Something went wrong on our side. Try again in a minute.", offline: "You are offline. Lessons you opened before still work.", empty: "No questions are available for this lesson yet." } as Record<string, string>,
+    source: "Practice questions come from our checked bank first. If a lesson needs more, an AI writes new original ones and a second AI checks them.", official: "Official course guides (CED)", numbering: "Topic names follow the usual course outline. Numbers can differ slightly from your course guide.",
   },
   es: {
     titles: { ap: "Ruta de estudio AP", sat: "Ruta de estudio SAT", psat: "Ruta de estudio PSAT", act: "Ruta de estudio ACT", tsi: "Ruta de estudio TSI" } as Record<string, string>,
-    lead: "Avanza por la ruta una lección a la vez. Cada lección tiene apuntes cortos y luego un cuestionario. Pasa el cuestionario para subir al siguiente nivel.",
-    course: "Curso AP", section: "Sección", pick: "Elegir cursos AP", noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.", upNext: "Sigue", start: "Empezar", again: "Hacerlo otra vez",
-    lvl: ["Sin empezar", "Apuntes leídos", "Cuestionario aprobado", "Dominado"], units: (d: number, n: number) => `${d} de ${n} lecciones aprobadas`,
-    back: "Volver a la ruta", notes: "Apuntes", quiz: "Cuestionario", notesLoading: "Escribiendo tus apuntes…", quizLoading: "Preparando tus preguntas…", retry: "Intentar otra vez", toQuiz: "Ir al cuestionario", summary: "Visión general", ideas: "Ideas clave", terms: "Términos clave", example: "Ejemplo", mistakes: "Errores comunes", selfCheck: "Pregúntate",
-    notesNote: "Estos apuntes los escribió una IA a partir del temario del curso y pueden tener errores. Compáralos con tus apuntes de clase y la guía oficial del curso.", realNote: "Consulta la guía oficial para ver todo lo que se evalúa.", official: "Guías oficiales del curso (CED)",
-    qOf: (i: number, n: number) => `Pregunta ${i} de ${n}`, check: "Revisar respuesta", next: "Siguiente pregunta", finish: "Ver mi resultado", right: "Correcto.", wrong: (a: string) => `No exactamente. La respuesta es ${a}.`, explain: "Por qué",
+    lead: "Avanza tema por tema. Cada lección tiene videos para ver, apuntes cortos y un cuestionario. Pasa el cuestionario para subir de nivel y ganar XP.",
+    course: "Curso AP", section: "Sección", pick: "Elegir cursos AP", noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.", upNext: "Sigue",
+    lvl: ["Sin empezar", "Apuntes leídos", "Cuestionario aprobado", "Dominado"], done: (d: number, n: number) => `${d} de ${n} lecciones aprobadas`, unit: "Unidad", unitReview: (u: string) => `Repaso de ${u}`,
+    topicsDone: (d: number, n: number) => `${d} de ${n} temas`, reviewHint: "Un cuestionario mixto de toda la unidad", cram: "Hoja de repaso", back: "Volver a la ruta",
+    learn: "Aprender", quiz: "Cuestionario", watch: "Mira y aprende", watchLead: "Los videos cortos son una buena forma de empezar. Estos enlaces abren una búsqueda en otro sitio en una pestaña nueva, y tú eliges el video.", yt: "Buscar en YouTube", khan: "Buscar en Khan Academy", opens: "(se abre en una pestaña nueva)",
+    notesLoading: "Escribiendo tus apuntes…", retry: "Intentar otra vez", toQuiz: "Ir al cuestionario", summary: "Visión general", ideas: "Ideas clave", terms: "Términos clave", example: "Ejemplo", mistakes: "Errores comunes", selfCheck: "Pregúntate",
+    notesNote: "Estos apuntes los escribió una IA a partir del temario del curso y pueden tener errores. Compáralos con tus apuntes de clase y la guía oficial del curso.", addTerms: "Agregar estos términos a mis tarjetas", termsAdded: (n: number) => `${n} tarjetas agregadas.`, termsDup: "Estos términos ya están en tus tarjetas.",
+    quizLoading: "Preparando tus preguntas…", qOf: (i: number, n: number) => `Pregunta ${i} de ${n}`, check: "Revisar respuesta", next: "Siguiente pregunta", finish: "Ver mi resultado", right: "Correcto.", wrong: (a: string) => `No exactamente. La respuesta es ${a}.`, explain: "Por qué",
     verified: "Pregunta revisada", aiChecked: "Pregunta de IA, revisada por una segunda IA. Aun así puede estar mal.", choose: "Elige una respuesta",
-    score: (a: number, b: number) => `Lograste ${a} de ${b}`, passed: "Lección aprobada. Buen trabajo.", tryAgain: "Todavía no. Lee otra vez los apuntes y vuelve a intentarlo.", gold: "Dominaste esta lección.", nextLesson: "Siguiente lección", errors: { rate_limited: "Has usado muchas lecciones esta hora. Descansa y vuelve a intentar en unos minutos.", busy: "La IA está ocupada. Intenta de nuevo en un minuto.", slow: "Tardó demasiado. Intenta de nuevo.", unavailable: "Las lecciones con IA todavía no están activadas en esta versión.", failed: "Algo falló de nuestra parte. Intenta de nuevo en un minuto.", offline: "No tienes internet. Las lecciones que abriste antes siguen funcionando.", empty: "Todavía no hay preguntas para esta lección." } as Record<string, string>,
-    source: "Las preguntas de práctica salen primero de nuestro banco revisado. Si una lección necesita más, una IA escribe preguntas originales nuevas y una segunda IA las revisa.",
+    score: (a: number, b: number) => `Lograste ${a} de ${b}`, passed: "Lección aprobada. Buen trabajo.", tryAgain: "Todavía no. Lee otra vez los apuntes y vuelve a intentarlo.", gold: "Dominaste esta lección.", nextLesson: "Siguiente lección", again: "Hacerlo otra vez", xpGain: (n: number) => `+${n} XP`, level: (l: number, n: string) => `Nivel ${l}: ${n}`, streak: (n: number) => `Racha de ${n} días`,
+    short: (n: number) => `Esta vez solo se pudieron hacer ${n} preguntas.`,
+    errors: { rate_limited: "Has usado muchas lecciones esta hora. Descansa y vuelve a intentar en unos minutos.", busy: "La IA está ocupada. Intenta de nuevo en un minuto.", slow: "Tardó demasiado. Intenta de nuevo.", unavailable: "Las lecciones con IA todavía no están activadas en esta versión.", failed: "Algo falló de nuestra parte. Intenta de nuevo en un minuto.", offline: "No tienes internet. Las lecciones que abriste antes siguen funcionando.", empty: "Todavía no hay preguntas para esta lección." } as Record<string, string>,
+    source: "Las preguntas de práctica salen primero de nuestro banco revisado. Si una lección necesita más, una IA escribe preguntas originales nuevas y una segunda IA las revisa.", official: "Guías oficiales del curso (CED)", numbering: "Los nombres de los temas siguen el temario habitual del curso. Los números pueden diferir un poco de tu guía del curso.",
   },
 };
 
-const levelOf = (p?: Prog) => (!p ? 0 : (p.best ?? 0) >= GOLD ? 3 : (p.best ?? 0) >= PASS ? 2 : p.notes ? 1 : 0);
-const shuffle = <T,>(a: T[]) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
-
-async function ask<T>(body: object): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
-  if (typeof navigator !== "undefined" && !navigator.onLine) return { ok: false, error: "offline" };
-  try {
-    const res = await fetch("/api/learn", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const j = await res.json().catch(() => null);
-    return res.ok && j?.ok ? { ok: true, data: j as T } : { ok: false, error: j?.error ?? "failed" };
-  } catch { return { ok: false, error: navigator.onLine ? "failed" : "offline" }; }
+/** One lesson on the path: a topic (AP), a unit review (AP) or a skill (SAT, ACT, TSI). */
+export interface LessonRef {
+  key: string; track: ExamId; section: string; sectionLabel: string; sectionEn: string; skill: string; skillLabel: string; skillEn: string;
+  topic?: string; topicNum?: string; topicLabel?: string; review?: boolean; groupNo?: number;
 }
+interface Group { id: string; title: string; no: number; items: LessonRef[]; review?: LessonRef }
+
+const apGroup = (track: ExamId, course: ApCourse, lang: "en" | "es", unitIdx: number): Group => {
+  const u = course.units[unitIdx];
+  const base = { track, section: course.id, sectionLabel: course[lang], sectionEn: course.en, skill: u.id, skillLabel: u[lang], skillEn: u.en, groupNo: u.no };
+  return {
+    id: u.id, title: u[lang], no: u.no,
+    items: u.topics.map((t) => ({ ...base, key: `${track}/${course.id}/${t.id}`, topic: t.id, topicNum: t.num, topicLabel: t[lang] })),
+    review: { ...base, key: `${track}/${course.id}/${u.id}`, review: true },
+  };
+};
 
 export function StudyPathTool({ track }: { track: ExamId }) {
   const c = useCopy(copy);
   const lang = useLang();
   const cfg = EXAMS[track];
-  const apiTrack = track === "psat" ? "sat" : track;
-  const [picked] = useLocalDoc<string[]>("ap-courses", NO_PICKED);
-  const [prog, setProg] = useLocalDoc<Record<string, Prog>>("path-progress", NO_PROG);
   const params = useSearchParams();
-  const wantCourse = params.get("course"), wantUnit = params.get("unit");
-  const apList = useMemo(() => { const mine = AP_COURSES.filter((x) => picked.includes(x.id) || x.id === wantCourse); return mine.length ? mine : AP_COURSES; }, [picked, wantCourse]);
-  const sections = track === "ap" ? apList.map((x) => ({ id: x.id, label: x[lang], items: x.units.map((u) => ({ id: u.id, label: u[lang] })) })) : cfg.sections.map((x) => ({ id: x.id, label: x[lang], items: x.skills.map((k) => ({ id: k.id, label: k[lang] })) }));
-  const [secId, setSecId] = useState(wantCourse ?? "");
-  const sec = sections.find((s) => s.id === secId) ?? sections[0];
-  const [open, setOpen] = useState<string | null>(wantUnit);
-  const keyOf = (skill: string) => `${track}/${sec.id}/${skill}`;
-  const done = sec.items.filter((i) => levelOf(prog[keyOf(i.id)]) >= 2).length;
-  const next = sec.items.find((i) => levelOf(prog[keyOf(i.id)]) < 2)?.id;
+  const wantCourse = params.get("course"), wantUnit = params.get("unit"), wantTopic = params.get("topic");
+  const { course, list, hasPicked, setCurrent } = useApCourse(track === "ap" ? wantCourse : null);
+  const { prog, update } = usePathProgress();
+  const xp = useXp();
+  const [secId, setSecId] = useState(track === "ap" ? "" : wantCourse ?? "");
+  const sec = track === "ap" ? undefined : cfg.sections.find((s) => s.id === secId) ?? cfg.sections[0];
+
+  const groups: Group[] = useMemo(() => {
+    if (track === "ap") return course.units.map((_, i) => apGroup(track, course, lang, i));
+    return [{ id: sec!.id, title: sec![lang], no: 0, items: sec!.skills.map((k) => ({ key: `${track}/${sec!.id}/${k.id}`, track, section: sec!.id, sectionLabel: sec![lang], sectionEn: sec!.en, skill: k.id, skillLabel: k[lang], skillEn: k.en })) }];
+  }, [track, course, sec, lang]);
+  const flat = useMemo(() => groups.flatMap((g) => [...g.items, ...(g.review ? [g.review] : [])]), [groups]);
+
+  const [open, setOpen] = useState<LessonRef | null>(() => {
+    if (track !== "ap") return wantUnit ? flat.find((r) => r.skill === wantUnit) ?? null : null;
+    if (wantTopic) return flat.find((r) => r.topic === wantTopic) ?? null;
+    if (wantUnit) return flat.find((r) => r.skill === wantUnit && !r.review) ?? null;
+    return null;
+  });
+
+  const lessons = flat.filter((r) => !r.review);
+  const passedCount = lessons.filter((r) => levelOfProg(prog[r.key]) >= 2).length;
+  const next = lessons.find((r) => levelOfProg(prog[r.key]) < 2)?.key;
   const rows = [0, 2.2, 3.5, 2.2, 0, -2.2, -3.5, -2.2];
-  const item = open ? sec.items.find((i) => i.id === open) : undefined;
-  if (open && item) {
-    return <Lesson key={`${sec.id}/${open}`} track={track} apiTrack={apiTrack} section={sec.id} sectionLabel={sec.label} skill={item.id} label={item.label} prog={prog[keyOf(item.id)]} lang={lang}
-      onProg={(p) => setProg((all) => ({ ...all, [keyOf(item.id)]: { ...all[keyOf(item.id)], ...p } }))} onBack={() => setOpen(null)}
-      onNext={(() => { const i = sec.items.findIndex((x) => x.id === open); return i >= 0 && i < sec.items.length - 1 ? () => setOpen(sec.items[i + 1].id) : null; })()} />;
+  const lvl = levelOf(xp.xp);
+
+  if (open) {
+    const i = flat.findIndex((r) => r.key === open.key);
+    return <Lesson key={open.key} lessonRef={open} prog={prog[open.key]} lang={lang} xpTotal={xp.xp} onAward={xp.award} days={xp.days}
+      onProg={(p) => update(open.key, p)} onBack={() => setOpen(null)} onNext={i >= 0 && i < flat.length - 1 ? () => setOpen(flat[i + 1]) : null} />;
   }
+
+  let n = 0;
   return (
     <Page>
-      <h1 className="text-3xl sm:text-4xl">{c.titles[track]}</h1>
-      <p className="mt-2 max-w-prose text-muted">{c.lead}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0"><h1 className="text-3xl sm:text-4xl">{c.titles[track]}</h1><p className="mt-2 max-w-prose text-muted">{c.lead}</p></div>
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Zap size={16} aria-hidden />{xp.xp} XP</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Crown size={16} aria-hidden />{lvl.level}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Flame size={16} aria-hidden />{streakOf(xp.days, today())}</span>
+        </div>
+      </div>
       <div className="mt-5 flex flex-wrap items-end gap-4">
         <label className="min-w-0 max-w-md flex-1"><span className="block font-bold">{track === "ap" ? c.course : c.section}</span>
-          <select value={sec.id} onChange={(e) => setSecId(e.target.value)} className={`${inputClass} mt-1`}>{sections.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
-        <p className="pb-3 font-bold text-teal" aria-live="polite">{c.units(done, sec.items.length)}</p></div>
-      {track === "ap" && !picked.length ? <p className="mt-2 text-sm text-muted">{c.noPicked} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.pick}</Link></p> : null}
-      {track === "ap" ? <p className="mt-2 text-sm"><a href="https://apcentral.collegeboard.org/courses" target="_blank" rel="noopener noreferrer" className="font-bold text-teal underline underline-offset-4">{c.official}<span className="sr-only"> (opens in a new tab)</span></a></p> : null}
-      {track === "ap" && !hasQuestions(sec.id) ? <p className="mt-2 text-sm text-muted">{c.source}</p> : null}
-      <ol className="mx-auto mt-8 max-w-xl">
-        {sec.items.map((it, i) => {
-          const lvl = levelOf(prog[keyOf(it.id)]);
-          const Icon = lvl === 3 ? Crown : lvl === 2 ? Check : lvl === 1 ? BookOpen : Star;
-          const isNext = it.id === next;
+          {track === "ap"
+            ? <select value={course.id} onChange={(e) => setCurrent(e.target.value)} className={`${inputClass} mt-1`}>{list.map((x) => <option key={x.id} value={x.id}>{x[lang]}</option>)}</select>
+            : <select value={sec!.id} onChange={(e) => setSecId(e.target.value)} className={`${inputClass} mt-1`}>{cfg.sections.map((s) => <option key={s.id} value={s.id}>{s[lang]}</option>)}</select>}</label>
+        <p className="pb-3 font-bold text-teal" aria-live="polite">{c.done(passedCount, lessons.length)}</p></div>
+      {track === "ap" && !hasPicked ? <p className="mt-2 text-sm text-muted">{c.noPicked} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.pick}</Link></p> : null}
+      {track === "ap" ? <p className="mt-2 flex flex-wrap items-center gap-x-4 text-sm text-muted">{c.numbering} <a href="https://apcentral.collegeboard.org/courses" target="_blank" rel="noopener noreferrer" className="font-bold text-teal underline underline-offset-4">{c.official}<span className="sr-only"> {c.opens}</span></a></p> : null}
+      <p className="mt-1 text-sm text-muted">{c.source}</p>
+
+      <div className="mx-auto mt-8 max-w-2xl space-y-10">
+        {groups.map((g, gi) => {
+          const done = g.items.filter((r) => levelOfProg(prog[r.key]) >= 2).length;
+          const tone = ["bg-ruby text-on-ruby", "bg-teal text-on-teal", "bg-marigold text-on-marigold", "bg-sage text-ink"][gi % 4];
+          const all = [...g.items, ...(g.review ? [g.review] : [])];
           return (
-            <li key={it.id} className="relative" style={{ paddingLeft: `${Math.max(0, rows[i % rows.length]) * 1.5}rem`, paddingRight: `${Math.max(0, -rows[i % rows.length]) * 1.5}rem`, textAlign: rows[i % rows.length] < 0 ? "right" : "left" }}>
-              <button onClick={() => setOpen(it.id)}
-                className={`group inline-flex max-w-full items-center gap-4 rounded-full py-2 ${rows[i % rows.length] < 0 ? "flex-row-reverse text-right" : "text-left"}`}>
-                <span className={`grid h-16 w-16 shrink-0 place-items-center rounded-full border-[2px] border-ink shadow-[0_4px_0_0_var(--c-ink)] group-hover:translate-y-[1px] ${lvl === 3 ? "bg-marigold text-on-marigold" : lvl === 2 ? "bg-teal text-on-teal" : lvl === 1 ? "bg-sage text-ink" : isNext ? "bg-ruby text-on-ruby" : "bg-sunken text-ink"}`}><Icon size={26} strokeWidth={2} aria-hidden /></span>
-                <span className="min-w-0"><span className="block font-bold group-hover:underline">{it.label}</span><span className="block text-sm text-muted">{isNext ? <span className="font-bold text-ruby">{c.upNext}</span> : c.lvl[lvl]}</span></span>
-              </button>
-              {i < sec.items.length - 1 ? <span aria-hidden className="mx-8 my-1 block h-6 w-[4px] trail-dots" /> : null}
-            </li>
+            <section key={g.id} aria-labelledby={`g-${g.id}`}>
+              {track === "ap" ? (
+                <div className={`rounded-xl border-[1.5px] border-ink p-4 ${tone}`}>
+                  <p className="text-sm font-bold uppercase tracking-wide">{c.unit} {g.no}</p>
+                  <h2 id={`g-${g.id}`} className="font-display text-2xl font-semibold leading-tight">{g.title.replace(/^(Unit|Unidad) \d+:\s*/, "")}</h2>
+                  <p className="mt-1 text-sm font-bold">{c.topicsDone(done, g.items.length)}</p>
+                </div>
+              ) : <h2 id={`g-${g.id}`} className="sr-only">{g.title}</h2>}
+              <ol className="mt-4">
+                {all.map((it, i) => {
+                  const lv = levelOfProg(prog[it.key]);
+                  const isNext = it.key === next;
+                  const Icon = it.review ? Layers : lv === 3 ? Crown : lv === 2 ? Check : lv === 1 ? BookOpen : Star;
+                  const off = rows[n++ % rows.length];
+                  const label = it.review ? c.unitReview(`${c.unit} ${it.groupNo}`) : it.topicNum ? `${it.topicNum} ${it.topicLabel}` : it.skillLabel;
+                  return (
+                    <li key={it.key} className="relative" style={{ paddingLeft: `${Math.max(0, off) * 1.5}rem`, paddingRight: `${Math.max(0, -off) * 1.5}rem`, textAlign: off < 0 ? "right" : "left" }}>
+                      <button onClick={() => { setOpen(it); if (track === "ap") setCurrent(it.section); }} className={`group inline-flex max-w-full items-center gap-4 rounded-full py-2 ${off < 0 ? "flex-row-reverse text-right" : "text-left"}`}>
+                        <span className={`grid h-16 w-16 shrink-0 place-items-center rounded-full border-[2px] border-ink shadow-[0_4px_0_0_var(--c-ink)] group-hover:translate-y-[1px] ${lv === 3 ? "bg-marigold text-on-marigold" : lv === 2 ? "bg-teal text-on-teal" : lv === 1 ? "bg-sage text-ink" : isNext ? "bg-ruby text-on-ruby" : "bg-sunken text-ink"}`}><Icon size={26} strokeWidth={2} aria-hidden /></span>
+                        <span className="min-w-0"><span className="block font-bold group-hover:underline">{label}</span><span className="block text-sm text-muted">{isNext ? <span className="font-bold text-ruby">{c.upNext}</span> : it.review ? c.reviewHint : c.lvl[lv]}</span></span>
+                      </button>
+                      {i < all.length - 1 ? <span aria-hidden className="mx-8 my-1 block h-6 w-[4px] trail-dots" /> : null}
+                    </li>
+                  );
+                })}
+              </ol>
+              {track === "ap" && g.review ? <p className="mt-2"><Link href={`/t/ap/cram?course=${course.id}&unit=${g.id}`} className="font-bold text-teal underline underline-offset-4">{c.cram}: {c.unit} {g.no}</Link></p> : null}
+            </section>
           );
         })}
-      </ol>
+      </div>
+      <p className="mt-8 text-center text-sm text-muted">{levelName(lvl.level)[lang]} · {lvl.toNext} XP</p>
+    <TrademarkNote />
     </Page>
   );
 }
 
-function Lesson({ track, apiTrack, section, sectionLabel, skill, label, prog, lang, onProg, onBack, onNext }: {
-  track: ExamId; apiTrack: string; section: string; sectionLabel: string; skill: string; label: string; prog?: Prog; lang: "en" | "es";
-  onProg: (p: Prog) => void; onBack: () => void; onNext: (() => void) | null;
+function Lesson({ lessonRef: r, prog, lang, xpTotal, days, onAward, onProg, onBack, onNext }: {
+  lessonRef: LessonRef; prog?: Prog; lang: "en" | "es"; xpTotal: number; days: string[];
+  onAward: (n: number) => void; onProg: (p: Prog) => void; onBack: () => void; onNext: (() => void) | null;
 }) {
   const c = useCopy(copy);
-  const [step, setStep] = useState<"notes" | "quiz" | "result">("notes");
-  const [score, setScore] = useState<{ right: number; n: number } | null>(null);
+  const [tab, setTab] = useState<"learn" | "quiz" | "result">(r.review ? "quiz" : "learn");
+  const [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState<{ right: number; n: number; gained: number; xpAfter: number } | null>(null);
+  const title = r.review ? c.unitReview(r.skillLabel.replace(/:.*/, "")) : r.topicNum ? `${r.topicNum} ${r.topicLabel}` : r.skillLabel;
+  const finish = (right: number, n: number) => {
+    const pct = right / n;
+    const before = levelOfProg(prog);
+    const nowBest = Math.max(prog?.best ?? 0, pct);
+    const gained = lessonXp({ firstNotes: !prog?.notes && !r.review, right, n, wasPassed: before >= 2, nowPassed: nowBest >= PASS, wasMastered: before >= 3, nowMastered: nowBest >= GOLD });
+    onProg({ best: nowBest, tries: (prog?.tries ?? 0) + 1, at: today(), notes: true });
+    onAward(gained);
+    setResult({ right, n, gained, xpAfter: xpTotal + gained });
+    setTab("result");
+  };
+  const q = lessonQuery(r.track === "ap" ? r.sectionEn : `${EXAMS[r.track].en} ${r.sectionEn}`, r.review ? r.skillEn.replace(/^Unit \d+:\s*/, "") : r.topicLabel ? r.topicLabel : r.skillEn);
+  const lv = result ? levelOf(result.xpAfter) : null;
   return (
     <Page>
       <button onClick={onBack} className={buttonClass.quiet}>← {c.back}</button>
-      <p className="mt-4 text-sm font-bold text-terracotta">{sectionLabel}</p>
-      <h1 className="text-3xl sm:text-4xl">{label}</h1>
-      <div className="mt-4 flex gap-2" role="tablist" aria-label={label}>
-        {(["notes", "quiz"] as const).map((s) => <button key={s} role="tab" aria-selected={step === s || (s === "quiz" && step === "result")} onClick={() => setStep(s)} className={`rounded-full border-[1.5px] border-ink px-4 py-1.5 font-bold ${step === s || (s === "quiz" && step === "result") ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{s === "notes" ? c.notes : c.quiz}</button>)}
+      <p className="mt-4 text-sm font-bold text-terracotta">{r.sectionLabel}{r.review || r.topic ? ` · ${r.skillLabel}` : ""}</p>
+      <h1 className="text-3xl sm:text-4xl">{title}</h1>
+      <div className="mt-4 flex gap-2" role="tablist" aria-label={title}>
+        {(!r.review ? (["learn", "quiz"] as const) : (["quiz"] as const)).map((s) => { const on = tab === s || (s === "quiz" && tab === "result"); return <button key={s} role="tab" aria-selected={on} onClick={() => setTab(s)} className={`rounded-full border-[1.5px] border-ink px-4 py-1.5 font-bold ${on ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{s === "learn" ? c.learn : c.quiz}</button>; })}
       </div>
-      {step === "notes" ? <NotesView apiTrack={apiTrack} section={section} skill={skill} lang={lang} onRead={() => { if (!prog?.notes) onProg({ notes: true }); setStep("quiz"); }} /> : null}
-      {step === "quiz" ? <QuizView track={track} apiTrack={apiTrack} section={section} skill={skill} lang={lang} onDone={(right, n) => { setScore({ right, n }); setStep("result"); onProg({ best: Math.max(prog?.best ?? 0, right / n), tries: (prog?.tries ?? 0) + 1, at: today(), notes: true }); }} /> : null}
-      {step === "result" && score ? (
+      {tab === "learn" ? (
+        <>
+          <section className="guide-card mt-6 p-5" aria-labelledby="watch-h"><h2 id="watch-h" className="text-xl">{c.watch}</h2><p className="mt-1 text-sm text-muted">{c.watchLead}</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a href={youtubeSearch(q)} target="_blank" rel="noopener noreferrer" className={buttonClass.secondary}>{c.yt} <ExternalLink size={15} aria-hidden /><span className="sr-only"> {c.opens}</span></a>
+              <a href={khanSearch(q)} target="_blank" rel="noopener noreferrer" className={buttonClass.secondary}>{c.khan} <ExternalLink size={15} aria-hidden /><span className="sr-only"> {c.opens}</span></a></div></section>
+          <NotesView r={r} lang={lang} onRead={() => { if (!prog?.notes) onProg({ notes: true }); setTab("quiz"); }} />
+        </>
+      ) : null}
+      {tab === "quiz" ? <QuizView key={attempt} r={r} lang={lang} onDone={finish} /> : null}
+      {tab === "result" && result ? (
         <section className="guide-card mt-6 p-6" aria-live="polite">
-          <p className="font-display text-3xl font-semibold">{c.score(score.right, score.n)}</p>
-          <p className={`mt-2 text-lg font-bold ${score.right / score.n >= PASS ? "text-teal" : "text-ruby"}`}>{score.right / score.n >= GOLD ? c.gold : score.right / score.n >= PASS ? c.passed : c.tryAgain}</p>
+          <p className="font-display text-3xl font-semibold">{c.score(result.right, result.n)}</p>
+          <p className={`mt-2 text-lg font-bold ${result.right / result.n >= PASS ? "text-teal" : "text-ruby"}`}>{result.right / result.n >= GOLD ? c.gold : result.right / result.n >= PASS ? c.passed : c.tryAgain}</p>
+          <p className="mt-3 flex flex-wrap items-center gap-3 font-bold"><span className="inline-flex items-center gap-1 rounded-full bg-marigold px-3 py-1 text-on-marigold"><Zap size={15} aria-hidden />{c.xpGain(result.gained)}</span>
+            {lv ? <span>{c.level(lv.level, levelName(lv.level)[lang])}</span> : null}<span className="inline-flex items-center gap-1"><Flame size={15} aria-hidden />{c.streak(streakOf([...days, today()], today()))}</span></p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <button onClick={() => setStep("quiz")} className={buttonClass.secondary}><RotateCcw size={16} /> {c.again}</button>
-            {score.right / score.n >= PASS && onNext ? <button onClick={onNext} className={buttonClass.primary}>{c.nextLesson}</button> : null}
+            <button onClick={() => { setAttempt(attempt + 1); setTab("quiz"); }} className={buttonClass.secondary}><RotateCcw size={16} /> {c.again}</button>
+            {result.right / result.n >= PASS && onNext ? <button onClick={onNext} className={buttonClass.primary}>{c.nextLesson}</button> : null}
             <button onClick={onBack} className={buttonClass.secondary}>{c.back}</button></div>
         </section>
       ) : null}
@@ -148,47 +231,57 @@ function Lesson({ track, apiTrack, section, sectionLabel, skill, label, prog, la
 }
 
 const NO_NOTES: Record<string, Notes> = {};
-function NotesView({ apiTrack, section, skill, lang, onRead }: { apiTrack: string; section: string; skill: string; lang: "en" | "es"; onRead: () => void }) {
+function NotesView({ r, lang, onRead }: { r: LessonRef; lang: "en" | "es"; onRead: () => void }) {
   const c = useCopy(copy);
-  const [cache, setCache] = useLocalDoc<Record<string, Notes>>(`learn-notes-${apiTrack}`, NO_NOTES);
-  const key = `${section}/${skill}/${lang}`;
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [err, setErr] = useState("failed");
-  const [tick, setTick] = useState(0);
+  const apiTrack = r.track === "psat" ? "sat" : r.track;
+  const [cache, setCache] = useLocalDoc<Record<string, Notes>>(`learn-notes-${apiTrack}-${r.section}`, NO_NOTES);
+  const [cards, setCards] = useLocalDoc<Card[]>(FLASHCARDS_KEY, NO_CARDS);
+  const key = `${r.skill}/${r.topic ?? ""}/${lang}`;
   const have = cache[key];
+  const [err, setErr] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+  const [msg, setMsg] = useState("");
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
-    if (have) { setState("ready"); return; }
+    if (have) return;
     let live = true;
-    setState("loading");
-    ask<{ notes: Notes }>({ track: apiTrack, section, skill, kind: "notes", lang }).then((r) => {
-      if (!live) return;
-      if (r.ok) { setCache((p) => { const keep = Object.keys(p).slice(-30); return { ...Object.fromEntries(keep.map((k) => [k, p[k]])), [key]: r.data.notes }; }); setState("ready"); } else { setErr(r.error); setState("error"); }
-    });
+    fetch("/api/learn", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ track: apiTrack, section: r.section, skill: r.skill, ...(r.topic ? { topic: r.topic } : {}), kind: "notes", lang }) })
+      .then((res) => res.json().then((j) => ({ res, j })).catch(() => ({ res, j: null })))
+      .then(({ res, j }) => {
+        if (!live) return;
+        if (res.ok && j?.ok) setCache((p) => { const keep = Object.keys(p).slice(-60); return { ...Object.fromEntries(keep.map((k) => [k, p[k]])), [key]: j.notes as Notes }; });
+        else setErr(j?.error ?? "failed");
+      })
+      .catch(() => { if (live) setErr(navigator.onLine ? "failed" : "offline"); });
     return () => { live = false; };
   }, [key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (state === "loading" && !have) return <p className="mt-6 text-lg text-muted" role="status">{c.notesLoading}</p>;
-  if (state === "error" && !have) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p><button onClick={() => setTick(tick + 1)} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
-  const n = have!;
+  if (!have && !err) return <p className="mt-6 text-lg text-muted" role="status">{c.notesLoading}</p>;
+  if (!have) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err!] ?? c.errors.failed}</p><button onClick={() => { setErr(null); setTick(tick + 1); }} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+  const n = have;
+  const deck = `${r.sectionEn}: ${r.topicNum ? `${r.topicNum} ` : ""}${r.topicLabel ?? r.skillEn}`.slice(0, 80);
+  const addTerms = () => {
+    const fresh = n.terms.filter((t) => !cards.some((k) => k.deck === deck && k.front.toLowerCase() === t.term.toLowerCase()));
+    if (!fresh.length) return setMsg(c.termsDup);
+    setCards((p) => [...p, ...fresh.map((t) => newCard(t.term, t.meaning, deck, today()))]);
+    setMsg(c.termsAdded(fresh.length));
+  };
   return (
     <article className="mt-6 space-y-6">
       <section className="guide-card p-5"><h2 className="text-xl">{c.summary}</h2><MathText text={n.summary} className="mt-1 text-lg" /></section>
       <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.ideas}</h2><ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{n.keyIdeas.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul></section>
-      <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.terms}</h2><dl className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{n.terms.map((t, i) => <div key={i} className="guide-card p-3"><dt className="font-bold">{t.term}</dt><dd><MathText text={t.meaning} /></dd></div>)}</dl></section>
+      <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.terms}</h2><dl className="mt-2 grid gap-x-6 gap-y-2 sm:grid-cols-2">{n.terms.map((t, i) => <div key={i} className="guide-card p-3"><dt className="font-bold">{t.term}</dt><dd><MathText text={t.meaning} /></dd></div>)}</dl>
+        <div className="mt-3 flex flex-wrap items-center gap-3"><button onClick={addTerms} className={buttonClass.secondary}>{c.addTerms}</button><span className="font-bold text-teal" role="status">{msg}</span></div></section>
       {n.example ? <section className="guide-card border-l-[6px] border-l-marigold p-5"><h2 className="text-xl">{c.example}: {n.example.title}</h2><MathText text={n.example.body} className="mt-1 text-lg" /></section> : null}
       <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.mistakes}</h2><ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{n.mistakes.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul></section>
       <section><h2 className="border-b-[1.5px] border-ink pb-1 text-2xl">{c.selfCheck}</h2><ul className="mt-2 list-disc space-y-1.5 pl-6 text-lg">{n.selfCheck.map((k, i) => <li key={i}><MathText text={k} /></li>)}</ul></section>
-      <p className="text-sm text-muted">{c.notesNote} {c.realNote}</p>
+      <p className="text-sm text-muted">{c.notesNote}</p>
       <button onClick={onRead} className={buttonClass.primary}>{c.toQuiz}</button>
     </article>
   );
 }
 
-const NO_QS: Record<string, Question[]> = {};
-function QuizView({ track, apiTrack, section, skill, lang, onDone }: { track: ExamId; apiTrack: string; section: string; skill: string; lang: "en" | "es"; onDone: (right: number, n: number) => void }) {
+function QuizView({ r, lang, onDone }: { r: LessonRef; lang: "en" | "es"; onDone: (right: number, n: number) => void }) {
   const c = useCopy(copy);
   const { hidden } = useExamData();
-  const [cache, setCache] = useLocalDoc<Record<string, Question[]>>(`learn-qs-${apiTrack}`, NO_QS);
   const [qs, setQs] = useState<Question[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -196,41 +289,26 @@ function QuizView({ track, apiTrack, section, skill, lang, onDone }: { track: Ex
   const [pick, setPick] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
   const [right, setRight] = useState(0);
-  const cfg = EXAMS[track];
-  const key = `${section}/${skill}`;
+  const cfg = EXAMS[r.track];
+  const want = r.review ? 10 : 5;
   useEffect(() => {
     let live = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
-    setQs(null); setErr(null); setI(0); setPick(null); setChecked(false); setRight(0);
-    const bank = shuffle(BANK.filter((q) => q.exam === cfg.bank && q.section === section && q.skill === skill && !hidden.includes(q.id) && q.type === "mc" && (!cfg.maxDifficulty || q.difficulty <= cfg.maxDifficulty))).slice(0, QUIZ_N);
-    const need = QUIZ_N - bank.length;
-    if (need <= 0) { setQs(bank); return; }
-    const cached = shuffle(cache[key] ?? []).slice(0, need);
-    const still = need - cached.length;
-    const fill = () => { if (live) setQs(shuffle([...bank, ...cached])); };
-    if (still <= 0 || (bank.length + cached.length >= 3 && !navigator.onLine)) { fill(); return () => { live = false; }; }
-    ask<{ questions: Question[] }>({ track: apiTrack, section, skill, kind: "quiz", lang, count: Math.min(6, Math.max(3, still + 1)) }).then((r) => {
+    gather({ exam: cfg.bank, section: r.section, needs: [{ skill: r.skill, topic: r.topic, n: want }], lang, hidden, maxDifficulty: cfg.maxDifficulty }).then((g) => {
       if (!live) return;
-      if (r.ok) {
-        const fresh = r.data.questions.filter((q) => q.type === "mc" && q.choices?.length === 4);
-        setCache((p) => ({ ...p, [key]: [...fresh, ...(p[key] ?? [])].slice(0, 12) }));
-        const all = shuffle([...bank, ...cached, ...fresh.slice(0, still)]);
-        if (all.length) setQs(all); else setErr("empty");
-      } else if (bank.length + cached.length >= 2) setQs(shuffle([...bank, ...cached]));
-      else setErr(r.error);
+      if (g.questions.length >= 2) setQs(g.questions); else setErr(g.error ?? "empty");
     });
     return () => { live = false; };
-  }, [key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (err) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p><button onClick={() => setTick(tick + 1)} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+  }, [r.key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (err) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p><button onClick={() => { setErr(null); setQs(null); setTick(tick + 1); }} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
   if (!qs) return <p className="mt-6 text-lg text-muted" role="status">{c.quizLoading}</p>;
   const q = qs[i];
   const letter = (k: number) => "ABCD"[k];
   const last = i === qs.length - 1;
-  const submit = () => { if (!pick) return; setChecked(true); if (pick === q.answer) setRight((r) => r + 1); };
+  const submit = () => { if (!pick) return; setChecked(true); if (pick === q.answer) setRight((x) => x + 1); };
   const advance = () => { if (last) onDone(right, qs.length); else { setI(i + 1); setPick(null); setChecked(false); } };
   return (
     <section className="mt-6" aria-label={c.quiz}>
-      <p className="font-bold text-teal">{c.qOf(i + 1, qs.length)}</p>
+      <p className="font-bold text-teal">{c.qOf(i + 1, qs.length)}{qs.length < want ? ` · ${c.short(qs.length)}` : ""}</p>
       <div className="guide-card mt-2 p-5">
         {q.passage ? <MathText text={q.passage} className="mb-3 rounded-md border-l-[5px] border-l-line bg-sunken p-3 text-lg" /> : null}
         <MathText text={q.stem} className="text-xl font-semibold" />

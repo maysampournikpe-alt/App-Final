@@ -52,3 +52,31 @@ describe("AP unit plan", () => {
     expect(planUnits(5, "2026-10-22", "2026-01-01")).toBeNull();
   });
 });
+
+import { matches, outside, weekNumber } from "@/lib/foryou";
+import { IDEAS } from "@/data/ideas";
+import { INTEREST_IDS } from "@/config/interests";
+describe("for you picks", () => {
+  it("has one valid idea per interest", () => {
+    expect(new Set(IDEAS.map((i) => i.interest)).size).toBe(IDEAS.length);
+    for (const i of IDEAS) { expect(INTEREST_IDS.has(i.interest), i.interest).toBe(true); expect(i.q.length).toBeGreaterThan(10); }
+    expect(IDEAS.length).toBe(INTEREST_IDS.size);
+  });
+  it("matches only chosen interests and never repeats", () => {
+    const m = matches(["chess", "coding", "art"], null, 0);
+    expect(m.map((i) => i.interest).sort()).toEqual(["art", "chess", "coding"]);
+  });
+  it("outside picks never include chosen interests", () => {
+    for (let w = 0; w < 20; w++) for (const i of outside(["chess", "coding"], null, w)) expect(["chess", "coding"]).not.toContain(i.interest);
+  });
+  it("changes weekly but is stable within a week", () => {
+    const a = matches(["chess", "coding", "art", "music"], null, 5, 2).map((i) => i.interest), b = matches(["chess", "coding", "art", "music"], null, 5, 2).map((i) => i.interest), c2 = matches(["chess", "coding", "art", "music"], null, 6, 2).map((i) => i.interest);
+    expect(a).toEqual(b); expect(a).not.toEqual(c2);
+    expect(weekNumber("2026-10-22")).toBe(weekNumber("2026-10-23"));
+  });
+  it("respects minimum grade and falls back to a general mix with no interests", () => {
+    expect(matches(["law"], 6, 0).length).toBeGreaterThan(0);
+    expect(matches(["law"], 6, 0).some((i) => i.interest === "law")).toBe(false);
+    expect(matches([], null, 0).length).toBeGreaterThan(2);
+  });
+});

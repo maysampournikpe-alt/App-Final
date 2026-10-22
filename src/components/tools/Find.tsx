@@ -80,6 +80,8 @@ function CopyBox({ title, text, c }: { title: string; text: string; c: { copy: s
   );
 }
 
+const NO_HISTORY: { q: string; place: string; at: number }[] = [];
+
 export function FindTool() {
   const c = useCopy(copy);
   const lang = useLang();
@@ -87,6 +89,7 @@ export function FindTool() {
   const { isSaved, toggle } = useSaved();
   const [place, setPlace] = useLocalDoc<string>("finder-place", "");
   const params = useSearchParams();
+  const [, setHist] = useLocalDoc<{ q: string; place: string; at: number }[]>("finder-history", NO_HISTORY);
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [category, setCategory] = useState<Category | "">("");
   const [free, setFree] = useState(false);
@@ -99,6 +102,7 @@ export function FindTool() {
   const run = async () => {
     if (query.trim().length < 2) return setPhase({ kind: "error", code: "bad_request" });
     if (!navigator.onLine) return setPhase({ kind: "error", code: "offline" });
+    setHist((h) => [{ q: query.trim(), place: place.trim(), at: Date.now() }, ...h.filter((x) => x.q.toLowerCase() !== query.trim().toLowerCase())].slice(0, 30));
     setPhase({ kind: "loading", step: 0 });
     clearInterval(timer.current);
     let step = 0;

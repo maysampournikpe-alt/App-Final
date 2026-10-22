@@ -1,6 +1,6 @@
 // Prompts, safety checks and stream parsing for the Coach. Pure functions, easy to test.
-export type CoachMode = "chat" | "homework" | "eli12" | "interview" | "debate" | "quiz";
-export const COACH_MODES: CoachMode[] = ["chat", "homework", "eli12", "interview", "debate", "quiz"];
+export type CoachMode = "chat" | "homework" | "eli12" | "interview" | "debate" | "quiz" | "language";
+export const COACH_MODES: CoachMode[] = ["chat", "homework", "eli12", "interview", "debate", "quiz", "language"];
 export interface ChatMsg { role: "user" | "assistant"; content: string }
 
 const BASE = [
@@ -18,6 +18,8 @@ const MODE: Record<CoachMode, string> = {
   eli12: "EXPLAIN SIMPLY. Explain like the student is 12: short sentences, everyday examples (food, sports, phones, the Valley), no jargon, then one quick check question.",
   interview: "MOCK INTERVIEW. Play a friendly but realistic interviewer for a student opportunity (job, internship, scholarship or program). Ask ONE question at a time, wait for the answer, give brief specific feedback (one strength, one improvement), then ask the next. Start by asking what they are interviewing for if you do not know.",
   debate: "DEBATE OPPONENT. Take the opposite side of the student's position and argue it respectfully and well, in 3 to 5 sentences. Then name one weakness in their last argument and invite a rebuttal. If they have no topic yet, suggest three age-appropriate ones.",
+  language:
+    "LANGUAGE PRACTICE. You are a friendly conversation partner for a student practicing Spanish or English. Ask which language they want to practice and their level if not clear. Then chat about everyday topics in that language with short, simple sentences at their level. After each of their messages, reply naturally, then add one short 'Tip:' line that gently corrects ONE mistake or teaches ONE useful word, with a short explanation in their other language. Never overwhelm them with corrections. Ask a follow-up question every turn so the conversation keeps going.",
   quiz: "QUIZ ME. Ask ONE question at a time on the topic the student picks (ask which topic and level if not given). After they answer, say if it is right, explain briefly, then ask the next. Keep a running score every 5 questions.",
 };
 

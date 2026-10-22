@@ -18,6 +18,9 @@ import { DailyTool, DebateTool, MethodsTool, ScienceFairTool, SpeakingTool, Test
 import { CounterTool, EssayOutlineTool, ParaphraseTool, ReadLevelTool, ReadLogTool, ReadSpeedTool, ThesisTool, TypingTool, VocabBuilderTool, VocabCtxTool } from "./WritingTools";
 import { AssistTool } from "./AssistTools";
 import { ApFlashTool, ApNotesTool, ApPlanTool, AppTrackerTool, CitationTool } from "./MoreLocal";
+import { CelebrationsTool, ChallengesTool, ParentViewTool, PortfolioTool, RadarTool, YearReviewTool } from "./AchievementsPlus";
+import { FlyerTool, ForYouTool, HistoryTool, MapTool, SavedSearchesTool, SimilarTool, SurpriseTool } from "./FinderExtras";
+import { ExportTool as DataExportTool, NotificationsTool, OfflineTool, ReadAloudTool, SidebarTool, VoiceTool } from "./SettingsMore";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -280,4 +283,27 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "ap/notes": clientOnly(ApNotesTool),
   "ap/flash": clientOnly(ApFlashTool),
   "ap/plan": clientOnly(ApPlanTool),
+  "find/history": clientOnly(HistoryTool),
+  "find/alerts": clientOnly(SavedSearchesTool),
+  "find/surprise": clientOnly(SurpriseTool),
+  "find/similar": clientOnly(SimilarTool),
+  "find/flyer": clientOnly(FlyerTool),
+  "find/map": clientOnly(MapTool),
+  "foryou/challenge": clientOnly(ChallengesTool),
+  "achievements/challenges": clientOnly(ChallengesTool),
+  "achievements/portfolio": clientOnly(PortfolioTool),
+  "achievements/radar": clientOnly(RadarTool),
+  "achievements/yearreview": clientOnly(YearReviewTool),
+  "profile/celebrations": clientOnly(CelebrationsTool),
+  "family/parent": clientOnly(ParentViewTool),
+  "settings/sidebar": clientOnly(SidebarTool),
+  "settings/notifications": clientOnly(NotificationsTool),
+  "settings/voice": clientOnly(VoiceTool),
+  "settings/readaloud": clientOnly(ReadAloudTool),
+  "settings/offline": clientOnly(OfflineTool),
+  "settings/export": clientOnly(DataExportTool),
+  "foryou/feed": clientOnly(() => <ForYouTool view="feed" />),
+  "foryou/weekly": clientOnly(() => <ForYouTool view="weekly" />),
+  "foryou/trynew": clientOnly(() => <ForYouTool view="trynew" />),
+  "languages/conversation": clientOnly(() => <CoachTool kind="language" />),
 };

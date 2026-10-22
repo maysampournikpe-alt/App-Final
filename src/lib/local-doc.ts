@@ -5,7 +5,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 import { supabaseBrowser } from "./supabase/browser";
 
-const PREFIX = "rumbo:data:";
+export const PREFIX = "rumbo:data:";
 interface DocRow { key: string; value: unknown; updated_at: string }
 interface Stored<T> { v: T; t: number }
 const listeners = new Map<string, Set<() => void>>();

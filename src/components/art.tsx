@@ -30,7 +30,7 @@ export function TrailHero({ className = "" }: { className?: string }) {
     [470, 96],
   ] as const;
   return (
-    <svg viewBox="0 0 560 300" className={className} role="img" aria-label="">
+    <svg viewBox="0 0 560 300" className={className} aria-hidden="true">
       <path
         d="M58 244 C 110 236, 130 150, 196 150 S 280 224, 338 214 S 430 110, 470 96"
         fill="none"

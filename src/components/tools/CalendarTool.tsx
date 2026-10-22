@@ -97,7 +97,7 @@ function Deadlines({ c, lang, now, items }: P) {
               const here = byDay.get(date) ?? [];
               return (
                 <button key={date} onClick={() => setSel(sel === date ? null : date)} aria-pressed={sel === date} aria-label={`${formatDay(date, lang)}${here.length ? `, ${here.length}` : ""}`}
-                  className={`flex min-h-14 flex-col items-center rounded-md border-[1.5px] p-1 sm:min-h-16 ${sel === date ? "border-ink bg-marigold text-on-marigold" : date === now ? "border-ink" : "border-transparent hover:bg-sunken"} ${inMonth ? "" : "opacity-40"}`}>
+                  className={`flex min-h-14 flex-col items-center rounded-md border-[1.5px] p-1 sm:min-h-16 ${sel === date ? "border-ink bg-marigold text-on-marigold" : date === now ? "border-ink" : "border-transparent hover:bg-sunken"} ${inMonth ? "" : "text-muted"}`}>
                   <span className="text-sm font-bold">{Number(date.slice(8))}</span>
                   <span className="mt-1 flex flex-wrap justify-center gap-0.5" aria-hidden>{here.slice(0, 4).map((i) => <span key={i.id} className={`h-2 w-2 rounded-full ${KIND_DOT[i.kind]}`} />)}</span>
                 </button>

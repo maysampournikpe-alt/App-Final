@@ -62,10 +62,10 @@ export function PeriodicTool() {
             const p = position(x.z);
             const dim = hits && !hits.has(x.z);
             return (
-              <button key={x.z} onClick={() => setSel(x.z)} aria-pressed={sel === x.z} aria-label={`${x.name}, ${x.z}, ${c.cats[x.cat]}`}
+              <button key={x.z} onClick={() => setSel(x.z)} aria-pressed={sel === x.z} aria-label={`${x.z} ${x.sym} ${x.name}, ${c.cats[x.cat]}`}
                 className={`flex flex-col items-center rounded-[4px] border border-ink px-0 py-1 leading-none ${TINT[x.cat]} ${sel === x.z ? "ring-2 ring-ink ring-offset-1 ring-offset-paper" : ""} ${dim ? "opacity-25" : ""}`}
                 style={{ gridColumn: p.col, gridRow: p.row >= 8 ? p.row + 1 : p.row }}>
-                <span className="text-[0.55rem] text-muted">{x.z}</span><span className="text-sm font-bold sm:text-base">{x.sym}</span>
+                <span className="text-[0.55rem]">{x.z}</span>{" "}<span className="text-sm font-bold sm:text-base">{x.sym}</span>
               </button>
             );
           })}

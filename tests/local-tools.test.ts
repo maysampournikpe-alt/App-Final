@@ -611,3 +611,126 @@ describe("graduation credits", () => {
   });
   it("ignores negative numbers", () => expect(gradProgress({ plan: "endorsement", earned: { math: -3 } }).have).toBe(0));
 });
+
+import { autoSchedule, spreadStudy, splitFairly } from "../src/lib/planner";
+import { buildICS } from "../src/lib/ics";
+import { weekScore, levelOf as loadLevel, burnoutSignals, balanceShares } from "../src/lib/load";
+describe("auto schedule", () => {
+  const cap = (n: number) => () => n;
+  it("fills days earliest-deadline first and never schedules after a due date", () => {
+    const r = autoSchedule([{ id: "a", title: "Essay", minutes: 120, due: "2026-10-22" }, { id: "b", title: "Lab", minutes: 60, due: "2026-10-21" }], cap(90), "2026-10-20", 5);
+    expect(r.sessions[0]).toMatchObject({ date: "2026-10-20", taskId: "b", minutes: 60 });
+    expect(r.sessions.filter((s) => s.taskId === "a").every((s) => s.date <= "2026-10-22")).toBe(true);
+    expect(r.unscheduled).toEqual([]);
+    expect(r.sessions.reduce((n, s) => n + s.minutes, 0)).toBe(180);
+  });
+  it("never goes over a day's free time, and splits a long task across days", () => {
+    const r = autoSchedule([{ id: "a", title: "Project", minutes: 240 }], cap(60), "2026-10-20", 10);
+    expect(r.sessions.every((s) => s.minutes <= 60)).toBe(true);
+    expect(r.sessions).toHaveLength(4);
+    expect(new Set(r.sessions.map((s) => s.date)).size).toBe(4);
+  });
+  it("reports what does not fit, and what is already overdue", () => {
+    const r = autoSchedule([{ id: "a", title: "Big", minutes: 300, due: "2026-10-21" }, { id: "o", title: "Old", minutes: 30, due: "2026-10-01" }], cap(60), "2026-10-20", 7);
+    expect(r.unscheduled.find((u) => u.taskId === "a")).toMatchObject({ minutes: 180, reason: "no-time" });
+    expect(r.unscheduled.find((u) => u.taskId === "o")).toMatchObject({ minutes: 30, reason: "overdue" });
+  });
+  it("skips days with no free time", () => {
+    const r = autoSchedule([{ id: "a", title: "A", minutes: 30 }], (d) => (d === "2026-10-22" ? 60 : 0), "2026-10-20", 5);
+    expect(r.sessions).toEqual([{ date: "2026-10-22", taskId: "a", title: "A", minutes: 30 }]);
+  });
+  it("priority breaks ties between the same due dates", () => {
+    const r = autoSchedule([{ id: "lo", title: "A", minutes: 60, due: "2026-10-25", priority: 1 }, { id: "hi", title: "B", minutes: 60, due: "2026-10-25", priority: 3 }], cap(60), "2026-10-20", 1);
+    expect(r.sessions[0].taskId).toBe("hi");
+  });
+});
+describe("study planner", () => {
+  it("spreads study time over the days before a test instead of cramming", () => {
+    const r = spreadStudy([{ id: "t", name: "Bio test", date: "2026-10-25", minutes: 150 }], () => 120, "2026-10-20");
+    expect(r.short).toEqual([]);
+    expect(r.sessions).toHaveLength(5);
+    expect(r.sessions.every((s) => s.minutes === 30)).toBe(true);
+    expect(r.sessions.every((s) => s.date < "2026-10-25")).toBe(true);
+  });
+  it("shares each day's free time between tests and reports a shortfall", () => {
+    const r = spreadStudy([{ id: "a", name: "A", date: "2026-10-22", minutes: 200 }, { id: "b", name: "B", date: "2026-10-23", minutes: 200 }], () => 60, "2026-10-20");
+    const perDay = new Map<string, number>(); r.sessions.forEach((s) => perDay.set(s.date, (perDay.get(s.date) ?? 0) + s.minutes));
+    expect([...perDay.values()].every((m) => m <= 60)).toBe(true);
+    expect(r.short.length).toBe(2);
+    expect(r.sessions.reduce((n, s) => n + s.minutes, 0) + r.short.reduce((n, s) => n + s.minutes, 0)).toBe(400);
+  });
+  it("a test today or in the past cannot be planned", () => expect(spreadStudy([{ id: "a", name: "A", date: "2026-10-20", minutes: 60 }], () => 60, "2026-10-20").short).toEqual([{ id: "a", name: "A", minutes: 60 }]));
+});
+describe("fair split of group work", () => {
+  it("balances effort, biggest task first", () => {
+    const r = splitFairly([{ id: "1", title: "Slides", points: 5 }, { id: "2", title: "Research", points: 8 }, { id: "3", title: "Poster", points: 3 }, { id: "4", title: "Practice", points: 2 }], ["Ana", "Ben"]);
+    expect(r.loads).toEqual({ Ana: 10, Ben: 8 });
+    expect(Object.values(r.assigned).flat()).toHaveLength(4);
+  });
+  it("gives everyone something when there are enough tasks, and works for one person", () => {
+    const t = [1, 2, 3].map((i) => ({ id: String(i), title: `T${i}`, points: 1 }));
+    expect(Object.values(splitFairly(t, ["A", "B", "C"]).assigned).every((x) => x.length === 1)).toBe(true);
+    expect(splitFairly(t, ["Solo"]).loads).toEqual({ Solo: 3 });
+  });
+});
+describe("calendar file (.ics)", () => {
+  const ics = buildICS([{ uid: "a1", date: "2026-10-25", title: "Essay, due; final", description: "Line one\nLine two" }, { uid: "b2", date: "2026-12-31", title: "x".repeat(120) }], { name: "My deadlines", now: new Date(Date.UTC(2026, 9, 20, 12, 0, 0)) });
+  it("is a valid calendar with CRLF line endings", () => { expect(ics.startsWith("BEGIN:VCALENDAR\r\n")).toBe(true); expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true); expect(ics.replace(/\r\n/g, "").includes("\n")).toBe(false); expect((ics.match(/BEGIN:VEVENT/g) ?? []).length).toBe(2); });
+  it("uses all-day dates, ending the next day, even across a year change", () => { expect(ics).toContain("DTSTART;VALUE=DATE:20261025\r\nDTEND;VALUE=DATE:20261026"); expect(ics).toContain("DTSTART;VALUE=DATE:20261231\r\nDTEND;VALUE=DATE:20270101"); });
+  it("escapes commas, semicolons and new lines", () => { expect(ics).toContain("SUMMARY:Essay\\, due\; final"); expect(ics).toContain("DESCRIPTION:Line one\\nLine two"); });
+  it("folds long lines at 75 characters", () => { for (const line of ics.split("\r\n")) expect(line.length).toBeLessThanOrEqual(75); });
+  it("stamps the creation time in UTC and gives each event a unique id", () => { expect(ics).toContain("DTSTAMP:20261020T120000Z"); expect(ics).toContain("UID:a1@rumbo.app"); expect(ics).toContain("X-WR-CALNAME:My deadlines"); });
+});
+describe("week load and burnout signs", () => {
+  it("scores a week with weights, and levels it", () => {
+    expect(weekScore({ tests: 2, projects: 1, homework: 4, commitmentHours: 6 })).toBe(15);
+    expect([loadLevel(0), loadLevel(6), loadLevel(7), loadLevel(12), loadLevel(13)]).toEqual(["light", "light", "medium", "medium", "heavy"]);
+  });
+  it("lists the warning signs it found", () => {
+    expect(burnoutSignals({ avgSleep: 8.5, lowMoodDays: 0, weekLevel: "light", studyHours: 8, restDays: 2 })).toEqual({ signals: [], level: "light" });
+    const r = burnoutSignals({ avgSleep: 6, lowMoodDays: 4, weekLevel: "heavy", studyHours: 30, restDays: 0 });
+    expect(r.signals.sort()).toEqual(["load", "mood", "rest", "sleepLow", "study"]);
+    expect(r.level).toBe("heavy");
+    expect(burnoutSignals({ avgSleep: 7.5, lowMoodDays: 0, weekLevel: "light", studyHours: 5, restDays: 1 })).toEqual({ signals: ["sleep"], level: "light" });
+    expect(burnoutSignals({ avgSleep: null, lowMoodDays: 0, weekLevel: "light", studyHours: 0, restDays: 3 }).signals).toEqual([]);
+  });
+  it("balance shares always add up to exactly 100", () => {
+    for (const h of [{ school: 35, activities: 10, rest: 56, friends: 7 }, { school: 1, activities: 1, rest: 1, friends: 0 }, { school: 3, activities: 3, rest: 3, friends: 3 }]) {
+      const s = balanceShares(h); expect(Object.values(s).reduce((a, b) => a + b, 0)).toBe(100);
+    }
+    expect(balanceShares({ school: 0, activities: 0, rest: 0, friends: 0 })).toEqual({ school: 0, activities: 0, rest: 0, friends: 0 });
+    expect(balanceShares({ school: 10, activities: 10, rest: 0, friends: 0 })).toEqual({ school: 50, activities: 50, rest: 0, friends: 0 });
+  });
+});
+
+import { toMin, fmtTime, validRange, overlaps, findConflicts, dayIndex, abDayFor, classesOn, type ScheduleDoc } from "../src/lib/schedule";
+describe("schedule helpers", () => {
+  it("reads and formats times", () => { expect(toMin("14:30")).toBe(870); expect(toMin("9:05")).toBe(545); expect(Number.isNaN(toMin("25"))).toBe(true); expect(fmtTime("14:30")).toBe("2:30 PM"); expect(fmtTime("00:15")).toBe("12:15 AM"); expect(fmtTime("12:00")).toBe("12:00 PM"); expect(fmtTime("14:30", "es")).toBe("14:30"); expect(validRange("09:00", "10:00")).toBe(true); expect(validRange("10:00", "09:00")).toBe(false); expect(validRange("10:00", "10:00")).toBe(false); });
+  it("overlap: touching is fine, crossing is not", () => { expect(overlaps({ start: "09:00", end: "10:00" }, { start: "10:00", end: "11:00" })).toBe(false); expect(overlaps({ start: "09:00", end: "10:30" }, { start: "10:00", end: "11:00" })).toBe(true); expect(overlaps({ start: "09:00", end: "12:00" }, { start: "10:00", end: "11:00" })).toBe(true); });
+  it("finds conflicts only on the same day", () => {
+    const s = [{ id: "a", label: "Math", day: 0, start: "09:00", end: "10:00" }, { id: "b", label: "Practice", day: 0, start: "09:30", end: "11:00" }, { id: "c", label: "Work", day: 1, start: "09:30", end: "11:00" }];
+    expect(findConflicts(s).map(([x, y]) => x.id + y.id)).toEqual(["ab"]);
+    expect(findConflicts([])).toEqual([]);
+  });
+  it("day index: Monday is 0", () => { expect(dayIndex("2026-10-19")).toBe(0); expect(dayIndex("2026-10-25")).toBe(6); });
+  it("A/B days alternate on school days and skip weekends", () => {
+    const anchor = { date: "2026-10-19", day: "A" as const }; // a Monday
+    expect(["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"].map((d) => abDayFor(d, anchor))).toEqual(["A", "B", "A", "B", "A"]);
+    expect(abDayFor("2026-10-24", anchor)).toBeNull();
+    expect(abDayFor("2026-10-26", anchor)).toBe("B"); // the Friday was A, so the next school day is B
+    expect(abDayFor("2026-10-16", anchor)).toBe("B"); // the Friday before a Monday A day was B
+    expect(abDayFor("2026-10-12", { date: "2026-10-19", day: "B" })).toBe("A"); // five school days earlier, an odd number, so the letter flips
+    expect(abDayFor("2026-10-05", { date: "2026-10-19", day: "B" })).toBe("B"); // ten school days earlier
+  });
+  it("lists a day's classes in time order, for weekday and A/B schedules", () => {
+    const c = (id: string, start: string, days: string[]) => ({ id, name: id, room: "", start, end: "23:00", days, bring: "" });
+    const wk: ScheduleDoc = { kind: "weekdays", anchor: null, classes: [c("late", "13:00", ["mon", "wed"]), c("early", "08:00", ["mon"]), c("tue", "09:00", ["tue"])] };
+    expect(classesOn("2026-10-19", wk).map((x) => x.id)).toEqual(["early", "late"]);
+    expect(classesOn("2026-10-20", wk).map((x) => x.id)).toEqual(["tue"]);
+    expect(classesOn("2026-10-24", wk)).toEqual([]);
+    const ab: ScheduleDoc = { kind: "ab", anchor: { date: "2026-10-19", day: "A" }, classes: [c("a1", "08:00", ["A"]), c("b1", "08:00", ["B"]), c("both", "12:00", ["A", "B"])] };
+    expect(classesOn("2026-10-19", ab).map((x) => x.id)).toEqual(["a1", "both"]);
+    expect(classesOn("2026-10-20", ab).map((x) => x.id)).toEqual(["b1", "both"]);
+    expect(classesOn("2026-10-20", { ...ab, anchor: null })).toEqual([]);
+  });
+});

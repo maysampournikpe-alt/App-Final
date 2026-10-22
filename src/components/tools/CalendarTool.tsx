@@ -8,6 +8,7 @@ import { HOMEWORK_KEY, NO_ASSIGNMENTS, type Assignment } from "@/lib/homework";
 import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
 import type { SavedListing } from "@/lib/saved";
+import { EVENTS_KEY, NO_EVENTS, type SchoolEvent } from "@/lib/schedule";
 import { useCopy } from "@/lib/use-copy";
 import { EmptyTrail } from "../art";
 import { Page } from "../ui";
@@ -21,7 +22,7 @@ const copy = {
     calTitle: "Deadline calendar", calLead: "Saved opportunities, homework and countdowns on one calendar.",
     remTitle: "Reminders", remLead: "What is due today, tomorrow and this week. Open the app to see it, since this app does not send alerts.",
     prev: "Previous month", next: "Next month", upcoming: "Coming up", nothing: "Nothing is scheduled for this day.", nothingSoon: "Nothing coming up.", pickDay: "Tap a day to see what is due.",
-    kinds: { opportunity: "Opportunity", homework: "Homework", countdown: "Countdown" } as Record<CalItem["kind"], string>,
+    kinds: { opportunity: "Opportunity", homework: "Homework", countdown: "Countdown", event: "School event" } as Record<CalItem["kind"], string>,
     groups: { today: "Due today", tomorrow: "Due tomorrow", week: "This week" } as Record<Reminder, string>,
     emptyAll: "Nothing due in the next week. Save opportunities with deadlines in Find, and add homework, and they will show up here.", openSource: "Open the source", find: "Find opportunities", hw: "Add homework",
     days: (n: number) => (n === 0 ? "today" : n === 1 ? "tomorrow" : `in ${n} days`), dueOn: (d: string) => `Due ${d}`,
@@ -31,7 +32,7 @@ const copy = {
     calTitle: "Calendario de fechas límite", calLead: "Oportunidades guardadas, tarea y cuentas regresivas en un solo calendario.",
     remTitle: "Recordatorios", remLead: "Lo que vence hoy, mañana y esta semana. Abre la app para verlo, porque no envía alertas.",
     prev: "Mes anterior", next: "Mes siguiente", upcoming: "Próximamente", nothing: "No hay nada programado para este día.", nothingSoon: "No hay nada próximo.", pickDay: "Toca un día para ver lo que vence.",
-    kinds: { opportunity: "Oportunidad", homework: "Tarea", countdown: "Cuenta regresiva" } as Record<CalItem["kind"], string>,
+    kinds: { opportunity: "Oportunidad", homework: "Tarea", countdown: "Cuenta regresiva", event: "Evento escolar" } as Record<CalItem["kind"], string>,
     groups: { today: "Vence hoy", tomorrow: "Vence mañana", week: "Esta semana" } as Record<Reminder, string>,
     emptyAll: "No vence nada en la próxima semana. Guarda oportunidades con fecha límite en Buscar, y agrega tarea, y aparecerán aquí.", openSource: "Abrir la fuente", find: "Buscar oportunidades", hw: "Agregar tarea",
     days: (n: number) => (n === 0 ? "hoy" : n === 1 ? "mañana" : `en ${n} días`), dueOn: (d: string) => `Vence el ${d}`,
@@ -40,14 +41,15 @@ const copy = {
 };
 type C = typeof copy.en;
 
-const KIND_DOT: Record<CalItem["kind"], string> = { opportunity: "bg-teal", homework: "bg-ruby", countdown: "bg-marigold" };
+const KIND_DOT: Record<CalItem["kind"], string> = { opportunity: "bg-teal", homework: "bg-ruby", countdown: "bg-marigold", event: "bg-terracotta" };
 
 function useItems() {
   const [saved] = useLocalDoc<SavedListing[]>("saved-opportunities", NO_SAVED);
   const [homework] = useLocalDoc<Assignment[]>(HOMEWORK_KEY, NO_ASSIGNMENTS);
   const [countdowns] = useLocalDoc<Countdown[]>("countdowns", NO_COUNTS);
+  const [events] = useLocalDoc<SchoolEvent[]>(EVENTS_KEY, NO_EVENTS);
   const now = today();
-  return { now, items: useMemo(() => collectItems({ saved, homework, countdowns, now }), [saved, homework, countdowns, now]) };
+  return { now, items: useMemo(() => collectItems({ saved, homework, countdowns, events, now }), [saved, homework, countdowns, events, now]) };
 }
 
 function ItemRow({ i, now, c, lang }: { i: CalItem; now: string; c: C; lang: "en" | "es" }) {

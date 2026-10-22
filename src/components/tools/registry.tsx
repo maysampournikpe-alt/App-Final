@@ -8,6 +8,10 @@ import { BragTool, CertificatesTool, ResumeTool, TrackerTool, VolunteerTool } fr
 import { CareersTool, DayInLifeTool, MajorsTool, QuizTool } from "./CareerTools";
 import { CollegesTool, ScholarshipsTool } from "./CollegeFinder";
 import { CoursesTool, PlaylistTool, QuoteTool, SeasonalTool } from "./Explore";
+import { ConflictsTool, ExportTool, OverloadTool, ScheduleTool, SchoolYearTool, SemesterTool, TimeBlockTool, WeeklyTool } from "./CalendarPlus";
+import { AutoScheduleTool, CatchUpTool, PackingTool, StudyPlannerTool } from "./Planners";
+import { BackpackTool, FrogTool, GroupPlannerTool, GroupProjectTool, InboxTool, KanbanTool, TwoMinuteTool } from "./HomeworkPlus";
+import { AuditTool, BalanceTool, BrainGamesTool, BurnoutTool, DistractionTool, EnergyTool, EstimatorTool, FocusModeTool, LadderTool, ScreenTool, VisionTool } from "./FocusHabitsPlus";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -196,4 +200,35 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "money/savings": clientOnly(() => <MoneyTool view="savings" />),
   "money/paycheck": clientOnly(() => <MoneyTool view="paycheck" />),
   "homework/backward": clientOnly(BackwardTool),
+  "calendar/schoolyear": clientOnly(SchoolYearTool),
+  "calendar/semester": clientOnly(SemesterTool),
+  "calendar/schedule": clientOnly(ScheduleTool),
+  "calendar/timeblock": clientOnly(TimeBlockTool),
+  "calendar/conflicts": clientOnly(ConflictsTool),
+  "calendar/overload": clientOnly(OverloadTool),
+  "calendar/gcal": clientOnly(ExportTool),
+  "plan/catchup": clientOnly(CatchUpTool),
+  "plan/studyplanner": clientOnly(StudyPlannerTool),
+  "plan/packing": clientOnly(PackingTool),
+  "calendar/autoschedule": clientOnly(AutoScheduleTool),
+  "homework/backpack": clientOnly(BackpackTool),
+  "homework/frog": clientOnly(FrogTool),
+  "homework/twominute": clientOnly(TwoMinuteTool),
+  "homework/kanban": clientOnly(KanbanTool),
+  "homework/groupproject": clientOnly(GroupProjectTool),
+  "homework/inbox": clientOnly(InboxTool),
+  "homework/groupplanner": clientOnly(GroupPlannerTool),
+  "focus/focusmode": clientOnly(FocusModeTool),
+  "focus/distraction": clientOnly(DistractionTool),
+  "focus/braingames": clientOnly(BrainGamesTool),
+  "habits/ladder": clientOnly(LadderTool),
+  "habits/vision": clientOnly(VisionTool),
+  "habits/audit": clientOnly(AuditTool),
+  "habits/estimator": clientOnly(EstimatorTool),
+  "wellbeing/energy": clientOnly(EnergyTool),
+  "wellbeing/screen": clientOnly(ScreenTool),
+  "wellbeing/burnout": clientOnly(BurnoutTool),
+  "wellbeing/balance": clientOnly(BalanceTool),
+  "calendar/weekly": clientOnly(() => <WeeklyTool layer="all" />),
+  "calendar/sports": clientOnly(() => <WeeklyTool layer="sports" />),
 };

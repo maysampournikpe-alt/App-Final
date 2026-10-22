@@ -17,7 +17,7 @@ export const bankById = (): Map<string, Question> => { loadRuntime(); return byI
 export const bankCount = (exam: Question["exam"], section?: string) => all.filter((q) => q.exam === exam && (!section || q.section === section)).length;
 
 // Questions made on demand by the study path and mock exams. They live on this device (not synced), so a test in progress still works after a reload.
-const RUNTIME_KEY = "rumbo:runtime-questions";
+const RUNTIME_KEY = "rumbo:runtime-questions-v2"; // v2: only questions that passed the scope check
 const RUNTIME_MAX = 240;
 let runtimeLoaded = false;
 function loadRuntime() {
@@ -29,8 +29,8 @@ export function registerQuestions(qs: Question[]) {
   loadRuntime();
   for (const q of qs) byId.set(q.id, q);
   try {
-    const mine = [...byId.values()].filter((q) => q.id.startsWith("ai-"));
+    const mine = [...byId.values()].filter((q) => q.id.startsWith("ai-") && q.scoped);
     localStorage.setItem(RUNTIME_KEY, JSON.stringify(mine.slice(-RUNTIME_MAX)));
   } catch { /* storage full or blocked: the questions still work this session */ }
 }
-export const runtimeQuestions = (): Question[] => { loadRuntime(); return [...byId.values()].filter((q) => q.id.startsWith("ai-")); };
+export const runtimeQuestions = (): Question[] => { loadRuntime(); return [...byId.values()].filter((q) => q.id.startsWith("ai-") && q.scoped); };

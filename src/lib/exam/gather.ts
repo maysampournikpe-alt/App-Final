@@ -33,7 +33,7 @@ export function localPool(o: { exam: string; section: string; skill: string; top
   const ok = (q: Question) => q.exam === o.exam && q.section === o.section && q.skill === o.skill && q.type === "mc" && q.choices?.length === 4 && !(o.hidden ?? []).includes(q.id)
     && (!o.maxDifficulty || q.difficulty <= o.maxDifficulty) && (!o.topic || q.topic === o.topic) && matchesLevel(q, o.level);
   const seen = new Set<string>();
-  return [...BANK, ...runtimeQuestions()].filter((q) => ok(q) && !seen.has(q.id) && seen.add(q.id));
+  return [...BANK, ...runtimeQuestions()].filter((q) => (q.source !== "generated" || q.scoped) && ok(q) && !seen.has(q.id) && seen.add(q.id));
 }
 
 /**

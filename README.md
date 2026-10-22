@@ -95,7 +95,7 @@ npm run bank:generate -- --exam tsi --all --per-skill 8
 npm run bank:generate -- --list                   # exams, course ids and unit ids
 ```
 
-Each question is checked by structure, by an independent AI solve that never sees the answer key, and
+Each question is checked by structure, by an independent AI solve that never sees the answer key, by a scope check (is it really about this course and topic, at the level of the real exam, with no ideas from another course), and
 for duplicates. Read through a sample of `src/data/bank/sat-generated.json`, then commit it.
 
 ## Before you submit

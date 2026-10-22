@@ -7,12 +7,12 @@ import type { Question } from "./types";
 export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** One topic inside the unit or skill, like 1.2. */ topic?: string; count: number; difficulty: 1 | 2 | 3; /** "exam" asks for real-exam-style questions. */ style?: "exam" }
 
 /** Readable names for a section and skill. AP courses come from the full CED list, so a course can be generated before it has any questions. */
-export function topicOf(exam: GenSpec["exam"], section: string, skill: string, topic?: string): { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[] } | null {
+export function topicOf(exam: GenSpec["exam"], section: string, skill: string, topic?: string): { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[]; others?: string[] } | null {
   const c = coursesFor(exam).find((x) => x.id === section), u = c?.units.find((x) => x.id === skill);
   if (!c || !u) return null;
   if (!topic) return { section: c.en, skill: u.en, unitTopics: u.topics.map((t) => `${t.num} ${t.en}`) };
   const t = u.topics.find((x) => x.id === topic);
-  return t ? { section: c.en, skill: u.en, topic: t.en, topicNum: t.num, ...(t.cover ? { cover: t.cover } : {}) } : null;
+  return t ? { section: c.en, skill: u.en, topic: t.en, topicNum: t.num, ...(t.cover ? { cover: t.cover } : {}), others: u.topics.filter((x) => x.id !== t.id).map((x) => `${x.num} ${x.en}`) } : null;
 }
 
 const STYLE: Record<GenSpec["exam"], string> = {
@@ -51,10 +51,11 @@ export function buildGenPrompt(spec: GenSpec): { system: string; user: string } 
       "Every question must have exactly ONE correct answer, an answer key that is right, and a clear explanation that shows why.",
       "Math and science: use LaTeX between dollar signs, like $3x+7=25$. Write a literal dollar sign as \\$. Use \"type\":\"grid\" for questions whose answer is a number the student types (no choices). Otherwise \"type\":\"mc\" with exactly 4 choices and answer \"A\", \"B\", \"C\" or \"D\".",
       "Reading, writing and all non-numeric subjects: always \"type\":\"mc\". Put any short passage (1 to 4 sentences) in \"passage\" and the question in \"stem\".",
+      "STAY IN SCOPE. Use only knowledge that this course's own description requires for the named topic. Never use content that belongs to a different course or to college-level courses (for example, do not use AP Chemistry ideas such as colligative properties in an AP Biology question). If a question would need outside knowledge to answer, do not write it. Keep the difficulty at the level of the real exam for this course, not harder content.",
       "Content must be appropriate for ages 13 to 18. Teach history, government and social science accurately and neutrally.",
       "Return ONLY JSON: {\"questions\":[{\"stem\":\"\",\"passage\":null,\"type\":\"mc\",\"choices\":[\"\",\"\",\"\",\"\"],\"answer\":\"A\",\"accept\":null,\"explanation\":\"\"}]}",
     ].join("\n"),
-    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.cover ? `What this topic covers (draw the question types from this): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
+    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.others?.length ? `Other topics in this unit, which you must NOT test: ${topic.others.slice(0, 14).join("; ")}\n` : ""}${topic.cover ? `What this topic covers (draw the question types from this): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
   };
 }
 
@@ -68,12 +69,27 @@ export function buildSolvePrompt(q: { stem: string; passage?: string | null; typ
   };
 }
 
+/** A third check: is the question really about this course and topic, at the level of the real exam? */
+export function buildScopePrompt(spec: GenSpec, q: { stem: string; passage?: string | null; choices?: string[] | null; answer: string }): { system: string; user: string } {
+  const t = topicOf(spec.exam, spec.section, spec.skill, spec.topic);
+  const where = t ? `Course or test: ${t.section}\nUnit or skill: ${t.skill}${t.topic ? `\nTopic ${t.topicNum}: ${t.topic}` : ""}${t.cover ? `\nThe topic covers: ${t.cover}` : ""}` : "";
+  return {
+    system: [
+      "You are a strict content reviewer for practice questions. Decide whether ONE question is in scope.",
+      "In scope means ALL of these: (1) it tests the named topic, not just a nearby idea or a different topic of the same unit; (2) a student who has learned only this course's content for that topic could answer it, with no ideas from another course or from college-level courses (for example no AP Chemistry or AP Physics ideas in an AP Biology topic, unless that course's own description includes them); (3) the content and difficulty fit the real exam for this course; (4) the stem, the choices and the key agree with each other.",
+      "Think briefly, then end with a final line exactly like: SCOPE: IN or SCOPE: OUT",
+    ].join("\n"),
+    user: [where, "", "Question:", q.passage ?? "", q.stem, (q.choices ?? []).map((c, i) => `${"ABCD"[i]}. ${c}`).join("\n"), `Key: ${q.answer}`].filter((x) => x !== undefined).join("\n"),
+  };
+}
+export const parseScope = (text: string): "in" | "out" | null => { const m = [...text.matchAll(/SCOPE:\s*(IN|OUT)\b/gi)].pop(); return m ? (m[1].toUpperCase() === "IN" ? "in" : "out") : null; };
+
 export const parseSolved = (text: string): string | null => /ANSWER:\s*([^\n]+?)\s*$/im.exec(text)?.[1]?.replace(/[`*$]/g, "").replace(/\.+$/, "").trim() ?? null;
 
 export type Verdict = { ok: true; question: Question } | { ok: false; reason: string };
 
 /** Structural checks, then agreement with an independent solve. Both must pass. */
-export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, solved: string | null, id: string): Verdict {
+export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, solved: string | null, id: string, scope: "in" | "out" | null): Verdict {
   if (item.type === "mc") {
     if (!item.choices || new Set(item.choices.map((c) => c.trim().toLowerCase())).size !== 4) return { ok: false, reason: "choices missing or duplicated" };
     if (!/^[ABCD]$/.test(item.answer)) return { ok: false, reason: "answer is not A to D" };
@@ -84,10 +100,11 @@ export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, sol
     id, exam: spec.exam, section: spec.section, skill: spec.skill, ...(spec.topic ? { topic: spec.topic } : {}), difficulty: spec.difficulty, type: item.type,
     stem: item.stem.trim(), ...(item.passage ? { passage: item.passage.trim() } : {}),
     ...(item.type === "mc" ? { choices: item.choices!.map((c) => c.trim()) } : { accept: item.accept ?? [] }),
-    answer: item.answer.trim(), explanation: item.explanation.trim(), ...(spec.style ? { style: spec.style } : {}), source: "generated",
+    answer: item.answer.trim(), explanation: item.explanation.trim(), ...(spec.style ? { style: spec.style } : {}), scoped: true, source: "generated",
   };
   if (!solved) return { ok: false, reason: "checker gave no answer" };
   if (!isCorrect(q, solved)) return { ok: false, reason: `checker disagreed (key ${q.answer}, checker ${solved})` };
+  if (scope !== "in") return { ok: false, reason: scope === "out" ? "out of scope for this course or topic" : "scope check gave no answer" };
   return { ok: true, question: q };
 }
 

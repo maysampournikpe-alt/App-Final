@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Check, Crown, RotateCcw, Star } from "lucide-react";
 import { AP_COURSES, hasQuestions } from "@/lib/exam/ap";
@@ -66,17 +67,19 @@ export function StudyPathTool({ track }: { track: ExamId }) {
   const apiTrack = track === "psat" ? "sat" : track;
   const [picked] = useLocalDoc<string[]>("ap-courses", NO_PICKED);
   const [prog, setProg] = useLocalDoc<Record<string, Prog>>("path-progress", NO_PROG);
-  const apList = useMemo(() => { const mine = AP_COURSES.filter((x) => picked.includes(x.id)); return mine.length ? mine : AP_COURSES; }, [picked]);
+  const params = useSearchParams();
+  const wantCourse = params.get("course"), wantUnit = params.get("unit");
+  const apList = useMemo(() => { const mine = AP_COURSES.filter((x) => picked.includes(x.id) || x.id === wantCourse); return mine.length ? mine : AP_COURSES; }, [picked, wantCourse]);
   const sections = track === "ap" ? apList.map((x) => ({ id: x.id, label: x[lang], items: x.units.map((u) => ({ id: u.id, label: u[lang] })) })) : cfg.sections.map((x) => ({ id: x.id, label: x[lang], items: x.skills.map((k) => ({ id: k.id, label: k[lang] })) }));
-  const [secId, setSecId] = useState("");
+  const [secId, setSecId] = useState(wantCourse ?? "");
   const sec = sections.find((s) => s.id === secId) ?? sections[0];
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(wantUnit);
   const keyOf = (skill: string) => `${track}/${sec.id}/${skill}`;
   const done = sec.items.filter((i) => levelOf(prog[keyOf(i.id)]) >= 2).length;
   const next = sec.items.find((i) => levelOf(prog[keyOf(i.id)]) < 2)?.id;
   const rows = [0, 2.2, 3.5, 2.2, 0, -2.2, -3.5, -2.2];
-  if (open) {
-    const item = sec.items.find((i) => i.id === open)!;
+  const item = open ? sec.items.find((i) => i.id === open) : undefined;
+  if (open && item) {
     return <Lesson key={`${sec.id}/${open}`} track={track} apiTrack={apiTrack} section={sec.id} sectionLabel={sec.label} skill={item.id} label={item.label} prog={prog[keyOf(item.id)]} lang={lang}
       onProg={(p) => setProg((all) => ({ ...all, [keyOf(item.id)]: { ...all[keyOf(item.id)], ...p } }))} onBack={() => setOpen(null)}
       onNext={(() => { const i = sec.items.findIndex((x) => x.id === open); return i >= 0 && i < sec.items.length - 1 ? () => setOpen(sec.items[i + 1].id) : null; })()} />;

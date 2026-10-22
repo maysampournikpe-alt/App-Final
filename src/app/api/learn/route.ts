@@ -7,7 +7,7 @@ import { extractJson } from "@/lib/ai/finder";
 import { specFor } from "@/lib/exam/levels";
 import { ID_MAX, cramMessages, cramSchema, notesMessages, notesSchema, termsMessages, termsSchema, TRACKS } from "@/lib/ai/learn";
 import { fromBank, toBank } from "@/lib/ai/qbank";
-import { buildGenPrompt, buildSolvePrompt, genBatch, parseSolved, topicOf, verifyQuestion, type GenSpec } from "@/lib/exam/verify";
+import { buildGenPrompt, buildScopePrompt, buildSolvePrompt, genBatch, parseScope, parseSolved, topicOf, verifyQuestion, type GenSpec } from "@/lib/exam/verify";
 import type { Question } from "@/lib/exam/types";
 import { allow, clientIp } from "@/lib/rate-limit";
 import { hasSupabaseServer, supabaseServer } from "@/lib/supabase/server";
@@ -85,7 +85,10 @@ export async function POST(request: Request) {
           const solve = buildSolvePrompt({ stem: item.stem, passage: item.passage, type: item.type, choices: item.choices });
           const reply = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0, maxTokens: 700, messages: [{ role: "system", content: solve.system }, { role: "user", content: solve.user }] }).catch(() => null);
           const id = `ai-${exam}-${section}-${createHash("sha1").update(item.stem).digest("hex").slice(0, 10)}`;
-          return verifyQuestion(item, spec, reply ? parseSolved(reply.content) : null, id);
+          // A third call checks that the question really belongs to this course and topic.
+          const sp = buildScopePrompt(spec, item);
+          const scope = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0, maxTokens: 500, messages: [{ role: "system", content: sp.system }, { role: "user", content: sp.user }] }).catch(() => null);
+          return verifyQuestion(item, spec, reply ? parseSolved(reply.content) : null, id, scope ? parseScope(scope.content) : null);
         }));
         const fresh: Question[] = [];
         const have = new Set([...seen, ...questions.map((q) => q.id)]);

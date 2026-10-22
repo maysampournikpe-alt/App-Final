@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { coursesFor } from "@/lib/exam/courses";
 import { EXAMS } from "@/lib/exam/config";
 import { LEVELS, levelOfQuestion, matchesLevel, specFor } from "@/lib/exam/levels";
-import { buildGenPrompt, topicOf, verifyQuestion } from "@/lib/exam/verify";
+import { buildGenPrompt, buildScopePrompt, parseScope, topicOf, verifyQuestion } from "@/lib/exam/verify";
 import { ID_MAX, notesMessages, notesSchema } from "@/lib/ai/learn";
 import { localPool } from "@/lib/exam/gather";
 
@@ -56,12 +56,37 @@ describe("difficulty levels", () => {
     const p = buildGenPrompt(spec).user;
     expect(p).toMatch(/REAL EXAM STYLE/); expect(p).toMatch(/Topic 1\.2/);
     expect(buildGenPrompt({ ...spec, style: undefined, difficulty: 1 }).user).not.toMatch(/REAL EXAM STYLE/);
-    const v = verifyQuestion({ stem: "A long enough question stem here?", passage: "Stimulus.", type: "mc", choices: ["a", "b", "c", "d"], answer: "B", explanation: "Because B is right, for this reason." }, spec, "B", "x");
+    const v = verifyQuestion({ stem: "A long enough question stem here?", passage: "Stimulus.", type: "mc", choices: ["a", "b", "c", "d"], answer: "B", explanation: "Because B is right, for this reason." }, spec, "B", "x", "in");
     expect(v.ok && v.question.style).toBe("exam");
+    expect(v.ok && v.question.scoped).toBe(true);
   });
   it("a level filter applies to what is already on the device", () => {
     expect(localPool({ exam: "sat", section: "math", skill: "algebra", level: "exam" })).toHaveLength(0);
     expect(localPool({ exam: "sat", section: "math", skill: "algebra", level: "easy" }).every((x) => x.difficulty === 1)).toBe(true);
+  });
+});
+
+describe("scope check keeps questions on their own course and topic", () => {
+  const item = { stem: "A long enough question stem here?", passage: "Stimulus.", type: "mc" as const, choices: ["a", "b", "c", "d"], answer: "B", explanation: "Because B is right, for this reason." };
+  const spec = { exam: "ap" as const, section: "ap-biology", skill: "u1", topic: "u1-1", count: 2, difficulty: 2 as const };
+  it("rejects out-of-scope, unanswered and unchecked questions, and accepts in-scope ones", () => {
+    expect(verifyQuestion(item, spec, "B", "x", "in").ok).toBe(true);
+    const out = verifyQuestion(item, spec, "B", "x", "out"); expect(!out.ok && out.reason).toMatch(/out of scope/);
+    const none = verifyQuestion(item, spec, "B", "x", null); expect(!none.ok && none.reason).toMatch(/no answer/);
+  });
+  it("the reviewer prompt names the course, unit and topic and shows the key", () => {
+    const p = buildScopePrompt(spec, item);
+    expect(p.user).toMatch(/AP Biology/); expect(p.user).toMatch(/Topic 1\.1/); expect(p.user).toMatch(/Key: B/);
+    expect(p.system).toMatch(/no ideas from another course/);
+  });
+  it("reads the verdict from the last SCOPE line", () => {
+    expect(parseScope("It uses colligative properties.\nSCOPE: OUT")).toBe("out");
+    expect(parseScope("fine\nSCOPE: IN")).toBe("in"); expect(parseScope("no verdict")).toBeNull();
+    expect(parseScope("SCOPE: IN maybe\nSCOPE: OUT")).toBe("out");
+  });
+  it("the writer is told to stay in scope and which other topics not to test", () => {
+    const u = buildGenPrompt(spec);
+    expect(u.system).toMatch(/STAY IN SCOPE/); expect(u.system).toMatch(/AP Chemistry/); expect(u.user).toMatch(/must NOT test: .*1\.2/);
   });
 });
 

@@ -4,22 +4,22 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**105 of 265 features built.**
+**229 of 265 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 55 | 73 |
-| Phase 2: Family, school, portfolio, deadlines, applications | 10 | 30 |
-| Phase 3: Discovery and college/career | 4 | 26 |
-| Phase 4: Study tools and skill building | 16 | 56 |
-| Phase 5: Planning, productivity and life skills | 14 | 40 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 61 | 73 |
+| Phase 2: Family, school, portfolio, deadlines, applications | 22 | 30 |
+| Phase 3: Discovery and college/career | 24 | 26 |
+| Phase 4: Study tools and skill building | 53 | 56 |
+| Phase 5: Planning, productivity and life skills | 40 | 40 |
 | Phase 6: People | 0 | 9 |
-| Phase 7: Wellbeing | 2 | 5 |
-| Phase 8: Local resources | 0 | 7 |
-| Phase 9: Motivation and fun | 4 | 14 |
-| Phase 10: Extra accessibility and trust | 0 | 5 |
+| Phase 7: Wellbeing | 5 | 5 |
+| Phase 8: Local resources | 7 | 7 |
+| Phase 9: Motivation and fun | 13 | 14 |
+| Phase 10: Extra accessibility and trust | 4 | 5 |
 
 [LOCAL] = runs entirely on the device, works offline, no AI and no database.
 
@@ -31,11 +31,11 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Recommendation feed | 1 | Future plan |  |
-| Picked for you this week | 3 | Future plan |  |
-| Try something new | 3 | Future plan |  |
-| Quote of the day | 9 | Future plan | [LOCAL] |
-| Challenge of the month | 9 | Future plan |  |
+| Recommendation feed | 1 | Built |  |
+| Picked for you this week | 3 | Built |  |
+| Try something new | 3 | Built |  |
+| Quote of the day | 9 | Built | [LOCAL] |
+| Challenge of the month | 9 | Built |  |
 
 #### Find
 
@@ -44,48 +44,48 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Opportunity search | 1 | Built |  |
 | My Saved | 1 | Built |  |
 | Scam warning guide | 1 | Built |  |
-| Map view | 3 | Future plan |  |
-| Surprise me | 3 | Future plan |  |
+| Map view | 3 | Built |  |
+| Surprise me | 3 | Built |  |
 | Trending near you | 3 | Future plan |  |
-| Similar opportunities | 3 | Future plan |  |
-| Seasonal suggestions | 3 | Future plan |  |
-| Search history | 3 | Future plan |  |
-| Saved searches and alerts | 3 | Future plan |  |
+| Similar opportunities | 3 | Built |  |
+| Seasonal suggestions | 3 | Built |  |
+| Search history | 3 | Built |  |
+| Saved searches | 3 | Built |  |
 | Student reviews | 3 | Future plan |  |
-| Printable flyers | 9 | Future plan |  |
+| Printable flyers | 9 | Built |  |
 
 #### College and Career
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Career explorer | 3 | Future plan |  |
-| Interest quiz | 3 | Future plan |  |
-| Day in the life videos | 3 | Future plan |  |
-| College finder | 3 | Future plan |  |
-| Major explorer | 3 | Future plan |  |
+| Career explorer | 3 | Built |  |
+| Interest quiz | 3 | Built |  |
+| Day in the life videos | 3 | Built |  |
+| College finder | 3 | Built |  |
+| Major explorer | 3 | Built |  |
 | College cost calculator | 3 | Built | [LOCAL] |
 | SAT and ACT converter | 3 | Built | [LOCAL] |
-| Scholarship matcher | 3 | Future plan |  |
-| FAFSA helper | 3 | Future plan |  |
-| Dual enrollment info | 3 | Future plan |  |
-| Trade and certification paths | 3 | Future plan |  |
-| Military and ROTC info | 3 | Future plan |  |
-| College application tracker | 2 | Future plan |  |
-| Recommendation letter helper | 2 | Future plan |  |
-| Email and application helper | 2 | Future plan |  |
-| Essay feedback | 2 | Future plan |  |
+| Scholarship matcher | 3 | Built |  |
+| FAFSA helper | 3 | Built |  |
+| Dual enrollment info | 3 | Built |  |
+| Trade and certification paths | 3 | Built |  |
+| Military and ROTC info | 3 | Built |  |
+| College application tracker | 2 | Built |  |
+| Recommendation letter helper | 2 | Built |  |
+| Email and application helper | 2 | Built |  |
+| Essay feedback | 2 | Built |  |
 
 #### Local Resources
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Local resource map | 8 | Future plan |  |
-| Bus route helper | 8 | Future plan |  |
-| Free tutoring finder | 8 | Future plan |  |
-| Local events feed | 8 | Future plan |  |
-| Free WiFi and library access | 8 | Future plan |  |
-| Free gear and supplies | 8 | Future plan |  |
-| Fee waiver finder | 8 | Future plan |  |
+| Local resource map | 8 | Built |  |
+| Bus route helper | 8 | Built |  |
+| Free tutoring finder | 8 | Built |  |
+| Local events feed | 8 | Built |  |
+| Free WiFi and library access | 8 | Built |  |
+| Free gear and supplies | 8 | Built |  |
+| Fee waiver finder | 8 | Built |  |
 
 ### Learn
 
@@ -96,42 +96,42 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Coach chat | 1 | Built |  |
 | Homework mode | 1 | Built |  |
 | Practice modes | 1 | Built |  |
-| Interview practice for an opportunity | 2 | Future plan |  |
+| Interview practice | 2 | Built |  |
 | Explain like I'm 12 | 4 | Built |  |
 
 #### Study
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Study method picker | 4 | Future plan | [LOCAL] |
-| Feynman explainer | 4 | Future plan |  |
+| Study method picker | 4 | Built | [LOCAL] |
+| Feynman explainer | 4 | Built |  |
 | Mistake notebook | 1 | Built |  |
 | Weak spot finder | 1 | Built |  |
 | STAAR practice | 4 | Future plan |  |
-| Test day checklist | 4 | Future plan | [LOCAL] |
-| Timed practice | 4 | Future plan | [LOCAL] |
-| Skill courses | 4 | Future plan |  |
-| Daily challenge | 4 | Future plan |  |
-| Public speaking coach | 4 | Future plan |  |
-| Chess opening trainer | 4 | Future plan |  |
-| Debate case builder | 4 | Future plan |  |
-| Science fair helper | 4 | Future plan |  |
+| Test day checklist | 4 | Built | [LOCAL] |
+| Timed practice | 4 | Built | [LOCAL] |
+| Skill courses | 4 | Built |  |
+| Daily challenge | 4 | Built |  |
+| Public speaking coach | 4 | Built |  |
+| Chess opening trainer | 4 | Built |  |
+| Debate case builder | 4 | Built |  |
+| Science fair helper | 4 | Built |  |
 
 #### Notes and Flashcards
 
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Cornell notes | 4 | Built | [LOCAL] |
-| Mind map maker | 4 | Future plan | [LOCAL] |
-| Outline builder | 4 | Future plan | [LOCAL] |
-| Note summarizer | 4 | Future plan |  |
-| Notes to quiz | 4 | Future plan |  |
+| Mind map maker | 4 | Built | [LOCAL] |
+| Outline builder | 4 | Built | [LOCAL] |
+| Note summarizer | 4 | Built |  |
+| Notes to quiz | 4 | Built |  |
 | Photo to notes | 4 | Future plan |  |
 | Lecture recorder | 4 | Future plan |  |
 | Flashcard maker | 4 | Built |  |
 | Spaced repetition review | 4 | Built | [LOCAL] |
-| Memory palace trainer | 4 | Future plan | [LOCAL] |
-| Mnemonic generator | 4 | Future plan |  |
+| Memory palace trainer | 4 | Built | [LOCAL] |
+| Mnemonic generator | 4 | Built |  |
 
 #### Math and Science
 
@@ -147,36 +147,36 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Equation balancer | 4 | Built | [LOCAL] |
 | Molar mass calculator | 4 | Built | [LOCAL] |
 | Math facts drills | 4 | Built | [LOCAL] |
-| Lab report template | 4 | Future plan | [LOCAL] |
-| Data table and graph maker | 4 | Future plan | [LOCAL] |
-| Math step checker | 4 | Future plan |  |
+| Lab report template | 4 | Built | [LOCAL] |
+| Data table and graph maker | 4 | Built | [LOCAL] |
+| Math step checker | 4 | Built |  |
 
 #### Reading and Writing
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Essay outline template | 4 | Future plan | [LOCAL] |
-| Thesis statement builder | 4 | Future plan | [LOCAL] |
-| Word and character counter | 4 | Future plan | [LOCAL] |
-| Citation generator | 4 | Future plan |  |
-| Grammar coach | 4 | Future plan |  |
-| Paraphrase practice | 4 | Future plan |  |
-| Reading level checker | 4 | Future plan |  |
-| Vocabulary in context | 4 | Future plan |  |
-| Vocabulary builder | 4 | Future plan |  |
-| Reading log | 4 | Future plan | [LOCAL] |
-| Reading speed test | 4 | Future plan | [LOCAL] |
-| Typing speed test | 9 | Future plan | [LOCAL] |
+| Essay outline template | 4 | Built | [LOCAL] |
+| Thesis statement builder | 4 | Built | [LOCAL] |
+| Word and character counter | 4 | Built | [LOCAL] |
+| Citation generator | 4 | Built |  |
+| Grammar coach | 4 | Built |  |
+| Paraphrase practice | 4 | Built |  |
+| Reading level checker | 4 | Built |  |
+| Vocabulary in context | 4 | Built |  |
+| Vocabulary builder | 4 | Built |  |
+| Reading log | 4 | Built | [LOCAL] |
+| Reading speed test | 4 | Built | [LOCAL] |
+| Typing speed test | 9 | Built | [LOCAL] |
 
 #### Languages
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Conversation practice | 4 | Future plan |  |
-| Bilingual homework help | 4 | Future plan |  |
-| Verb conjugation drills | 4 | Future plan | [LOCAL] |
-| Translation flashcards | 4 | Future plan | [LOCAL] |
-| Pronunciation practice | 4 | Future plan |  |
+| Conversation practice | 4 | Built |  |
+| Bilingual homework help | 4 | Built |  |
+| Verb conjugation drills | 4 | Built | [LOCAL] |
+| Translation flashcards | 4 | Built | [LOCAL] |
+| Pronunciation practice | 4 | Built |  |
 
 ### Test Prep
 
@@ -186,14 +186,14 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Course picker | 1 | Built |  |
 | Course dashboard | 1 | Built |  |
-| Unit notes | 1 | Future plan |  |
+| Unit notes | 1 | Built |  |
 | Practice quizzes | 1 | Built |  |
 | Full practice exams | 1 | Built |  |
-| Free response feedback | 1 | Future plan |  |
-| Flashcards | 1 | Future plan |  |
+| Free response feedback | 1 | Built |  |
+| Flashcards | 1 | Built |  |
 | Weak spot report | 1 | Built |  |
 | Score estimate | 1 | Built |  |
-| Study plan | 1 | Future plan |  |
+| Study plan | 1 | Built |  |
 | Official resources | 1 | Built |  |
 
 #### SAT
@@ -266,10 +266,10 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Goal templates | 1 | Built |  |
 | Plan checklists | 1 | Built |  |
 | Adjust my plan | 1 | Built |  |
-| Catch-up plan | 5 | Future plan |  |
-| Smart study planner | 5 | Future plan |  |
+| Catch-up plan | 5 | Built |  |
+| Smart study planner | 5 | Built |  |
 | Shared plans | 6 | Future plan |  |
-| Packing lists | 5 | Future plan | [LOCAL] |
+| Packing lists | 5 | Built | [LOCAL] |
 
 #### Calendar
 
@@ -278,16 +278,16 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Deadline calendar | 2 | Built |  |
 | Reminders | 2 | Built |  |
 | Countdown widgets | 2 | Built | [LOCAL] |
-| School year calendar | 2 | Future plan | [LOCAL] |
-| Class schedule | 5 | Future plan | [LOCAL] |
-| Semester at a glance | 5 | Future plan | [LOCAL] |
-| Time blocking planner | 5 | Future plan | [LOCAL] |
-| Weekly schedule builder | 5 | Future plan |  |
-| Sports and practice schedule | 5 | Future plan | [LOCAL] |
-| Time conflict checker | 2 | Future plan |  |
-| Google Calendar sync | 2 | Future plan |  |
-| Auto schedule | 5 | Future plan |  |
-| Overload detector | 5 | Future plan |  |
+| School year calendar | 2 | Built | [LOCAL] |
+| Class schedule | 5 | Built | [LOCAL] |
+| Semester at a glance | 5 | Built | [LOCAL] |
+| Time blocking planner | 5 | Built | [LOCAL] |
+| Weekly schedule builder | 5 | Built |  |
+| Sports and practice schedule | 5 | Built | [LOCAL] |
+| Time conflict checker | 2 | Built |  |
+| Send to my calendar | 2 | Built |  |
+| Auto schedule | 5 | Built |  |
+| Overload detector | 5 | Built |  |
 
 #### Homework
 
@@ -295,29 +295,29 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Homework tracker | 1 | Built | [LOCAL] |
 | Backward planner | 1 | Built | [LOCAL] |
-| Backpack checklist | 5 | Future plan | [LOCAL] |
+| Backpack checklist | 5 | Built | [LOCAL] |
 | Daily to-do list | 5 | Built | [LOCAL] |
 | Eisenhower matrix | 5 | Built | [LOCAL] |
-| Eat the frog | 5 | Future plan | [LOCAL] |
-| 2-minute rule list | 5 | Future plan | [LOCAL] |
-| Kanban board | 5 | Future plan | [LOCAL] |
-| Group project tracker | 5 | Future plan | [LOCAL] |
-| Quick capture inbox | 5 | Future plan | [LOCAL] |
-| Task breaker | 5 | Future plan |  |
-| Group project planner | 5 | Future plan |  |
+| Eat the frog | 5 | Built | [LOCAL] |
+| 2-minute rule list | 5 | Built | [LOCAL] |
+| Kanban board | 5 | Built | [LOCAL] |
+| Group project tracker | 5 | Built | [LOCAL] |
+| Quick capture inbox | 5 | Built | [LOCAL] |
+| Task breaker | 5 | Built |  |
+| Group project planner | 5 | Built |  |
 
 #### Focus
 
 | Feature | Phase | Status | |
 |---|---|---|---|
 | Pomodoro timer | 1 | Built | [LOCAL] |
-| Focus mode | 4 | Future plan | [LOCAL] |
+| Focus mode | 4 | Built | [LOCAL] |
 | Study session logger | 4 | Built | [LOCAL] |
 | Study stats | 4 | Built | [LOCAL] |
-| Distraction reminder | 4 | Future plan | [LOCAL] |
+| Distraction reminder | 4 | Built | [LOCAL] |
 | Study with me | 6 | Future plan |  |
-| Brain break games | 9 | Future plan | [LOCAL] |
-| Study playlists | 9 | Future plan | [LOCAL] |
+| Brain break games | 9 | Built | [LOCAL] |
+| Study playlists | 9 | Built | [LOCAL] |
 
 #### Habits and Goals
 
@@ -326,14 +326,14 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Habit tracker | 5 | Built | [LOCAL] |
 | Habit stacking helper | 5 | Built | [LOCAL] |
 | SMART goal builder | 5 | Built | [LOCAL] |
-| Goal ladder | 5 | Future plan | [LOCAL] |
-| Vision board | 5 | Future plan | [LOCAL] |
+| Goal ladder | 5 | Built | [LOCAL] |
+| Vision board | 5 | Built | [LOCAL] |
 | Morning and evening routines | 5 | Built | [LOCAL] |
 | Goal journal | 5 | Built | [LOCAL] |
 | Weekly review | 5 | Built | [LOCAL] |
 | Monthly reflection | 5 | Built | [LOCAL] |
-| Time audit | 5 | Future plan | [LOCAL] |
-| Task time estimator | 5 | Future plan | [LOCAL] |
+| Time audit | 5 | Built | [LOCAL] |
+| Task time estimator | 5 | Built | [LOCAL] |
 
 ### Track
 
@@ -345,8 +345,8 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Grade calculator | 1 | Built | [LOCAL] |
 | Class rank estimator | 3 | Built | [LOCAL] |
 | Credit hour tracker | 3 | Built | [LOCAL] |
-| Texas graduation requirements | 3 | Future plan | [LOCAL] |
-| Texas automatic admission | 3 | Future plan | [LOCAL] |
+| Texas graduation requirements | 3 | Built | [LOCAL] |
+| Texas automatic admission | 3 | Built | [LOCAL] |
 
 #### Achievements
 
@@ -355,14 +355,14 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Accomplishments tracker | 2 | Built |  |
 | Volunteer hour log | 2 | Built |  |
 | Certificate tracker | 2 | Built |  |
-| Digital portfolio | 2 | Future plan |  |
-| Skills radar | 2 | Future plan |  |
+| Digital portfolio | 2 | Built |  |
+| Skills radar | 2 | Built |  |
 | Brag sheet | 2 | Built |  |
 | Resume builder | 2 | Built |  |
 | Badges | 9 | Built |  |
-| Monthly challenges | 9 | Future plan |  |
+| Monthly challenges | 9 | Built |  |
 | School volunteer totals | 9 | Future plan |  |
-| Year in review | 9 | Future plan |  |
+| Year in review | 9 | Built |  |
 
 #### Money
 
@@ -372,7 +372,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Paycheck calculator | 5 | Built | [LOCAL] |
 | Savings goal tracker | 5 | Built | [LOCAL] |
 | Compound interest | 5 | Built | [LOCAL] |
-| Teen work law guide | 5 | Future plan |  |
+| Teen work law guide | 5 | Built |  |
 
 ### Grow
 
@@ -382,12 +382,12 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Mood check-in | 7 | Built | [LOCAL] |
 | Sleep tracker | 5 | Built | [LOCAL] |
-| Energy planner | 5 | Future plan | [LOCAL] |
-| Screen time goal | 5 | Future plan | [LOCAL] |
-| Break ideas | 5 | Future plan | [LOCAL] |
-| Stress tips | 7 | Future plan |  |
-| Burnout check | 7 | Future plan |  |
-| Balance meter | 7 | Future plan |  |
+| Energy planner | 5 | Built | [LOCAL] |
+| Screen time goal | 5 | Built | [LOCAL] |
+| Break ideas | 5 | Built | [LOCAL] |
+| Stress tips | 7 | Built |  |
+| Burnout check | 7 | Built |  |
+| Balance meter | 7 | Built |  |
 | Counselor contacts and help lines | 7 | Built |  |
 
 #### People
@@ -415,13 +415,13 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Levels and XP | 9 | Built |  |
 | Streaks | 9 | Built |  |
 | Avatar | 9 | Built |  |
-| Celebrations | 9 | Future plan |  |
+| Celebrations | 9 | Built |  |
 
 #### Family and School
 
 | Feature | Phase | Status | |
 |---|---|---|---|
-| Parent view | 2 | Future plan |  |
+| Parent view | 2 | Built |  |
 | Parent approvals | 2 | Future plan |  |
 | Teacher dashboard | 2 | Future plan |  |
 | Counselor posting | 2 | Future plan |  |
@@ -434,12 +434,12 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 |---|---|---|---|
 | Language | 1 | Built |  |
 | Appearance and access | 1 | Built |  |
-| Pinned and hidden tabs | 1 | Future plan |  |
-| Notifications | 2 | Future plan |  |
+| Pinned and hidden tabs | 1 | Built |  |
+| Notifications | 2 | Built |  |
 | Account | 1 | Built |  |
 | Privacy | 1 | Built |  |
 | How the AI works | 1 | Built |  |
-| Voice input | 10 | Future plan |  |
-| Read aloud | 10 | Future plan |  |
-| Offline mode | 10 | Future plan |  |
-| Download my data | 10 | Future plan |  |
+| Voice input | 10 | Built |  |
+| Read aloud | 10 | Built |  |
+| Offline mode | 10 | Built |  |
+| Download my data | 10 | Built |  |

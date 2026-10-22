@@ -24,6 +24,7 @@ export const DEMO_KEYS = [
   "coach-chat", "finder-place", "prefs",
   "habits", "study-sessions", "volunteer-hours", "achievements", "certificates", "flashcards", "todos", "countdowns", "routines", "reflections",
   "mood-log", "sleep-log", "budget", "savings-goals", "my-why", "college-credits", "math-drills", "smart-goals", "cornell-notes", "avatar",
+  "school-events", "weekly-blocks", "class-schedule", "reading-log", "applications", "monthly-challenges", "skills-radar", "time-audit", "finder-history", "saved-searches", "goal-ladder", "kanban",
 ] as const;
 
 function sampleAttempts(): Attempt[] {
@@ -96,6 +97,30 @@ function moreDocs(t: string): Record<string, unknown> {
     "my-why": "I want to be the first in my family to finish college so I can help my community.",
     "college-credits": credits, "math-drills": drills, "smart-goals": smart,
     "cornell-notes": [{ id: "demo-cn1", title: "Sample: Photosynthesis", cls: "Biology", date: ago(3), cues: "What are the two stages?\nWhere does each happen?", notes: "Light reactions happen in the thylakoids.\nThe Calvin cycle happens in the stroma and makes sugar.", summary: "Plants turn light energy into sugar in two connected stages." }],
+    "school-events": [
+      { id: "demo-ev1", title: "Sample: Fall break", kind: "break", date: addDays(t, 14), end: addDays(t, 18) },
+      { id: "demo-ev2", title: "Sample: Biology unit test", kind: "test", date: addDays(t, 6) },
+      { id: "demo-ev3", title: "Sample: Science project due", kind: "project", date: addDays(t, 9) },
+      { id: "demo-ev4", title: "Sample: Early release day", kind: "early", date: addDays(t, 3) },
+    ],
+    "weekly-blocks": [
+      { id: "demo-b1", title: "Sample: Chess club", day: 1, start: "16:00", end: "17:30", kind: "practice" },
+      { id: "demo-b2", title: "Sample: Chess club", day: 3, start: "16:00", end: "17:30", kind: "practice" },
+      { id: "demo-b3", title: "Sample: Study block", day: 2, start: "18:00", end: "19:00", kind: "study" },
+    ],
+    "class-schedule": { kind: "weekdays", anchor: null, classes: [
+      { id: "demo-c1", name: "Sample: Algebra I", room: "204", start: "08:00", end: "08:50", days: ["mon", "tue", "wed", "thu", "fri"], bring: "calculator, binder" },
+      { id: "demo-c2", name: "Sample: Biology", room: "112", start: "09:00", end: "09:50", days: ["mon", "tue", "wed", "thu", "fri"], bring: "lab notebook" },
+    ] },
+    "reading-log": [{ id: "demo-r1", date: ago(1), book: "Sample: Holes", pages: 25, minutes: 30 }, { id: "demo-r2", date: ago(3), book: "Sample: Holes", pages: 30, minutes: 35 }],
+    applications: [{ id: "demo-ap1", name: "Sample: Summer robotics camp", kind: "program", deadline: addDays(t, 12), status: "working", done: [true, false, false, true, false, false], notes: "" }],
+    "monthly-challenges": [{ id: "demo-mc1", kind: "volunteer", target: 8 }, { id: "demo-mc2", kind: "study", target: 12 }],
+    "skills-radar": { leadership: 3, academics: 4, service: 3, arts: 1, athletics: 2 },
+    "time-audit": [{ id: "demo-ta1", date: ago(1), act: "Sample: homework", cat: "homework", min: 90 }, { id: "demo-ta2", date: ago(1), act: "Sample: video games", cat: "screens", min: 60 }, { id: "demo-ta3", date: ago(2), act: "Sample: chess club", cat: "activities", min: 90 }],
+    "finder-history": [{ q: "chess clubs", place: "Edinburg, TX", at: 2 }, { q: "robotics camps", place: "Edinburg, TX", at: 1 }],
+    "saved-searches": [{ id: "demo-ss1", q: "teen volunteer opportunities" }],
+    "goal-ladder": { goal: "Sample: study medicine", rungs: [{ id: "demo-l1", text: "Raise my science grade to an A", done: true }, { id: "demo-l2", text: "Join a health science club", done: false }] },
+    kanban: [{ id: "demo-k1", text: "Sample: pick a topic", col: 2 }, { id: "demo-k2", text: "Sample: make the poster", col: 1 }, { id: "demo-k3", text: "Sample: practice the talk", col: 0 }],
     avatar: { emblem: "mountain", tint: "marigold" },
   };
 }

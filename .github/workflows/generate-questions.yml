@@ -25,6 +25,10 @@ on:
         description: "Questions per unit or topic (4 to 12 is plenty)"
         type: string
         default: "4"
+      max_batches:
+        description: "Safety limit: stop before starting if the run would be bigger than this many batches (each batch is about 4 questions)"
+        type: string
+        default: "150"
       topics:
         description: "Write for every topic (1.1, 1.2, ...) instead of every unit"
         type: boolean
@@ -44,6 +48,7 @@ jobs:
       IN_LEVEL: ${{ inputs.level }}
       IN_PER: ${{ inputs.per_skill }}
       IN_TOPICS: ${{ inputs.topics }}
+      IN_MAX: ${{ inputs.max_batches }}
     steps:
       - name: Check the key is set
         run: |
@@ -60,7 +65,8 @@ jobs:
           case "$IN_LEVEL" in mixed|easy|medium|hard|exam) ;; *) echo "bad level"; exit 1;; esac
           echo "$IN_PER" | grep -Eq '^[0-9]{1,2}$' || { echo "per_skill must be a number"; exit 1; }
           echo "$IN_SECTION" | grep -Eq '^[a-z0-9-]*$' || { echo "section must be lowercase letters, numbers and dashes"; exit 1; }
-          args=(--exam "$IN_EXAM" --level "$IN_LEVEL" --per-skill "$IN_PER")
+          echo "$IN_MAX" | grep -Eq '^[0-9]{1,5}$' || { echo "max_batches must be a number"; exit 1; }
+          args=(--exam "$IN_EXAM" --level "$IN_LEVEL" --per-skill "$IN_PER" --max-batches "$IN_MAX")
           if [ -n "$IN_SECTION" ]; then args+=(--section "$IN_SECTION"); else args+=(--all); fi
           if [ "$IN_TOPICS" = "true" ]; then args+=(--topics); fi
           npm run bank:generate -- "${args[@]}"

@@ -49,14 +49,23 @@ function loadKey(): string {
 }
 const KEY = loadKey();
 
+// The model name in config may not exist for this key. Try the fallbacks in order and keep the first that works.
+const MODELS: string[] = [AI.models.chat, ...AI.fallbacks.chat];
+let modelAt = 0;
+
 async function chat(system: string, user: string, temperature: number): Promise<string> {
   for (let attempt = 1; attempt <= 3; attempt++) {
     const res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST", headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: AI.models.chat, temperature, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
-      signal: AbortSignal.timeout(60_000),
+      body: JSON.stringify({ model: MODELS[modelAt], temperature, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+      signal: AbortSignal.timeout(90_000),
     }).catch(() => null);
     if (res?.ok) return (await res.json()).choices?.[0]?.message?.content ?? "";
+    if (res && (res.status === 404 || res.status === 400) && modelAt < MODELS.length - 1) {
+      const text = await res.text();
+      if (/model/i.test(text)) { console.log(`  model ${MODELS[modelAt]} is not available for this key, trying ${MODELS[modelAt + 1]}`); modelAt++; attempt--; continue; }
+      throw new Error(`Groq ${res.status}: ${text.slice(0, 200)}`);
+    }
     if (res && res.status !== 429 && res.status < 500) throw new Error(`Groq ${res.status}: ${(await res.text()).slice(0, 200)}`);
     await new Promise((r) => setTimeout(r, 2000 * attempt)); // rate limited or busy: wait and retry
   }
@@ -102,7 +111,9 @@ async function main() {
     }
   }
   if (!jobs.length) { console.error("Nothing to do. Use --all, or --section <id> [--skill <id>] --count 12 (see --list), with --exam sat|act|tsi|ap"); process.exit(1); }
-  console.log(`${jobs.length} batch(es), model ${AI.models.chat}${dry ? " (dry run, nothing will be saved)" : ""}`);
+  const maxBatches = Number(opt("max-batches", "0"));
+  if (maxBatches && jobs.length > maxBatches) { console.error(`That is ${jobs.length} batches, more than the limit of ${maxBatches}. Pick one section, a smaller per-skill number, or turn topics off.`); process.exit(1); }
+  console.log(`${jobs.length} batch(es), starting with model ${MODELS[0]}${dry ? " (dry run, nothing will be saved)" : ""}`);
   let kept = 0, tossed = 0;
   for (const job of jobs) {
     console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty}${job.style ? ", real exam style" : ""})`);

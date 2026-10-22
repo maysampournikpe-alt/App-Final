@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CalendarCheck, Check, ClipboardCheck, Crown, ExternalLink, FileText, Flame, Gauge, Languages, Layers, ListChecks, Route, Target, Timer, Zap } from "lucide-react";
+import { CalendarCheck, Check, ClipboardCheck, Crown, ExternalLink, FileText, Flame, Gauge, Languages, Layers, Lightbulb, ListChecks, Route, Target, Timer, Zap } from "lucide-react";
 import { diffDays, formatDay, isValidISO, today } from "@/lib/dates";
-import { AP_ALL_COURSES, apScore, hasQuestions } from "@/lib/exam/ap";
+import { AP_ALL_COURSES, apScore } from "@/lib/exam/ap";
 import { EXAMS, examPath } from "@/lib/exam/config";
 import type { ExamId } from "@/lib/exam/types";
 import { skillStats } from "@/lib/exam/engine";
@@ -26,7 +26,6 @@ export function ApCoursesTool() {
   const c = useCopy(examCopy);
   const lang = useLang();
   const [picked, setPicked] = useLocalDoc<string[]>("ap-courses", NO_COURSES);
-  const ready = new Set(AP_ALL_COURSES.filter((x) => hasQuestions(x.id)).map((x) => x.id));
   const toggle = (id: string) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id]);
   return (
     <Page>
@@ -41,7 +40,6 @@ export function ApCoursesTool() {
                 <input type="checkbox" checked={on} onChange={() => toggle(course.id)} className="peer sr-only" />
                 <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded border-2 border-current peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]`}>{on ? <Check size={16} strokeWidth={3} /> : null}</span>
                 <span className="min-w-0 flex-1 font-bold">{course[lang]}</span>
-                <span className={`shrink-0 rounded-sm border px-1.5 text-xs font-bold ${on ? "border-on-teal" : ready.has(course.id) ? "border-palm text-ink" : "border-line text-muted"}`}>{ready.has(course.id) ? c.ap.ready : c.ap.notReadyYet}</span>
               </label>
             </li>
           );
@@ -55,14 +53,14 @@ export function ApCoursesTool() {
 const hub = {
   en: {
     course: "Course", section: "Section", cont: "Continue", allDone: "You passed every topic. Try a mock exam.", start: "Start the path", overall: (d: number, n: number) => `${d} of ${n} topics passed`, mastered: (n: number) => `${n} mastered`,
-    tools: { path: "Study path", pathD: "Topic by topic, with videos, notes and a quiz", quiz: "Practice quizzes", quizD: "Any unit or topic, easy to real-exam style", mock: "Mock exams", mockD: "Real length and pace", diag: "Diagnostic test", diagD: "Find your level and weak areas", vocab: "Vocabulary", vocabD: "Key terms to test yourself", cram: "Cram sheet", cramD: "One page for the night before", flash: "Flashcards", flashD: "Your cards, on a spaced schedule", weak: "Weak spots", weakD: "What to review next", score: "Score estimate", scoreD: "Estimate only", plan: "Study plan", planD: "Spread every unit before exam day", res: "Official free prep", resD: "Links from the test makers" },
+    tools: { path: "Study path", pathD: "Topic by topic, with videos, notes and a quiz", quiz: "Practice quizzes", quizD: "Any unit or topic, easy to real-exam style", mock: "Mock exams", mockD: "Real length and pace", diag: "Diagnostic test", diagD: "Find your level and weak areas", strat: "Strategy guide", stratD: "Pacing, methods and test day", vocab: "Vocabulary", vocabD: "Key terms to test yourself", cram: "Cram sheet", cramD: "One page for the night before", flash: "Flashcards", flashD: "Your cards, on a spaced schedule", weak: "Weak spots", weakD: "What to review next", score: "Score estimate", scoreD: "Estimate only", plan: "Study plan", planD: "Spread every unit before exam day", res: "Official free prep", resD: "Links from the test makers" },
     units: "Units", skills: "Skills", unitDone: (d: number, n: number) => `${d} of ${n} topics`, study: "Study", quiz: "Quiz", topics: "Topics", recent: "Recent practice", noRecent: "No practice yet. Take a quiz or a mock exam and your results show up here.", pct: (a: number, b: number) => `${a} of ${b} right`,
     xpWord: "XP", dayStreak: (n: number) => `${n}-day streak`, estimate: "Estimate only, not an official score.", testDate: "Your test date", about: "About this test",
     lv: ["Not started", "Notes read", "Passed", "Mastered"], opens: "(opens in a new tab)",
   },
   es: {
     course: "Curso", section: "Sección", cont: "Continuar", allDone: "Aprobaste todos los temas. Prueba un examen de práctica.", start: "Empezar la ruta", overall: (d: number, n: number) => `${d} de ${n} temas aprobados`, mastered: (n: number) => `${n} dominados`,
-    tools: { path: "Ruta de estudio", pathD: "Tema por tema, con videos, apuntes y cuestionario", quiz: "Cuestionarios de práctica", quizD: "Cualquier unidad o tema, de fácil a estilo del examen real", mock: "Exámenes de práctica", mockD: "Con la duración y el ritmo reales", diag: "Examen de diagnóstico", diagD: "Descubre tu nivel y tus puntos débiles", vocab: "Vocabulario", vocabD: "Términos clave para ponerte a prueba", cram: "Hoja de repaso", cramD: "Una página para la noche anterior", flash: "Tarjetas", flashD: "Tus tarjetas, en un calendario espaciado", weak: "Puntos débiles", weakD: "Qué repasar después", score: "Puntaje estimado", scoreD: "Solo un estimado", plan: "Plan de estudio", planD: "Reparte cada unidad antes del examen", res: "Preparación oficial gratis", resD: "Enlaces de quienes hacen el examen" },
+    tools: { path: "Ruta de estudio", pathD: "Tema por tema, con videos, apuntes y cuestionario", quiz: "Cuestionarios de práctica", quizD: "Cualquier unidad o tema, de fácil a estilo del examen real", mock: "Exámenes de práctica", mockD: "Con la duración y el ritmo reales", diag: "Examen de diagnóstico", diagD: "Descubre tu nivel y tus puntos débiles", strat: "Guía de estrategia", stratD: "Ritmo, métodos y día del examen", vocab: "Vocabulario", vocabD: "Términos clave para ponerte a prueba", cram: "Hoja de repaso", cramD: "Una página para la noche anterior", flash: "Tarjetas", flashD: "Tus tarjetas, en un calendario espaciado", weak: "Puntos débiles", weakD: "Qué repasar después", score: "Puntaje estimado", scoreD: "Solo un estimado", plan: "Plan de estudio", planD: "Reparte cada unidad antes del examen", res: "Preparación oficial gratis", resD: "Enlaces de quienes hacen el examen" },
     units: "Unidades", skills: "Habilidades", unitDone: (d: number, n: number) => `${d} de ${n} temas`, study: "Estudiar", quiz: "Cuestionario", topics: "Temas", recent: "Práctica reciente", noRecent: "Todavía no has practicado. Haz un cuestionario o un examen de práctica y tus resultados aparecen aquí.", pct: (a: number, b: number) => `${a} de ${b} correctas`,
     xpWord: "XP", dayStreak: (n: number) => `Racha de ${n} días`, estimate: "Es solo un estimado, no un puntaje oficial.", testDate: "La fecha de tu examen", about: "Sobre este examen",
     lv: ["Sin empezar", "Apuntes leídos", "Aprobado", "Dominado"], opens: "(se abre en una pestaña nueva)",
@@ -101,7 +99,7 @@ export function ExamHubTool({ track }: { track: ExamId }) {
     { href: `${base}/path${q}`, Icon: Route, t: h.tools.path, d: h.tools.pathD },
     { href: `${base}/${ap ? "quizzes" : "sections"}${q}`, Icon: ListChecks, t: h.tools.quiz, d: h.tools.quizD },
     { href: `${base}/${ap ? "exam" : "full"}${q}`, Icon: Timer, t: h.tools.mock, d: h.tools.mockD },
-    ...(ap ? [] : [{ href: `${base}/diagnostic`, Icon: ClipboardCheck, t: h.tools.diag, d: h.tools.diagD }]),
+    ...(ap ? [] : [{ href: `${base}/diagnostic`, Icon: ClipboardCheck, t: h.tools.diag, d: h.tools.diagD }, { href: `${base}/strategy`, Icon: Lightbulb, t: h.tools.strat, d: h.tools.stratD }]),
     { href: `${base}/vocab${q}`, Icon: Languages, t: h.tools.vocab, d: h.tools.vocabD },
     { href: `${base}/cram${q}`, Icon: FileText, t: h.tools.cram, d: h.tools.cramD },
     { href: ap ? "/t/ap/flash" : "/t/notes/flashcards", Icon: Layers, t: h.tools.flash, d: h.tools.flashD },

@@ -16,7 +16,7 @@ function buildCourses(exam: Exclude<ExamId, "ap">): ApCourse[] {
     units: sec.skills.map((sk, i) => {
       const no = i + 1;
       const names = outline[sec.id]?.[sk.id] ?? [];
-      return { id: sk.id, en: sk.en, es: sk.es, no, topics: names.map(([en, es], j) => ({ id: `${sk.id}-${j + 1}`, num: `${no}.${j + 1}`, en, es })) };
+      return { id: sk.id, en: sk.en, es: sk.es, no, topics: names.map(([en, es, cover], j) => ({ id: `${sk.id}-${j + 1}`, num: `${no}.${j + 1}`, en, es, cover })) };
     }),
   }));
 }

@@ -14,6 +14,7 @@ describe("tests are shaped like AP courses for the study screens", () => {
       const ids = new Set<string>();
       for (const c of courses) for (const u of c.units) {
         expect(u.topics.length).toBeGreaterThanOrEqual(3);
+        for (const t of u.topics) expect((t.cover ?? "").length).toBeGreaterThan(60); // every test-prep topic has a "must cover" brief
         for (const [j, t] of u.topics.entries()) {
           expect(t.num).toBe(`${u.no}.${j + 1}`);
           expect(t.en.length).toBeGreaterThan(3); expect(t.es.length).toBeGreaterThan(3);
@@ -71,10 +72,19 @@ describe("detailed notes", () => {
     expect(notesSchema.safeParse({ ...good, sections: good.sections.slice(0, 1) }).success).toBe(false);
     expect(notesSchema.safeParse({ ...good, howTested: undefined }).success).toBe(false);
   });
+  it("sends the must-cover brief and the unit's topic list to the AI", () => {
+    const ref = topicOf("sat", "rw", "standard-english", "standard-english-1")!;
+    const topicMsg = notesMessages("sat", ref, "en");
+    expect(topicMsg[1].content).toMatch(/The notes must cover: .*comma splices/);
+    expect(topicMsg[0].content).toMatch(/Test-prep rules/); expect(topicMsg[0].content).toMatch(/3 or 4 worked examples/);
+    const unit = notesMessages("sat", topicOf("sat", "math", "algebra")!, "en");
+    expect(unit[1].content).toMatch(/walk through all of them: 1\.1 Linear equations in one variable/);
+    expect(buildGenPrompt({ exam: "sat", section: "rw", skill: "standard-english", topic: "standard-english-1", count: 3, difficulty: 2 }).user).toMatch(/What this topic covers/);
+  });
   it("asks for a 5 on AP and for strategy on the other tests", () => {
     const ap = notesMessages("ap", { section: "AP Biology", skill: "Unit 1", topic: "Water", topicNum: "1.2" }, "en")[0].content;
     const sat = notesMessages("sat", { section: "Math", skill: "Algebra" }, "es")[0].content;
     expect(ap).toMatch(/earn a 5/); expect(ap).toMatch(/free-response/);
-    expect(sat).toMatch(/steps to solve/); expect(sat).toMatch(/Spanish/);
+    expect(sat).toMatch(/exact numbered method/); expect(sat).toMatch(/Spanish/);
   });
 });

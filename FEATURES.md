@@ -4,13 +4,13 @@ Generated from `src/config/features.ts` (run `npm run features:md`). Do not edit
 Status is **Built**, **In progress** or **Future plan**. Anything not Built appears in the app as a
 "Coming soon" page that explains what it will do.
 
-**242 of 280 features built.**
+**246 of 280 features built.**
 
 ## By phase
 
 | Phase | Built | Total |
 |---|---|---|
-| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 76 | 88 |
+| Phase 1: Core (finder, coach, plans, profile, starter tools, test prep) | 80 | 88 |
 | Phase 2: Family, school, portfolio, deadlines, applications | 22 | 30 |
 | Phase 3: Discovery and college/career | 23 | 26 |
 | Phase 4: Study tools and skill building | 53 | 56 |
@@ -210,7 +210,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Mock exams | 1 | Built |  |
 | Vocabulary | 1 | Built |  |
 | Cram sheets | 1 | Built |  |
-| Strategy lessons | 1 | Future plan |  |
+| Strategy guide | 1 | Built |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
 | Test date and reminders | 2 | Future plan |  |
@@ -228,7 +228,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Mock exams | 1 | Built |  |
 | Vocabulary | 1 | Built |  |
 | Cram sheets | 1 | Built |  |
-| Strategy lessons | 1 | Future plan |  |
+| Strategy guide | 1 | Built |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
 | Test date and reminders | 2 | Future plan |  |
@@ -246,7 +246,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Mock exams | 1 | Built |  |
 | Vocabulary | 1 | Built |  |
 | Cram sheets | 1 | Built |  |
-| Strategy lessons | 1 | Future plan |  |
+| Strategy guide | 1 | Built |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
 | Test date and reminders | 2 | Future plan |  |
@@ -264,7 +264,7 @@ Status is **Built**, **In progress** or **Future plan**. Anything not Built appe
 | Mock exams | 1 | Built |  |
 | Vocabulary | 1 | Built |  |
 | Cram sheets | 1 | Built |  |
-| Strategy lessons | 1 | Future plan |  |
+| Strategy guide | 1 | Built |  |
 | Vocabulary and formulas | 1 | Future plan |  |
 | Score tracker | 1 | Built |  |
 | Test date and reminders | 2 | Future plan |  |

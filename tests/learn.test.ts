@@ -4,9 +4,9 @@ import { buildGenPrompt, topicOf } from "@/lib/exam/verify";
 
 describe("study path prompts", () => {
   it("resolves topics for every exam and rejects unknown ids", () => {
-    expect(topicOf("ap", "ap-biology", "u3")).toEqual({ section: "AP Biology", skill: "Unit 3: Cellular Energetics" });
+    expect(topicOf("ap", "ap-biology", "u3")).toMatchObject({ section: "AP Biology", skill: "Unit 3: Cellular Energetics" });
     expect(topicOf("ap", "apush", "p5")?.section).toBe("AP US History");
-    expect(topicOf("sat", "math", "algebra")).toEqual({ section: "Math", skill: "Algebra" });
+    expect(topicOf("sat", "math", "algebra")).toMatchObject({ section: "Math", skill: "Algebra" });
     expect(topicOf("act", "science", "interpretation-of-data")?.skill).toBe("Interpretation of data");
     expect(topicOf("tsi", "elar", "conventions")).not.toBeNull();
     expect(topicOf("ap", "ap-biology", "u99")).toBeNull();

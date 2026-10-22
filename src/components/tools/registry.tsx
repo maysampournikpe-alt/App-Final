@@ -58,6 +58,7 @@ import { HomeworkTool } from "./Homework";
 import { ApCoursesTool, ApDashboardTool, ExamHubTool } from "../exam/ApTools";
 import { ExamTool } from "../exam/ExamTool";
 import { CramTool, PracticeTool, VocabTool } from "../exam/PracticeTools";
+import { StrategyTool } from "../exam/StrategyTool";
 import { MistakesTool, WeakSpotsTool } from "../exam/StudyTools";
 import { PlanTool } from "./Plan";
 import { PomodoroTool } from "./Pomodoro";
@@ -103,6 +104,7 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "sat/sections": clientOnly(() => <PracticeTool track="sat" kind="quiz" />),
   "sat/full": clientOnly(() => <PracticeTool track="sat" kind="mock" />),
   "sat/vocab": clientOnly(() => <VocabTool track="sat" />),
+  "sat/strategy": clientOnly(() => <StrategyTool track="sat" />),
   "sat/cram": clientOnly(() => <CramTool track="sat" />),
   "sat/scores": clientOnly(() => <ExamTool exam="sat" view="scores" />),
   "sat/resources": clientOnly(() => <ExamTool exam="sat" view="resources" />),
@@ -111,6 +113,7 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "psat/sections": clientOnly(() => <PracticeTool track="psat" kind="quiz" />),
   "psat/full": clientOnly(() => <PracticeTool track="psat" kind="mock" />),
   "psat/vocab": clientOnly(() => <VocabTool track="psat" />),
+  "psat/strategy": clientOnly(() => <StrategyTool track="psat" />),
   "psat/cram": clientOnly(() => <CramTool track="psat" />),
   "psat/scores": clientOnly(() => <ExamTool exam="psat" view="scores" />),
   "psat/resources": clientOnly(() => <ExamTool exam="psat" view="resources" />),
@@ -119,6 +122,7 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "act/sections": clientOnly(() => <PracticeTool track="act" kind="quiz" />),
   "act/full": clientOnly(() => <PracticeTool track="act" kind="mock" />),
   "act/vocab": clientOnly(() => <VocabTool track="act" />),
+  "act/strategy": clientOnly(() => <StrategyTool track="act" />),
   "act/cram": clientOnly(() => <CramTool track="act" />),
   "act/scores": clientOnly(() => <ExamTool exam="act" view="scores" />),
   "act/resources": clientOnly(() => <ExamTool exam="act" view="resources" />),
@@ -127,6 +131,7 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "tsi/sections": clientOnly(() => <PracticeTool track="tsi" kind="quiz" />),
   "tsi/full": clientOnly(() => <PracticeTool track="tsi" kind="mock" />),
   "tsi/vocab": clientOnly(() => <VocabTool track="tsi" />),
+  "tsi/strategy": clientOnly(() => <StrategyTool track="tsi" />),
   "tsi/cram": clientOnly(() => <CramTool track="tsi" />),
   "tsi/scores": clientOnly(() => <ExamTool exam="tsi" view="scores" />),
   "tsi/resources": clientOnly(() => <ExamTool exam="tsi" view="resources" />),

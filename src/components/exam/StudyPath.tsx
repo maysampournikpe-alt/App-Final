@@ -28,7 +28,7 @@ const copy = {
     lead: "Go topic by topic. Each lesson has videos to watch, short notes, then a quiz. Pass the quiz to climb to the next level and earn XP.",
     course: "AP course", section: "Section", pick: "Pick AP courses", noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.", upNext: "Up next",
     lvl: ["Not started", "Notes read", "Quiz passed", "Mastered"], done: (d: number, n: number) => `${d} of ${n} lessons passed`, unit: "Unit", skillWord: "Skill", unitReview: (u: string) => `${u} review`,
-    topicsDone: (d: number, n: number) => `${d} of ${n} topics`, reviewHint: "A mixed quiz on the whole unit", cram: "Cram sheet", back: "Back to the path",
+    topicsDone: (d: number, n: number) => `${d} of ${n} topics`, reviewHint: "Overview of the whole unit, then a mixed quiz", cram: "Cram sheet", back: "Back to the path",
     learn: "Learn", quiz: "Quiz", watch: "Watch and learn", watchLead: "Short videos are a great way to start. These links open a search on another site in a new tab, and you pick the video.", yt: "Search YouTube", khan: "Search Khan Academy", opens: "(opens in a new tab)",
     notesLoading: "Writing your notes…", retry: "Try again", toQuiz: "Go to the quiz", summary: "The big picture", ideas: "Key ideas", terms: "Key terms", example: "Example", mistakes: "Common mistakes", selfCheck: "Ask yourself", howTested: "How it is tested", memory: "Memory tips",
     notesNote: "These notes were written by an AI from the course outline and can have mistakes. Compare them with your class notes and the official course guide.", addTerms: "Add these terms to my flashcards", termsAdded: (n: number) => `${n} flashcards added.`, termsDup: "These terms are already in your flashcards.",
@@ -44,7 +44,7 @@ const copy = {
     lead: "Avanza tema por tema. Cada lección tiene videos para ver, apuntes cortos y un cuestionario. Pasa el cuestionario para subir de nivel y ganar XP.",
     course: "Curso AP", section: "Sección", pick: "Elegir cursos AP", noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.", upNext: "Sigue",
     lvl: ["Sin empezar", "Apuntes leídos", "Cuestionario aprobado", "Dominado"], done: (d: number, n: number) => `${d} de ${n} lecciones aprobadas`, unit: "Unidad", skillWord: "Habilidad", unitReview: (u: string) => `Repaso de ${u}`,
-    topicsDone: (d: number, n: number) => `${d} de ${n} temas`, reviewHint: "Un cuestionario mixto de toda la unidad", cram: "Hoja de repaso", back: "Volver a la ruta",
+    topicsDone: (d: number, n: number) => `${d} de ${n} temas`, reviewHint: "Resumen de toda la unidad y luego un cuestionario mixto", cram: "Hoja de repaso", back: "Volver a la ruta",
     learn: "Aprender", quiz: "Cuestionario", watch: "Mira y aprende", watchLead: "Los videos cortos son una buena forma de empezar. Estos enlaces abren una búsqueda en otro sitio en una pestaña nueva, y tú eliges el video.", yt: "Buscar en YouTube", khan: "Buscar en Khan Academy", opens: "(se abre en una pestaña nueva)",
     notesLoading: "Escribiendo tus apuntes…", retry: "Intentar otra vez", toQuiz: "Ir al cuestionario", summary: "Visión general", ideas: "Ideas clave", terms: "Términos clave", example: "Ejemplo", mistakes: "Errores comunes", selfCheck: "Pregúntate", howTested: "Cómo se evalúa", memory: "Trucos para recordar",
     notesNote: "Estos apuntes los escribió una IA a partir del temario del curso y pueden tener errores. Compáralos con tus apuntes de clase y la guía oficial del curso.", addTerms: "Agregar estos términos a mis tarjetas", termsAdded: (n: number) => `${n} tarjetas agregadas.`, termsDup: "Estos términos ya están en tus tarjetas.",
@@ -172,7 +172,7 @@ function Lesson({ lessonRef: r, prog, lang, xpTotal, days, onAward, onProg, onBa
   onAward: (n: number) => void; onProg: (p: Prog) => void; onBack: () => void; onNext: (() => void) | null;
 }) {
   const c = useCopy(copy);
-  const [tab, setTab] = useState<"learn" | "quiz" | "result">(r.review ? "quiz" : "learn");
+  const [tab, setTab] = useState<"learn" | "quiz" | "result">("learn");
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{ right: number; n: number; gained: number; xpAfter: number } | null>(null);
   const title = r.review ? c.unitReview(r.skillLabel.replace(/:.*/, "")) : r.topicNum ? `${r.topicNum} ${r.topicLabel}` : r.skillLabel;
@@ -180,7 +180,7 @@ function Lesson({ lessonRef: r, prog, lang, xpTotal, days, onAward, onProg, onBa
     const pct = right / n;
     const before = levelOfProg(prog);
     const nowBest = Math.max(prog?.best ?? 0, pct);
-    const gained = lessonXp({ firstNotes: !prog?.notes && !r.review, right, n, wasPassed: before >= 2, nowPassed: nowBest >= PASS, wasMastered: before >= 3, nowMastered: nowBest >= GOLD });
+    const gained = lessonXp({ firstNotes: !prog?.notes, right, n, wasPassed: before >= 2, nowPassed: nowBest >= PASS, wasMastered: before >= 3, nowMastered: nowBest >= GOLD });
     onProg({ best: nowBest, tries: (prog?.tries ?? 0) + 1, at: today(), notes: true });
     onAward(gained);
     setResult({ right, n, gained, xpAfter: xpTotal + gained });
@@ -194,7 +194,7 @@ function Lesson({ lessonRef: r, prog, lang, xpTotal, days, onAward, onProg, onBa
       <p className="mt-4 text-sm font-bold text-terracotta">{r.sectionLabel}{r.review || r.topic ? ` · ${r.skillLabel}` : ""}</p>
       <h1 className="text-3xl sm:text-4xl">{title}</h1>
       <div className="mt-4 flex gap-2" role="tablist" aria-label={title}>
-        {(!r.review ? (["learn", "quiz"] as const) : (["quiz"] as const)).map((s) => { const on = tab === s || (s === "quiz" && tab === "result"); return <button key={s} role="tab" aria-selected={on} onClick={() => setTab(s)} className={`rounded-full border-[1.5px] border-ink px-4 py-1.5 font-bold ${on ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{s === "learn" ? c.learn : c.quiz}</button>; })}
+        {(["learn", "quiz"] as const).map((s) => { const on = tab === s || (s === "quiz" && tab === "result"); return <button key={s} role="tab" aria-selected={on} onClick={() => setTab(s)} className={`rounded-full border-[1.5px] border-ink px-4 py-1.5 font-bold ${on ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{s === "learn" ? c.learn : c.quiz}</button>; })}
       </div>
       {tab === "learn" ? (
         <>

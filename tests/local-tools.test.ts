@@ -573,3 +573,41 @@ describe("formula sheets", () => {
     expect(new Set(SHEETS.map((s) => s.id)).size).toBe(SHEETS.length);
   });
 });
+
+import { checkWork, workLimits, hourLabel, gradProgress, gradTotal, GRAD_REQUIRED, GRAD_AREAS } from "../src/lib/laborlaw";
+describe("Texas teen work rules", () => {
+  const base = { age: 15, period: "school-day" as const, schoolWeek: true, hoursToday: 3, hoursWeek: 15, start: 16, end: 19 };
+  it("allows a legal school-day shift", () => expect(checkWork(base)).toMatchObject({ ok: true, issues: [] }));
+  it("school days: 3 hours a day, 18 a school week, 7 a.m. to 7 p.m.", () => {
+    expect(checkWork({ ...base, hoursToday: 4 }).issues).toEqual([{ kind: "dayHours", max: 3 }]);
+    expect(checkWork({ ...base, hoursWeek: 19 }).issues).toEqual([{ kind: "weekHours", max: 18 }]);
+    expect(checkWork({ ...base, end: 19.5 }).issues).toEqual([{ kind: "tooLate", until: 19 }]);
+    expect(checkWork({ ...base, start: 6 }).issues).toEqual([{ kind: "tooEarly", from: 7 }]);
+  });
+  it("summer allows 8 hours a day, 40 a week, until 9 p.m.", () => {
+    expect(workLimits("summer", false)).toEqual({ dayMax: 8, weekMax: 40, from: 7, until: 21 });
+    expect(checkWork({ ...base, period: "summer", hoursToday: 8, hoursWeek: 40, start: 12, end: 21 }).ok).toBe(true);
+    expect(checkWork({ ...base, period: "summer", hoursToday: 9 }).ok).toBe(false);
+  });
+  it("a non-school day in the school year still ends at 7 p.m., and the weekly cap depends on the week", () => {
+    expect(workLimits("non-school-day", true)).toEqual({ dayMax: 8, weekMax: 18, from: 7, until: 19 });
+    expect(workLimits("non-school-day", false).weekMax).toBe(40);
+  });
+  it("reports every problem at once", () => expect(checkWork({ ...base, hoursToday: 6, hoursWeek: 30, start: 5, end: 22 }).issues).toHaveLength(4));
+  it("under 14 is generally not allowed; 16 and 17 have no hour limits but a hazard note", () => {
+    expect(checkWork({ ...base, age: 13 })).toMatchObject({ ok: false, issues: [{ kind: "under14" }] });
+    expect(checkWork({ ...base, age: 16, hoursToday: 12, end: 23 })).toMatchObject({ ok: true, hazardNote: true });
+    expect(checkWork({ ...base, age: 18 })).toMatchObject({ ok: true, hazardNote: false });
+  });
+  it("formats clock hours in both languages", () => { expect(hourLabel(19, "en")).toBe("7 p.m."); expect(hourLabel(7.5, "en")).toBe("7:30 a.m."); expect(hourLabel(12, "en")).toBe("12 p.m."); expect(hourLabel(0, "es")).toBe("12 a. m."); });
+});
+describe("graduation credits", () => {
+  it("foundation is 22 credits and endorsement is 26", () => { expect(gradTotal("foundation")).toBe(22); expect(gradTotal("endorsement")).toBe(26); });
+  it("every area is listed for both plans", () => { for (const p of ["foundation", "endorsement"] as const) expect(Object.keys(GRAD_REQUIRED[p]).sort()).toEqual([...GRAD_AREAS].sort()); });
+  it("counts credits per area, never more than the area needs", () => {
+    const r = gradProgress({ plan: "foundation", earned: { english: 6, math: 2, science: 0 } });
+    expect(r.per.find((x) => x.area === "english")).toEqual({ area: "english", need: 4, have: 4 });
+    expect(r.have).toBe(6); expect(r.left).toBe(16); expect(r.pct).toBe(27);
+  });
+  it("ignores negative numbers", () => expect(gradProgress({ plan: "endorsement", earned: { math: -3 } }).have).toBe(0));
+});

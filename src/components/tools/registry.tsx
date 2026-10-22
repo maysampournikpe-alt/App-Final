@@ -5,6 +5,13 @@ import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
 import { BragTool, CertificatesTool, ResumeTool, TrackerTool, VolunteerTool } from "./Achievements";
+import { CareersTool, DayInLifeTool, MajorsTool, QuizTool } from "./CareerTools";
+import { CollegesTool, ScholarshipsTool } from "./CollegeFinder";
+import { CoursesTool, PlaylistTool, QuoteTool, SeasonalTool } from "./Explore";
+import { GuideTool } from "./GuideTool";
+import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
+import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
+import { BreaksTool, StressTool } from "./WellbeingExtra";
 import { BudgetTool } from "./Budget";
 import { BalancerTool, MolarTool, PeriodicTool } from "./ChemTools";
 import { CalendarTool } from "./CalendarTool";
@@ -116,6 +123,32 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "notes/cornell": clientOnly(CornellTool),
   "notes/flashcards": clientOnly(() => <FlashcardsTool view="make" />),
   "notes/spaced": clientOnly(() => <FlashcardsTool view="review" />),
+  "college/careers": clientOnly(CareersTool),
+  "college/quiz": clientOnly(QuizTool),
+  "college/dayinlife": clientOnly(DayInLifeTool),
+  "college/majors": clientOnly(MajorsTool),
+  "college/colleges": clientOnly(CollegesTool),
+  "college/scholarships": clientOnly(ScholarshipsTool),
+  "college/fafsa": clientOnly(() => <GuideTool id="college/fafsa" />),
+  "college/dual": clientOnly(() => <GuideTool id="college/dual" />),
+  "college/trades": clientOnly(() => <GuideTool id="college/trades" />),
+  "college/military": clientOnly(() => <GuideTool id="college/military" />),
+  "grades/txgrad": clientOnly(TxGradTool),
+  "grades/txadmit": clientOnly(TxAdmitTool),
+  "money/laborlaw": clientOnly(LaborLawTool),
+  "local/map": clientOnly(LocalMapTool),
+  "local/bus": clientOnly(BusTool),
+  "local/events": clientOnly(EventsTool),
+  "local/tutoring": clientOnly(() => <GuideTool id="local/tutoring" maps={[{ label: { en: "Libraries", es: "Bibliotecas" }, q: "public library" }, { label: { en: "Tutoring centers", es: "Centros de tutoría" }, q: "free tutoring" }]} />),
+  "local/wifi": clientOnly(() => <GuideTool id="local/wifi" maps={[{ label: { en: "Libraries", es: "Bibliotecas" }, q: "public library free wifi" }, { label: { en: "Community centers", es: "Centros comunitarios" }, q: "community center" }]} />),
+  "local/gear": clientOnly(() => <GuideTool id="local/gear" maps={[{ label: { en: "Boys and Girls Clubs", es: "Boys and Girls Clubs" }, q: "Boys and Girls Club" }, { label: { en: "Community centers", es: "Centros comunitarios" }, q: "community center" }]} />),
+  "local/feewaiver": clientOnly(() => <GuideTool id="local/feewaiver" />),
+  "wellbeing/stress": clientOnly(StressTool),
+  "wellbeing/breaks": clientOnly(BreaksTool),
+  "find/seasonal": clientOnly(SeasonalTool),
+  "foryou/quote": clientOnly(QuoteTool),
+  "study/courses": clientOnly(CoursesTool),
+  "focus/playlist": clientOnly(PlaylistTool),
   "habits/tracker": clientOnly(HabitsTool),
   "college/cost": clientOnly(CostTool),
   "college/converter": clientOnly(ConverterTool),

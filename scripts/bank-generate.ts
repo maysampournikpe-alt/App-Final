@@ -53,8 +53,13 @@ const KEY = loadKey();
 const MODELS: string[] = [AI.models.chat, ...AI.fallbacks.chat];
 let modelAt = 0;
 
+/** Thrown when Groq says to come back much later (a daily limit), so the run stops cleanly and keeps what it saved. */
+class QuotaStop extends Error {}
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const MAX_WAIT_SECONDS = 120; // a longer wait than this means a daily limit, not a passing rate limit
+
 async function chat(system: string, user: string, temperature: number): Promise<string> {
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 8; attempt++) {
     const res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST", headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({ model: MODELS[modelAt], temperature, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
@@ -67,9 +72,14 @@ async function chat(system: string, user: string, temperature: number): Promise<
       throw new Error(`Groq ${res.status}: ${text.slice(0, 200)}`);
     }
     if (res && res.status !== 429 && res.status < 500) throw new Error(`Groq ${res.status}: ${(await res.text()).slice(0, 200)}`);
-    await new Promise((r) => setTimeout(r, 2000 * attempt)); // rate limited or busy: wait and retry
+    // Rate limited or busy: wait as long as Groq says (retry-after), else back off, then try again.
+    const told = res ? Number(res.headers.get("retry-after")) : NaN;
+    if (Number.isFinite(told) && told > MAX_WAIT_SECONDS) throw new QuotaStop(`Groq asked us to wait ${Math.round(told / 60)} minutes (probably a daily limit)`);
+    const wait = Number.isFinite(told) && told > 0 ? told + 1 : Math.min(60, 4 * 2 ** (attempt - 1));
+    console.log(`  Groq is busy or rate limited (${res?.status ?? "no reply"}), waiting ${Math.round(wait)}s (try ${attempt} of 8)`);
+    await sleep(wait * 1000);
   }
-  throw new Error("Groq kept failing; try again later");
+  throw new Error("Groq kept failing after 8 tries");
 }
 
 const bank: Question[] = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : [];
@@ -114,13 +124,20 @@ async function main() {
   const maxBatches = Number(opt("max-batches", "0"));
   if (maxBatches && jobs.length > maxBatches) { console.error(`That is ${jobs.length} batches, more than the limit of ${maxBatches}. Pick one section, a smaller per-skill number, or turn topics off.`); process.exit(1); }
   console.log(`${jobs.length} batch(es), starting with model ${MODELS[0]}${dry ? " (dry run, nothing will be saved)" : ""}`);
-  let kept = 0, tossed = 0;
+  let kept = 0, tossed = 0, failed = 0, failedInARow = 0;
   for (const job of jobs) {
     console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty}${job.style ? ", real exam style" : ""})`);
-    const r = await run(job); kept += r.kept; tossed += r.tossed;
+    try {
+      const r = await run(job); kept += r.kept; tossed += r.tossed; failedInARow = 0;
+    } catch (e) {
+      if (e instanceof QuotaStop) { console.log(`\nStopping: ${e.message}. Everything saved so far is kept.`); break; }
+      failedInARow++; failed++;
+      console.log(`  skipped this batch: ${(e as Error).message}`);
+      if (failedInARow >= 5) { console.log("\nStopping: five batches in a row failed. Everything saved so far is kept."); break; }
+    }
     if (!dry) writeFileSync(OUT, JSON.stringify(bank, null, 2) + "\n"); // save as we go
   }
-  console.log(`\nDone. Kept ${kept}, rejected ${tossed}. Bank now has ${bank.length} generated questions.`);
+  console.log(`\nDone. Kept ${kept}, rejected ${tossed}${failed ? `, ${failed} batches skipped` : ""}. Bank now has ${bank.length} generated questions.`);
   console.log(`Next: read through a sample, then git add src/data/bank/${EXAM}-generated.json && git commit && git push`);
 }
 main().catch((e) => { console.error(e.message); process.exit(1); });

@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "id": "ap-ap-biology-gced4d7e0",
+    "exam": "ap",
+    "section": "ap-biology",
+    "skill": "u1",
+    "topic": "u1-1",
+    "difficulty": 3,
+    "type": "mc",
+    "stem": "A researcher measures the temperature at which a 0.5 M aqueous solution of a nonelectrolyte solute freezes. The solution freezes at –0.9 °C. Which of the following best explains why the freezing point is lower than that of pure water?",
+    "passage": "The researcher prepares a 0.5 M solution of sucrose (C12H22O11) in distilled water. Using a calibrated thermistor, the temperature at which ice crystals first appear is recorded as –0.9 °C. Pure water under identical conditions freezes at 0 °C. The researcher notes that sucrose does not dissociate into ions and that the solution remains clear and homogeneous.",
+    "choices": [
+      "The sucrose molecules form hydrogen bonds with water, reducing the number of water–water hydrogen bonds needed for the ordered lattice of ice.",
+      "Sucrose ions increase the solution’s ionic strength, thereby disrupting the crystal lattice formation of ice.",
+      "The presence of sucrose raises the solution’s vapor pressure, causing a greater loss of heat before freezing can occur.",
+      "Sucrose molecules increase the solution’s density, which lowers the temperature at which the solution reaches its freezing point."
+    ],
+    "answer": "A",
+    "explanation": "Sucrose is a nonelectrolyte; it does not produce ions. Its hydroxyl groups can form hydrogen bonds with water, decreasing the number of water–water hydrogen bonds that must be broken to form the ordered ice lattice. This colligative effect lowers the freezing point. Choices B, C, and D invoke misconceptions about ionic strength, vapor pressure, and density, none of which apply to a nonelectrolyte solution.",
+    "style": "exam",
+    "source": "generated"
+  },
+  {
+    "id": "ap-ap-biology-gbab2e441",
+    "exam": "ap",
+    "section": "ap-biology",
+    "skill": "u1",
+    "topic": "u1-1",
+    "difficulty": 3,
+    "type": "mc",
+    "stem": "A biochemist studies the effect of adding a nonpolar solute, benzene, to water. She observes that the solution’s surface tension increases. Which of the following molecular explanations most plausibly accounts for this observation?",
+    "passage": "In a series of experiments, 0.1 M benzene is mixed with water at 20 °C. Surface tension is measured using a Du Noüy ring. Pure water has a surface tension of 72.8 mN·m⁻¹, while the benzene‑water mixture shows 75.3 mN·m⁻¹. The biochemist notes that benzene does not form hydrogen bonds with water, and that the mixture remains a single phase with microscopic benzene clusters.",
+    "choices": [
+      "Benzene molecules disrupt water–water hydrogen bonds at the surface, forcing remaining water molecules to form stronger hydrogen bonds, thereby raising surface tension.",
+      "Benzene molecules preferentially occupy the bulk, leaving a higher proportion of water molecules at the interface to engage in extensive hydrogen bonding, which increases surface tension.",
+      "The presence of benzene reduces the entropy of water molecules at the surface, causing them to pack more tightly and increase surface tension.",
+      "Benzene forms transient dipole‑induced dipole interactions with water, which supplement hydrogen bonding and enhance surface cohesion."
+    ],
+    "answer": "B",
+    "explanation": "Benzene is hydrophobic and tends to be excluded from the water surface, concentrating in the bulk. This exclusion leaves the surface enriched in water molecules that can maximize hydrogen‑bonding interactions, leading to a higher surface tension. Choice B captures this effect. Choice A incorrectly suggests disruption leads to stronger bonds, which is opposite. Choice C invokes entropy without linking to hydrogen bonding. Choice D suggests dipole interactions that are negligible compared with hydrogen bonding.",
+    "style": "exam",
+    "source": "generated"
+  },
+  {
+    "id": "ap-ap-biology-g8bf8d498",
+    "exam": "ap",
+    "section": "ap-biology",
+    "skill": "u1",
+    "topic": "u1-1",
+    "difficulty": 3,
+    "type": "mc",
+    "stem": "Consider two aqueous solutions kept at 25 °C. Solution X contains 0.2 M glucose, and Solution Y contains 0.2 M urea. Both solutes are non‑ionic. Which of the following statements most accurately predicts the relative viscosity of the two solutions and why?",
+    "passage": "Viscosity measurements using a capillary viscometer give the following results: Solution X (glucose) exhibits a viscosity 1.35 times that of pure water, whereas Solution Y (urea) exhibits a viscosity 1.05 times that of pure water. The experimenter notes that glucose has multiple hydroxyl groups capable of hydrogen bonding, while urea contains only one carbonyl oxygen and two amine hydrogens that can participate in hydrogen bonding.",
+    "choices": [
+      "Solution X has higher viscosity because its solute molecules can form more extensive hydrogen‑bond networks with water, increasing intermolecular friction.",
+      "Solution Y has higher viscosity because urea’s planar structure aligns water molecules into ordered layers that resist flow.",
+      "Both solutions have similar viscosities because they are at the same molarity; the type of hydrogen bonding does not affect viscosity.",
+      "Solution X has lower viscosity because glucose’s larger size disrupts water’s hydrogen‑bond network, facilitating easier movement."
+    ],
+    "answer": "A",
+    "explanation": "Glucose possesses several hydroxyl groups, allowing each molecule to form multiple hydrogen bonds with surrounding water, creating a more extensive, transient network that hinders flow and raises viscosity. Urea, with fewer hydrogen‑bonding sites, perturbs the network less, resulting in a smaller viscosity increase. Choice A correctly links the number of hydrogen‑bonding interactions to viscosity. Choices B, C, and D misrepresent the effect of molecular structure and hydrogen bonding on solution viscosity.",
+    "style": "exam",
+    "source": "generated"
+  }
+]

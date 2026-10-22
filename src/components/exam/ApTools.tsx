@@ -94,7 +94,10 @@ export function ApDashboardTool() {
                       <li key={unit.id} className="py-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="font-bold"><span className="mr-2 tabular-nums text-terracotta">{i + 1}</span>{unit[lang]}</p>
-                          <button disabled={!n} onClick={() => practice(course.id, unit.id)} className={`${buttonClass.quiet} !py-1`}>{n ? c.ap.practiceUnit : c.ap.noQs}</button>
+                          <div className="flex flex-wrap gap-2">
+                            <Link href={`/t/ap/path?course=${course.id}&unit=${unit.id}`} className={`${buttonClass.quiet} !py-1`} aria-label={`${c.ap.studyUnit}: ${unit[lang]}`}>{c.ap.studyUnit}</Link>
+                            <button disabled={!n} onClick={() => practice(course.id, unit.id)} className={`${buttonClass.quiet} !py-1`}>{n ? c.ap.practiceUnit : c.ap.noQs}</button>
+                          </div>
                         </div>
                         <div className="mt-2 flex items-center gap-3">
                           <div className="h-3 flex-1 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" aria-hidden="true">

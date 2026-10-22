@@ -48,7 +48,7 @@ export const examCopy = {
     ap: {
       dashTitle: "Open my dashboard", pickLead: "Pick the AP courses you are taking. Courses marked ready have practice questions here.", ready: "Practice ready", notReadyYet: "No practice yet", picked: "Your courses",
       none: "Pick at least one course to see its dashboard.", dashLead: "Each unit with your accuracy so far and a shortcut to practice it.", unitQs: (n: number) => `${n} question${n === 1 ? "" : "s"}`,
-      noQs: "Questions coming", practiceUnit: "Practice this unit", acc: "Accuracy", noData: "Not practiced yet", examDate: "Your exam date", daysTo: (n: number) => (n === 0 ? "Exam day is today" : n > 0 ? `${n} days to go` : "This date has passed"),
+      noQs: "Questions coming", studyUnit: "Study this unit", practiceUnit: "Practice this unit", acc: "Accuracy", noData: "Not practiced yet", examDate: "Your exam date", daysTo: (n: number) => (n === 0 ? "Exam day is today" : n > 0 ? `${n} days to go` : "This date has passed"),
       course: "Course", mcOnly: "Practice here is multiple choice. The real exam also has free-response questions, which this app does not grade yet. Use the official free-response questions and scoring guides for those.",
       apScore: "AP score estimate (1 to 5)", fullLead: "Every question available for one course, with a clock at about the real exam's pace.", openCollege: "Official AP Classroom and course pages",
     },
@@ -103,7 +103,7 @@ export const examCopy = {
     ap: {
       dashTitle: "Abrir mi panel", pickLead: "Elige los cursos AP que llevas. Los marcados como listos tienen preguntas de práctica aquí.", ready: "Práctica lista", notReadyYet: "Aún sin práctica", picked: "Tus cursos",
       none: "Elige al menos un curso para ver su panel.", dashLead: "Cada unidad con tu precisión hasta ahora y un acceso directo para practicarla.", unitQs: (n: number) => `${n} pregunta${n === 1 ? "" : "s"}`,
-      noQs: "Preguntas pronto", practiceUnit: "Practicar esta unidad", acc: "Precisión", noData: "Aún no has practicado", examDate: "Fecha de tu examen", daysTo: (n: number) => (n === 0 ? "Hoy es el examen" : n > 0 ? `Faltan ${n} días` : "Esa fecha ya pasó"),
+      noQs: "Preguntas pronto", studyUnit: "Estudiar esta unidad", practiceUnit: "Practicar esta unidad", acc: "Precisión", noData: "Aún no has practicado", examDate: "Fecha de tu examen", daysTo: (n: number) => (n === 0 ? "Hoy es el examen" : n > 0 ? `Faltan ${n} días` : "Esa fecha ya pasó"),
       course: "Curso", mcOnly: "La práctica aquí es de opción múltiple. El examen real también tiene preguntas de respuesta escrita, que esta app todavía no califica. Para esas, usa las preguntas oficiales gratis y sus guías de calificación.",
       apScore: "Puntaje AP estimado (1 a 5)", fullLead: "Todas las preguntas disponibles de un curso, con reloj a un ritmo parecido al examen real.", openCollege: "AP Classroom oficial y páginas de los cursos",
     },

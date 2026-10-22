@@ -12,6 +12,10 @@ import { ConflictsTool, ExportTool, OverloadTool, ScheduleTool, SchoolYearTool, 
 import { AutoScheduleTool, CatchUpTool, PackingTool, StudyPlannerTool } from "./Planners";
 import { BackpackTool, FrogTool, GroupPlannerTool, GroupProjectTool, InboxTool, KanbanTool, TwoMinuteTool } from "./HomeworkPlus";
 import { AuditTool, BalanceTool, BrainGamesTool, BurnoutTool, DistractionTool, EnergyTool, EstimatorTool, FocusModeTool, LadderTool, ScreenTool, VisionTool } from "./FocusHabitsPlus";
+import { ConjugationTool, PronunciationTool, TransCardsTool } from "./LanguageTools";
+import { DataGraphTool, LabReportTool, MindMapTool, OutlineTool, PalaceTool } from "./NotesTools";
+import { DailyTool, DebateTool, MethodsTool, ScienceFairTool, SpeakingTool, TestDayTool, TimedTool } from "./StudyMore";
+import { CounterTool, EssayOutlineTool, ParaphraseTool, ReadLevelTool, ReadLogTool, ReadSpeedTool, ThesisTool, TypingTool, VocabBuilderTool, VocabCtxTool } from "./WritingTools";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -231,4 +235,29 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "wellbeing/balance": clientOnly(BalanceTool),
   "calendar/weekly": clientOnly(() => <WeeklyTool layer="all" />),
   "calendar/sports": clientOnly(() => <WeeklyTool layer="sports" />),
+  "writing/outline": clientOnly(EssayOutlineTool),
+  "writing/thesis": clientOnly(ThesisTool),
+  "writing/counter": clientOnly(CounterTool),
+  "writing/readlevel": clientOnly(ReadLevelTool),
+  "writing/paraphrase": clientOnly(ParaphraseTool),
+  "writing/readlog": clientOnly(ReadLogTool),
+  "writing/readspeed": clientOnly(ReadSpeedTool),
+  "writing/typing": clientOnly(TypingTool),
+  "writing/vocabbuilder": clientOnly(VocabBuilderTool),
+  "writing/vocabctx": clientOnly(VocabCtxTool),
+  "notes/mindmap": clientOnly(MindMapTool),
+  "notes/outline": clientOnly(OutlineTool),
+  "notes/palace": clientOnly(PalaceTool),
+  "math/labreport": clientOnly(LabReportTool),
+  "math/datagraph": clientOnly(DataGraphTool),
+  "languages/conjugation": clientOnly(ConjugationTool),
+  "languages/transcards": clientOnly(TransCardsTool),
+  "languages/pronunciation": clientOnly(PronunciationTool),
+  "study/methods": clientOnly(MethodsTool),
+  "study/testday": clientOnly(TestDayTool),
+  "study/timed": clientOnly(TimedTool),
+  "study/daily": clientOnly(DailyTool),
+  "study/speaking": clientOnly(SpeakingTool),
+  "study/debate": clientOnly(DebateTool),
+  "study/sciencefair": clientOnly(ScienceFairTool),
 };

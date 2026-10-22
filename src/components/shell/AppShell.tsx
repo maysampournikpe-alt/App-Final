@@ -11,6 +11,7 @@ import { applyPrefs, usePrefs } from "@/lib/prefs";
 import { Compass } from "../art";
 import { Sidebar } from "./Sidebar";
 import { LangToggle, ThemeToggle } from "./Toggles";
+import { ReminderBoot } from "../tools/SettingsMore";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const t = useT();
@@ -42,6 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh md:grid" style={{ gridTemplateColumns: `${prefs.sidebarCollapsed ? "4rem" : "19rem"} minmax(0,1fr)` }}>
+      <ReminderBoot />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-md focus:bg-ink focus:px-3 focus:py-2 focus:text-paper">
         {t("skip")}
       </a>

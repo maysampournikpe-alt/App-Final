@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Flame, Plus, Trash2 } from "lucide-react";
+import { Check, Flame, Plus, Trash2 } from "lucide-react";
 import { today, weekdayShort } from "@/lib/dates";
 import { bestStreak, currentStreak, HABITS_KEY, lastDays, NO_HABITS, toggleDay, type Habit } from "@/lib/habits";
 import { useLang } from "@/lib/i18n";
@@ -74,10 +74,10 @@ export function HabitsTool() {
                   {days.map((d) => {
                     const on = h.done.includes(d);
                     return (
-                      <button key={d} onClick={() => toggle(h.id, d)} aria-pressed={on} aria-label={`${on ? c.unmark : c.mark}: ${h.name}, ${d}`}
+                      <button key={d} onClick={() => toggle(h.id, d)} aria-pressed={on} aria-label={`${d === now ? c.today : weekdayShort(d, lang)} ${d.slice(8)}: ${on ? c.unmark : c.mark} ${h.name}`}
                         className={`flex flex-col items-center rounded-md border-[1.5px] border-ink py-2 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"} ${d === now ? "ring-2 ring-marigold ring-offset-2 ring-offset-paper" : ""}`}>
-                        <span className="text-xs font-bold">{d === now ? c.today : weekdayShort(d, lang)}</span>
-                        <span className="text-lg font-bold" aria-hidden>{on ? "✓" : d.slice(8)}</span>
+                        <span className="text-xs font-bold">{d === now ? c.today : weekdayShort(d, lang)}</span>{" "}
+                        <span className="text-lg font-bold">{on ? <Check size={20} strokeWidth={3} aria-hidden /> : d.slice(8)}</span>
                       </button>
                     );
                   })}

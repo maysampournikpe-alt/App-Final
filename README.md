@@ -44,6 +44,15 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 - `src/config/features.ts`: every feature, in English and Spanish. The sidebar, tab pages,
   "Coming soon" previews and FEATURES.md all read from it. Add a key to `BUILT` when a
   feature ships and its badge disappears.
+- `src/components/tools/registry.tsx`: maps each feature key ("tab/tool") to the screen that runs it.
+  Most tools keep their data on the device through `useLocalDoc` and sync it when signed in.
+- `src/app/api/`: `coach` (streaming chat), `find` (Opportunity Finder), `plan`, and `assist`. The `assist` route runs
+  the one-shot AI helpers (summaries, quizzes, feedback and so on). The browser sends a task name and the student's text,
+  never a prompt: the reviewed prompts live in `src/lib/ai/assist.ts`. It has input limits, a rate limit, and the same
+  crisis handling as the Coach.
+- AI features need `GROQ_API_KEY` on the server. With `AI_FIXTURES=1` the helpers return a fixed reply, which is
+  how the screens are tested without a key.
+- `chess.js` (BSD license) validates moves in the chess opening trainer.
 - `src/app/globals.css`: the design tokens (color, type, card families, motion).
 - `/styleguide`: every component on one page. Not linked from the app.
 - `src/lib/i18n.ts`: interface text. Add a language by adding a column.

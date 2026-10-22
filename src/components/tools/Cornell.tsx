@@ -46,7 +46,7 @@ export function CornellTool() {
       <h1 className="text-3xl sm:text-4xl">{c.title}</h1>
       <p className="mt-2 max-w-prose text-muted">{c.lead}</p>
       <div className="mt-6 grid gap-6 lg:grid-cols-[16rem_1fr]">
-        <aside>
+        <div>
           <button onClick={create} className={`${buttonClass.primary} w-full`}><Plus size={18} />{c.newNote}</button>
           <h2 className="mt-5 text-lg">{c.pick}</h2>
           {notes.length === 0 ? (
@@ -60,7 +60,7 @@ export function CornellTool() {
               ))}
             </ul>
           )}
-        </aside>
+        </div>
 
         {current ? (
           <section className="guide-card p-4 sm:p-5 print:border-0 print:shadow-none" aria-label={current.title || c.untitled}>

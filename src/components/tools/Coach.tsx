@@ -13,8 +13,9 @@ const NONE: ChatMsg[] = [];
 
 const copy = {
   en: {
-    titles: { chat: "Coach", homework: "Homework mode", eli12: "Explain like I'm 12", practice: "Practice modes" } as Record<string, string>,
+    titles: { language: "Conversation practice", chat: "Coach", homework: "Homework mode", eli12: "Explain like I'm 12", practice: "Practice modes" } as Record<string, string>,
     leads: {
+      language: "Practice Spanish or English in a friendly chat. You get one small tip after each message.",
       chat: "Talk through goals, school, applications, anything.",
       homework: "I will not just hand you answers. I will ask questions and give hints so you actually get it.",
       eli12: "Ask about any idea and I will explain it in plain, everyday words.",
@@ -22,6 +23,7 @@ const copy = {
     } as Record<string, string>,
     practice: { interview: "Mock interview", debate: "Debate opponent", quiz: "Quiz me" } as Record<string, string>,
     starters: {
+      language: ["I want to practice my English", "Quiero practicar mi español", "Let us talk about my weekend"],
       chat: ["Help me make a plan to get my first job", "What can I do this summer in the Valley?", "How do I get ready for college?"],
       homework: ["I am stuck on a math problem", "Help me understand my science homework", "I need help planning an essay"],
       eli12: ["What is compound interest?", "How does photosynthesis work?", "What is the electoral college?"],
@@ -35,8 +37,9 @@ const copy = {
     thinking: "Thinking…", emptyHint: "Try one of these:", mode: "Mode",
   },
   es: {
-    titles: { chat: "Entrenador", homework: "Modo tarea", eli12: "Explícamelo fácil", practice: "Modos de práctica" } as Record<string, string>,
+    titles: { language: "Práctica de conversación", chat: "Entrenador", homework: "Modo tarea", eli12: "Explícamelo fácil", practice: "Modos de práctica" } as Record<string, string>,
     leads: {
+      language: "Practica español o inglés en una plática amistosa. Recibes un consejo pequeño después de cada mensaje.",
       chat: "Habla de tus metas, la escuela, solicitudes, lo que quieras.",
       homework: "No te voy a dar las respuestas nada más. Te hago preguntas y te doy pistas para que de veras lo entiendas.",
       eli12: "Pregunta sobre cualquier idea y te la explico con palabras de todos los días.",
@@ -44,6 +47,7 @@ const copy = {
     } as Record<string, string>,
     practice: { interview: "Entrevista de práctica", debate: "Rival de debate", quiz: "Hazme preguntas" } as Record<string, string>,
     starters: {
+      language: ["Quiero practicar mi inglés", "I want to practice my Spanish", "Platiquemos de mi fin de semana"],
       chat: ["Ayúdame a hacer un plan para conseguir mi primer trabajo", "¿Qué puedo hacer este verano en el Valle?", "¿Cómo me preparo para la universidad?"],
       homework: ["Estoy atorado en un problema de mates", "Ayúdame a entender mi tarea de ciencias", "Necesito ayuda para planear un ensayo"],
       eli12: ["¿Qué es el interés compuesto?", "¿Cómo funciona la fotosíntesis?", "¿Qué es el colegio electoral?"],
@@ -58,7 +62,7 @@ const copy = {
   },
 };
 
-type Kind = "chat" | "homework" | "eli12" | "practice";
+type Kind = "chat" | "homework" | "eli12" | "practice" | "language";
 
 export function CoachTool({ kind }: { kind: Kind }) {
   const c = useCopy(copy);

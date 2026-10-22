@@ -36,7 +36,7 @@ export function ApCoursesTool() {
                 <input type="checkbox" checked={on} onChange={() => toggle(course.id)} className="peer sr-only" />
                 <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded border-2 border-current peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]`}>{on ? <Check size={16} strokeWidth={3} /> : null}</span>
                 <span className="min-w-0 flex-1 font-bold">{course[lang]}</span>
-                <span className={`shrink-0 rounded-sm border px-1.5 text-xs font-bold ${on ? "border-on-teal" : ready.has(course.id) ? "border-palm text-palm" : "border-line text-muted"}`}>{ready.has(course.id) ? c.ap.ready : c.ap.notReadyYet}</span>
+                <span className={`shrink-0 rounded-sm border px-1.5 text-xs font-bold ${on ? "border-on-teal" : ready.has(course.id) ? "border-palm text-ink" : "border-line text-muted"}`}>{ready.has(course.id) ? c.ap.ready : c.ap.notReadyYet}</span>
               </label>
             </li>
           );

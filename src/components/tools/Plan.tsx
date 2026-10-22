@@ -173,9 +173,9 @@ function PlanView({ plan, c, busy, autoAdjust, onChange, onAdjust, onDelete }: {
               {h.steps.map((s, i) => (
                 <li key={s.id} className="relative flex gap-4 pb-5 last:pb-0">
                   {i < h.steps.length - 1 ? <span aria-hidden className={`absolute left-[1.05rem] top-9 h-[calc(100%-2rem)] w-[4px] ${s.done ? "bg-palm" : "trail-dots"}`} /> : null}
-                  <button onClick={() => onChange(toggleStep(plan, s.id))} aria-pressed={s.done} aria-label={`${s.text}`}
+                  <button onClick={() => onChange(toggleStep(plan, s.id))} aria-pressed={s.done} aria-label={`${i + 1}. ${s.text}`}
                     className={`z-10 grid h-[2.2rem] w-[2.2rem] shrink-0 place-items-center rounded-full border-2 border-ink font-bold ${s.done ? "checkpoint-done bg-palm text-surface" : "bg-surface hover:bg-sunken"}`}>
-                    {s.done ? <Check size={18} strokeWidth={3} /> : i + 1}
+                    {s.done ? <Check size={18} strokeWidth={3} aria-hidden /> : i + 1}
                   </button>
                   <span className={`pt-1 ${s.done ? "text-muted line-through decoration-2" : "font-bold"}`}>{s.text}</span>
                 </li>

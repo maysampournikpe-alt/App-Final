@@ -5,16 +5,41 @@ import { AccountTool } from "./Account";
 import { BackwardTool } from "./Backward";
 import { CoachTool } from "./Coach";
 import { BragTool, CertificatesTool, ResumeTool, TrackerTool, VolunteerTool } from "./Achievements";
+import { CareersTool, DayInLifeTool, MajorsTool, QuizTool } from "./CareerTools";
+import { CollegesTool, ScholarshipsTool } from "./CollegeFinder";
+import { CoursesTool, PlaylistTool, QuoteTool, SeasonalTool } from "./Explore";
+import { ConflictsTool, ExportTool, OverloadTool, ScheduleTool, SchoolYearTool, SemesterTool, TimeBlockTool, WeeklyTool } from "./CalendarPlus";
+import { AutoScheduleTool, CatchUpTool, PackingTool, StudyPlannerTool } from "./Planners";
+import { BackpackTool, FrogTool, GroupPlannerTool, GroupProjectTool, InboxTool, KanbanTool, TwoMinuteTool } from "./HomeworkPlus";
+import { AuditTool, BalanceTool, BrainGamesTool, BurnoutTool, DistractionTool, EnergyTool, EstimatorTool, FocusModeTool, LadderTool, ScreenTool, VisionTool } from "./FocusHabitsPlus";
+import { ConjugationTool, PronunciationTool, TransCardsTool } from "./LanguageTools";
+import { DataGraphTool, LabReportTool, MindMapTool, OutlineTool, PalaceTool } from "./NotesTools";
+import { DailyTool, DebateTool, MethodsTool, ScienceFairTool, SpeakingTool, TestDayTool, TimedTool } from "./StudyMore";
+import { CounterTool, EssayOutlineTool, ParaphraseTool, ReadLevelTool, ReadLogTool, ReadSpeedTool, ThesisTool, TypingTool, VocabBuilderTool, VocabCtxTool } from "./WritingTools";
+import { AssistTool } from "./AssistTools";
+import { ApFlashTool, ApNotesTool, ApPlanTool, AppTrackerTool, CitationTool } from "./MoreLocal";
+import { CelebrationsTool, ChallengesTool, ParentViewTool, PortfolioTool, RadarTool, YearReviewTool } from "./AchievementsPlus";
+import { FlyerTool, ForYouTool, HistoryTool, MapTool, SavedSearchesTool, SimilarTool, SurpriseTool } from "./FinderExtras";
+import { ExportTool as DataExportTool, NotificationsTool, OfflineTool, ReadAloudTool, SidebarTool, VoiceTool } from "./SettingsMore";
+import { ChessTool } from "./ChessTool";
+import { GuideTool } from "./GuideTool";
+import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
+import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
+import { BreaksTool, StressTool } from "./WellbeingExtra";
 import { BudgetTool } from "./Budget";
+import { BalancerTool, MolarTool, PeriodicTool } from "./ChemTools";
 import { CalendarTool } from "./CalendarTool";
 import { ConverterTool, CostTool, CreditsTool, RankTool } from "./CollegeTools";
 import { CornellTool } from "./Cornell";
 import { CountdownTool } from "./Countdown";
 import { DrillsTool } from "./Drills";
 import { FocusLogTool } from "./FocusLog";
+import { FormulasTool } from "./Formulas";
 import { FractionsTool } from "./Fractions";
 import { GeometryTool } from "./Geometry";
+import { GraphingTool, ScientificTool } from "./MathTools";
 import { ReflectTool } from "./Reflect";
+import { ProgressTool } from "./Progress";
 import { RoutinesTool } from "./Routines";
 import { SmartTool } from "./Smart";
 import { StackingTool } from "./Stacking";
@@ -112,6 +137,32 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "notes/cornell": clientOnly(CornellTool),
   "notes/flashcards": clientOnly(() => <FlashcardsTool view="make" />),
   "notes/spaced": clientOnly(() => <FlashcardsTool view="review" />),
+  "college/careers": clientOnly(CareersTool),
+  "college/quiz": clientOnly(QuizTool),
+  "college/dayinlife": clientOnly(DayInLifeTool),
+  "college/majors": clientOnly(MajorsTool),
+  "college/colleges": clientOnly(CollegesTool),
+  "college/scholarships": clientOnly(ScholarshipsTool),
+  "college/fafsa": clientOnly(() => <GuideTool id="college/fafsa" />),
+  "college/dual": clientOnly(() => <GuideTool id="college/dual" />),
+  "college/trades": clientOnly(() => <GuideTool id="college/trades" />),
+  "college/military": clientOnly(() => <GuideTool id="college/military" />),
+  "grades/txgrad": clientOnly(TxGradTool),
+  "grades/txadmit": clientOnly(TxAdmitTool),
+  "money/laborlaw": clientOnly(LaborLawTool),
+  "local/map": clientOnly(LocalMapTool),
+  "local/bus": clientOnly(BusTool),
+  "local/events": clientOnly(EventsTool),
+  "local/tutoring": clientOnly(() => <GuideTool id="local/tutoring" maps={[{ label: { en: "Libraries", es: "Bibliotecas" }, q: "public library" }, { label: { en: "Tutoring centers", es: "Centros de tutoría" }, q: "free tutoring" }]} />),
+  "local/wifi": clientOnly(() => <GuideTool id="local/wifi" maps={[{ label: { en: "Libraries", es: "Bibliotecas" }, q: "public library free wifi" }, { label: { en: "Community centers", es: "Centros comunitarios" }, q: "community center" }]} />),
+  "local/gear": clientOnly(() => <GuideTool id="local/gear" maps={[{ label: { en: "Boys and Girls Clubs", es: "Boys and Girls Clubs" }, q: "Boys and Girls Club" }, { label: { en: "Community centers", es: "Centros comunitarios" }, q: "community center" }]} />),
+  "local/feewaiver": clientOnly(() => <GuideTool id="local/feewaiver" />),
+  "wellbeing/stress": clientOnly(StressTool),
+  "wellbeing/breaks": clientOnly(BreaksTool),
+  "find/seasonal": clientOnly(SeasonalTool),
+  "foryou/quote": clientOnly(QuoteTool),
+  "study/courses": clientOnly(CoursesTool),
+  "focus/playlist": clientOnly(PlaylistTool),
   "habits/tracker": clientOnly(HabitsTool),
   "college/cost": clientOnly(CostTool),
   "college/converter": clientOnly(ConverterTool),
@@ -126,6 +177,11 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "wellbeing/sleep": clientOnly(SleepTool),
   "wellbeing/contacts": clientOnly(HelpTool),
   "profile/why": clientOnly(WhyTool),
+  "profile/progress": clientOnly(() => <ProgressTool view="progress" />),
+  "profile/levels": clientOnly(() => <ProgressTool view="levels" />),
+  "profile/streaks": clientOnly(() => <ProgressTool view="streaks" />),
+  "profile/avatar": clientOnly(() => <ProgressTool view="avatar" />),
+  "achievements/badges": clientOnly(() => <ProgressTool view="badges" />),
   "money/budget": clientOnly(BudgetTool),
   "habits/smart": clientOnly(SmartTool),
   "habits/weekly": clientOnly(() => <ReflectTool kind="weekly" />),
@@ -144,8 +200,112 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "math/drills": clientOnly(DrillsTool),
   "calendar/countdown": clientOnly(CountdownTool),
   "math/units": clientOnly(UnitsTool),
+  "math/periodic": clientOnly(PeriodicTool),
+  "math/molar": clientOnly(MolarTool),
+  "math/balancer": clientOnly(BalancerTool),
+  "math/formulas": clientOnly(FormulasTool),
+  "math/scientific": clientOnly(ScientificTool),
+  "math/graphing": clientOnly(GraphingTool),
   "money/compound": clientOnly(() => <MoneyTool view="compound" />),
   "money/savings": clientOnly(() => <MoneyTool view="savings" />),
   "money/paycheck": clientOnly(() => <MoneyTool view="paycheck" />),
   "homework/backward": clientOnly(BackwardTool),
+  "calendar/schoolyear": clientOnly(SchoolYearTool),
+  "calendar/semester": clientOnly(SemesterTool),
+  "calendar/schedule": clientOnly(ScheduleTool),
+  "calendar/timeblock": clientOnly(TimeBlockTool),
+  "calendar/conflicts": clientOnly(ConflictsTool),
+  "calendar/overload": clientOnly(OverloadTool),
+  "calendar/gcal": clientOnly(ExportTool),
+  "plan/catchup": clientOnly(CatchUpTool),
+  "plan/studyplanner": clientOnly(StudyPlannerTool),
+  "plan/packing": clientOnly(PackingTool),
+  "calendar/autoschedule": clientOnly(AutoScheduleTool),
+  "homework/backpack": clientOnly(BackpackTool),
+  "homework/frog": clientOnly(FrogTool),
+  "homework/twominute": clientOnly(TwoMinuteTool),
+  "homework/kanban": clientOnly(KanbanTool),
+  "homework/groupproject": clientOnly(GroupProjectTool),
+  "homework/inbox": clientOnly(InboxTool),
+  "homework/groupplanner": clientOnly(GroupPlannerTool),
+  "focus/focusmode": clientOnly(FocusModeTool),
+  "focus/distraction": clientOnly(DistractionTool),
+  "focus/braingames": clientOnly(BrainGamesTool),
+  "habits/ladder": clientOnly(LadderTool),
+  "habits/vision": clientOnly(VisionTool),
+  "habits/audit": clientOnly(AuditTool),
+  "habits/estimator": clientOnly(EstimatorTool),
+  "wellbeing/energy": clientOnly(EnergyTool),
+  "wellbeing/screen": clientOnly(ScreenTool),
+  "wellbeing/burnout": clientOnly(BurnoutTool),
+  "wellbeing/balance": clientOnly(BalanceTool),
+  "calendar/weekly": clientOnly(() => <WeeklyTool layer="all" />),
+  "calendar/sports": clientOnly(() => <WeeklyTool layer="sports" />),
+  "writing/outline": clientOnly(EssayOutlineTool),
+  "writing/thesis": clientOnly(ThesisTool),
+  "writing/counter": clientOnly(CounterTool),
+  "writing/readlevel": clientOnly(ReadLevelTool),
+  "writing/paraphrase": clientOnly(ParaphraseTool),
+  "writing/readlog": clientOnly(ReadLogTool),
+  "writing/readspeed": clientOnly(ReadSpeedTool),
+  "writing/typing": clientOnly(TypingTool),
+  "writing/vocabbuilder": clientOnly(VocabBuilderTool),
+  "writing/vocabctx": clientOnly(VocabCtxTool),
+  "notes/mindmap": clientOnly(MindMapTool),
+  "notes/outline": clientOnly(OutlineTool),
+  "notes/palace": clientOnly(PalaceTool),
+  "math/labreport": clientOnly(LabReportTool),
+  "math/datagraph": clientOnly(DataGraphTool),
+  "languages/conjugation": clientOnly(ConjugationTool),
+  "languages/transcards": clientOnly(TransCardsTool),
+  "languages/pronunciation": clientOnly(PronunciationTool),
+  "study/methods": clientOnly(MethodsTool),
+  "study/testday": clientOnly(TestDayTool),
+  "study/timed": clientOnly(TimedTool),
+  "study/daily": clientOnly(DailyTool),
+  "study/speaking": clientOnly(SpeakingTool),
+  "study/debate": clientOnly(DebateTool),
+  "study/sciencefair": clientOnly(ScienceFairTool),
+  "notes/summarizer": clientOnly(() => <AssistTool task="summarizer" />),
+  "notes/notestoquiz": clientOnly(() => <AssistTool task="notestoquiz" />),
+  "notes/mnemonic": clientOnly(() => <AssistTool task="mnemonic" />),
+  "study/feynman": clientOnly(() => <AssistTool task="feynman" />),
+  "math/stepchecker": clientOnly(() => <AssistTool task="stepchecker" />),
+  "writing/grammar": clientOnly(() => <AssistTool task="grammar" />),
+  "college/essayfeedback": clientOnly(() => <AssistTool task="essayfeedback" />),
+  "college/emailhelper": clientOnly(() => <AssistTool task="emailhelper" />),
+  "college/reclett": clientOnly(() => <AssistTool task="reclett" />),
+  "homework/taskbreaker": clientOnly(() => <AssistTool task="taskbreaker" />),
+  "languages/bilingual": clientOnly(() => <AssistTool task="bilingual" />),
+  "ap/frq": clientOnly(() => <AssistTool task="frq" />),
+  "coach/interview": clientOnly(() => <CoachTool kind="practice" />),
+  "writing/citation": clientOnly(CitationTool),
+  "college/apptracker": clientOnly(AppTrackerTool),
+  "ap/notes": clientOnly(ApNotesTool),
+  "ap/flash": clientOnly(ApFlashTool),
+  "ap/plan": clientOnly(ApPlanTool),
+  "find/history": clientOnly(HistoryTool),
+  "find/alerts": clientOnly(SavedSearchesTool),
+  "find/surprise": clientOnly(SurpriseTool),
+  "find/similar": clientOnly(SimilarTool),
+  "find/flyer": clientOnly(FlyerTool),
+  "find/map": clientOnly(MapTool),
+  "foryou/challenge": clientOnly(ChallengesTool),
+  "achievements/challenges": clientOnly(ChallengesTool),
+  "achievements/portfolio": clientOnly(PortfolioTool),
+  "achievements/radar": clientOnly(RadarTool),
+  "achievements/yearreview": clientOnly(YearReviewTool),
+  "profile/celebrations": clientOnly(CelebrationsTool),
+  "family/parent": clientOnly(ParentViewTool),
+  "settings/sidebar": clientOnly(SidebarTool),
+  "settings/notifications": clientOnly(NotificationsTool),
+  "settings/voice": clientOnly(VoiceTool),
+  "settings/readaloud": clientOnly(ReadAloudTool),
+  "settings/offline": clientOnly(OfflineTool),
+  "settings/export": clientOnly(DataExportTool),
+  "foryou/feed": clientOnly(() => <ForYouTool view="feed" />),
+  "foryou/weekly": clientOnly(() => <ForYouTool view="weekly" />),
+  "foryou/trynew": clientOnly(() => <ForYouTool view="trynew" />),
+  "languages/conversation": clientOnly(() => <CoachTool kind="language" />),
+  "study/chess": clientOnly(ChessTool),
 };

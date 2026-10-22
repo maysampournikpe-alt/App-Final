@@ -396,3 +396,341 @@ describe("budget", () => {
     expect(monthSummary(l, "2026-08")).toEqual({ income: 0, spend: 0, save: 0, left: 0, saveRate: 0 });
   });
 });
+
+import { xpBreakdown, totalXp, levelOf, levelStart, levelName, LEVEL_NAMES, activeDays, streaks, BADGES, EMBLEMS, TINTS, usableAvatar, type Snapshot } from "../src/lib/progress";
+const emptySnap = (over: Partial<Snapshot> = {}): Snapshot => ({
+  now: "2026-10-20", homework: [], tasks: [], habits: [], focusLog: {}, sessions: [], routines: { steps: { morning: [], evening: [] }, done: {} }, attempts: [], plans: [], savedCount: 0,
+  volunteer: [], achievements: [], certs: [], moods: [], sleep: [], reflections: {}, cards: [], drills: [], ...over,
+});
+describe("xp, levels, streaks and badges", () => {
+  it("a new student has 0 XP, level 1 and no streak", () => {
+    expect(totalXp(emptySnap())).toBe(0);
+    expect(levelOf(0)).toMatchObject({ level: 1, xpInto: 0, xpNeeded: 50, pct: 0 });
+    expect(streaks(emptySnap())).toEqual({ current: 0, best: 0, activeCount: 0 });
+  });
+  it("adds XP for real work with the published amounts", () => {
+    const s = emptySnap({
+      homework: [{ id: "1", title: "a", cls: "", due: "2026-10-20", done: true }, { id: "2", title: "b", cls: "", due: "2026-10-20", done: false }],
+      tasks: [{ id: "t", title: "x", done: true, urgent: false, important: false, top: false, created: "2026-10-01" }],
+      habits: [{ id: "h", name: "read", done: ["2026-10-19", "2026-10-20"], created: "2026-10-01" }],
+      focusLog: { "2026-10-20": 45 }, sessions: [{ id: "s", date: "2026-10-20", subject: "m", minutes: 40, focus: 4 }], savedCount: 3,
+      volunteer: [{ id: "v", date: "2026-10-20", org: "o", hours: 2.5, supervisor: "", contact: "" }],
+    });
+    const by = Object.fromEntries(xpBreakdown(s).map((l) => [l.key, l.points]));
+    expect(by).toMatchObject({ homework: 5, tasks: 3, habits: 6, focus: 4, study: 2, saved: 6, volunteer: 20 });
+    expect(totalXp(s)).toBe(5 + 3 + 6 + 4 + 2 + 6 + 20);
+  });
+  it("level thresholds are 0, 50, 200, 450, 800 and each level maps back to itself", () => {
+    expect([1, 2, 3, 4, 5].map(levelStart)).toEqual([0, 50, 200, 450, 800]);
+    for (let l = 1; l <= 30; l++) { expect(levelOf(levelStart(l)).level).toBe(l); expect(levelOf(levelStart(l + 1) - 1).level).toBe(l); }
+    expect(levelOf(49)).toMatchObject({ level: 1, toNext: 1 });
+    expect(levelOf(125)).toMatchObject({ level: 2, xpInto: 75, xpNeeded: 150, pct: 50 });
+  });
+  it("level names exist for every level, even past the last name", () => {
+    expect(levelName(1).en).toBe("Trailhead");
+    expect(levelName(500)).toBe(LEVEL_NAMES[LEVEL_NAMES.length - 1]);
+  });
+  it("counts active days from dated records and builds streaks", () => {
+    const s = emptySnap({ habits: [{ id: "h", name: "r", done: ["2026-10-18", "2026-10-19"], created: "" }], moods: [{ date: "2026-10-20", mood: 3, note: "" }], focusLog: { "2026-10-10": 25, "2026-10-11": 0 } });
+    expect([...activeDays(s)].sort()).toEqual(["2026-10-10", "2026-10-18", "2026-10-19", "2026-10-20"]);
+    expect(streaks(s)).toEqual({ current: 3, best: 3, activeCount: 4 });
+  });
+  it("badges start locked, with progress, and unlock at the target", () => {
+    const b = (id: string) => BADGES.find((x) => x.id === id)!;
+    expect(b("first-save").value(emptySnap())).toBe(0);
+    expect(b("first-save").value(emptySnap({ savedCount: 1 }))).toBeGreaterThanOrEqual(b("first-save").target);
+    const plan = { id: "p", title: "", goal: "", summary: "", hoursPerWeek: 1, searchIdeas: [], createdAt: 0, source: "ai" as const, horizons: [{ horizon: "week" as const, steps: [{ id: "a", text: "x", done: true }, { id: "b", text: "y", done: false }] }] };
+    expect(b("plan-step").value(emptySnap({ plans: [plan] }))).toBe(1);
+    expect(b("plan-done").value(emptySnap({ plans: [plan] }))).toBe(0);
+    plan.horizons[0].steps[1].done = true;
+    expect(b("plan-done").value(emptySnap({ plans: [plan] }))).toBe(1);
+    expect(new Set(BADGES.map((x) => x.id)).size).toBe(BADGES.length);
+  });
+  it("avatar choices fall back to the default when not unlocked", () => {
+    expect(usableAvatar({ emblem: "rocket", tint: "ink" }, 1)).toEqual({ emblem: "compass", tint: "teal" });
+    expect(usableAvatar({ emblem: "mountain", tint: "ruby" }, 2)).toEqual({ emblem: "mountain", tint: "ruby" });
+    expect(usableAvatar({ emblem: "nope", tint: "nope" }, 99)).toEqual({ emblem: "compass", tint: "teal" });
+    expect(EMBLEMS.every((e) => e.level >= 1) && TINTS.every((t) => t.level >= 1)).toBe(true);
+  });
+});
+
+import { ELEMENTS, BY_SYMBOL, position, periodOf, groupOf, stateOf, parseFormula, molarMass, balance, FormulaError } from "../src/lib/chem";
+describe("periodic table data", () => {
+  it("has 118 elements numbered in order with unique symbols and names", () => {
+    expect(ELEMENTS).toHaveLength(118);
+    ELEMENTS.forEach((e, i) => expect(e.z).toBe(i + 1));
+    expect(new Set(ELEMENTS.map((e) => e.sym)).size).toBe(118);
+    expect(new Set(ELEMENTS.map((e) => e.name)).size).toBe(118);
+    for (const e of ELEMENTS) { expect(e.mass).toBeGreaterThan(0); expect(e.sym).toMatch(/^[A-Z][a-z]?$/); }
+  });
+  it("known elements are right", () => {
+    expect(BY_SYMBOL.get("Fe")).toMatchObject({ z: 26, name: "Iron", mass: 55.845 });
+    expect(BY_SYMBOL.get("Au")).toMatchObject({ z: 79, name: "Gold" });
+    expect(BY_SYMBOL.get("Og")!.z).toBe(118);
+    expect(BY_SYMBOL.get("Na")!.cat).toBe("alkali");
+    expect(BY_SYMBOL.get("Ne")!.cat).toBe("noble");
+  });
+  it("mass rises with atomic number except at the six places where it really does not (K, Ni, I, Pa, Np, Am)", () => {
+    const bad = ELEMENTS.slice(1).filter((e, i) => e.mass < ELEMENTS[i].mass).map((e) => e.sym).sort();
+    expect(bad).toEqual(["Am", "I", "K", "Ni", "Np", "Pa"]);
+  });
+  it("grid positions are unique, inside 18 columns, and match groups", () => {
+    const seen = new Set<string>();
+    for (const e of ELEMENTS) { const p = position(e.z); expect(p.col).toBeGreaterThanOrEqual(1); expect(p.col).toBeLessThanOrEqual(18); const k = `${p.row},${p.col}`; expect(seen.has(k), e.sym).toBe(false); seen.add(k); }
+    expect([2, 10, 18, 36, 54, 86, 118].every((z) => groupOf(z) === 18)).toBe(true);
+    expect([1, 3, 11, 19, 37, 55, 87].every((z) => groupOf(z) === 1)).toBe(true);
+    expect([periodOf(26), periodOf(57), periodOf(92), groupOf(57)]).toEqual([4, 6, 7, null]);
+    expect(groupOf(26)).toBe(8); expect(groupOf(6)).toBe(14); expect(position(6)).toEqual({ row: 2, col: 14 });
+  });
+  it("states at room temperature", () => { expect([stateOf(1), stateOf(35), stateOf(80), stateOf(26), stateOf(118)]).toEqual(["gas", "liquid", "liquid", "solid", "unknown"]); });
+});
+describe("formulas and molar mass", () => {
+  it("parses brackets, hydrates and multi-letter symbols", () => {
+    expect([...parseFormula("Ca(OH)2")].sort()).toEqual([["Ca", 1], ["H", 2], ["O", 2]]);
+    expect(parseFormula("Al2(SO4)3").get("O")).toBe(12);
+    expect(parseFormula("CuSO4·5H2O").get("H")).toBe(10); expect(parseFormula("CuSO4.5H2O").get("O")).toBe(9);
+    expect(parseFormula("Co").get("Co")).toBe(1); expect(parseFormula("CO").get("C")).toBe(1);
+    expect(parseFormula("Mg(NO3)2").get("N")).toBe(2); expect(parseFormula("K4[Fe(CN)6]").get("C")).toBe(6);
+  });
+  it("rejects bad input", () => { for (const f of ["", "Xx2", "H2O)", "(H2O", "h2o", "H2O!"]) expect(() => parseFormula(f), f).toThrow(FormulaError); });
+  it("molar masses match textbook values", () => {
+    expect(molarMass("H2O").total).toBeCloseTo(18.015, 3);
+    expect(molarMass("NaCl").total).toBeCloseTo(58.44, 2);
+    expect(molarMass("CO2").total).toBeCloseTo(44.009, 3);
+    expect(molarMass("C6H12O6").total).toBeCloseTo(180.156, 2);
+    expect(molarMass("Ca(OH)2").total).toBeCloseTo(74.092, 2);
+    expect(molarMass("H2SO4").total).toBeCloseTo(98.07, 1);
+  });
+  it("percent composition adds to about 100", () => { const m = molarMass("C6H12O6"); expect(m.parts.reduce((n, p) => n + p.percent, 0)).toBeCloseTo(100, 1); expect(m.parts.find((p) => p.sym === "O")!.percent).toBeCloseTo(53.28, 1); });
+});
+describe("equation balancer", () => {
+  const show = (eq: string) => { const r = balance(eq); if (!r.ok) return r.reason; return [...r.value.reactants, ...r.value.products].map((x) => x.coeff); };
+  it("balances classic equations", () => {
+    expect(show("H2 + O2 -> H2O")).toEqual([2, 1, 2]);
+    expect(show("Fe + O2 -> Fe2O3")).toEqual([4, 3, 2]);
+    expect(show("C3H8 + O2 -> CO2 + H2O")).toEqual([1, 5, 3, 4]);
+    expect(show("Al + HCl -> AlCl3 + H2")).toEqual([2, 6, 2, 3]);
+    expect(show("KMnO4 + HCl -> KCl + MnCl2 + H2O + Cl2")).toEqual([2, 16, 2, 2, 8, 5]);
+    expect(show("Ca(OH)2 + H3PO4 -> Ca3(PO4)2 + H2O")).toEqual([3, 2, 1, 6]);
+  });
+  it("accepts arrows, equals signs and already-balanced input", () => { expect(show("N2 + H2 → NH3")).toEqual([1, 3, 2]); expect(show("2H2 + O2 = 2H2O")).toEqual([2, 1, 2]); expect(show("H2 + Cl2 -> HCl")).toEqual([1, 1, 2]); });
+  it("every balanced result really conserves atoms", () => {
+    for (const eq of ["C6H12O6 + O2 -> CO2 + H2O", "Na + H2O -> NaOH + H2", "Fe2O3 + CO -> Fe + CO2", "NH3 + O2 -> NO + H2O", "C2H6 + O2 -> CO2 + H2O"]) {
+      const r = balance(eq); expect(r.ok, eq).toBe(true); if (!r.ok) continue;
+      const tally = (side: { formula: string; coeff: number }[]) => { const t = new Map<string, number>(); side.forEach((s) => parseFormula(s.formula).forEach((n, el) => t.set(el, (t.get(el) ?? 0) + n * s.coeff))); return t; };
+      expect([...tally(r.value.reactants)].sort()).toEqual([...tally(r.value.products)].sort());
+    }
+  });
+  it("reports what went wrong", () => { expect(show("H2 + O2")).toBe("format"); expect(show("H2 + Zz -> H2Zz")).toBe("formula"); expect(show("H2 -> O2")).toBe("impossible"); expect(show("H2 + O2 -> H2O + O2")).not.toBeNull(); });
+});
+
+import { segments, roots, niceStep, zoom, pan, DEFAULT_VIEW } from "../src/lib/graph";
+import { evaluateExpression } from "../src/lib/calc";
+describe("graphing", () => {
+  it("samples a smooth curve in one piece", () => {
+    const s = segments((x) => x * x, DEFAULT_VIEW);
+    expect(s).toHaveLength(1);
+    expect(s[0][0]).toEqual({ x: -10, y: 100 }); expect(s[0].length).toBe(601);
+  });
+  it("breaks the curve at a gap instead of drawing a line across it", () => {
+    expect(segments((x) => 1 / x, { xmin: -5, xmax: 5, ymin: -5, ymax: 5 }).length).toBeGreaterThanOrEqual(2);
+    expect(segments((x) => Math.tan(x), { xmin: -5, xmax: 5, ymin: -5, ymax: 5 }).length).toBeGreaterThan(2);
+    expect(segments((x) => Math.sqrt(x), { xmin: -5, xmax: 5, ymin: -5, ymax: 5 })).toHaveLength(1);
+  });
+  it("finds roots exactly where they are", () => {
+    expect(roots((x) => x * x - 4, -10, 10)).toEqual([-2, 2]);
+    expect(roots((x) => 2 * x + 6, -10, 10)).toEqual([-3]);
+    expect(roots((x) => Math.sin(x), -7, 7).map((r) => Math.round(r * 1e4) / 1e4)).toEqual([-6.2832, -3.1416, 0, 3.1416, 6.2832]);
+    expect(roots((x) => x * x + 1, -10, 10)).toEqual([]);
+    expect(roots((x) => (x - 1) * (x - 2) * (x + 3), -10, 10)).toEqual([-3, 1, 2]);
+  });
+  it("does not report the gap in 1/x as a root", () => expect(roots((x) => 1 / x, -5, 5)).toEqual([]));
+  it("grid steps are 1, 2 or 5 times a power of ten; zoom and pan keep the shape", () => {
+    expect([niceStep(20), niceStep(2), niceStep(100), niceStep(0.5)]).toEqual([2, 0.2, 10, 0.05]);
+    expect(zoom(DEFAULT_VIEW, 0.5)).toEqual({ xmin: -5, xmax: 5, ymin: -5, ymax: 5 });
+    expect(pan(DEFAULT_VIEW, 0.1, 0)).toEqual({ xmin: -8, xmax: 12, ymin: -10, ymax: 10 });
+  });
+});
+describe("scientific calculator", () => {
+  const ev = async (e: string, deg = false, ans?: number) => { const r = await evaluateExpression(e, { deg, ans }); return r.ok ? r.text : "ERR"; };
+  it("does arithmetic with the right order of operations", async () => { expect(await ev("2+3*4")).toBe("14"); expect(await ev("(2+3)*4")).toBe("20"); expect(await ev("2^10")).toBe("1024"); expect(await ev("7×6÷3−1")).toBe("13"); });
+  it("functions and constants", async () => { expect(await ev("sqrt(144)")).toBe("12"); expect(await ev("5!")).toBe("120"); expect(await ev("log(1000)")).toBe("3"); expect(await ev("ln(e)")).toBe("1"); expect(await ev("π*2")).toBe("6.28318530718"); });
+  it("degrees and radians", async () => { expect(await ev("sin(30)", true)).toBe("0.5"); expect(await ev("cos(60)", true)).toBe("0.5"); expect(await ev("atan(1)", true)).toBe("45"); expect(await ev("sin(pi/6)", false)).toBe("0.5"); });
+  it("uses the previous answer", async () => expect(await ev("ans*2", false, 21)).toBe("42"));
+  it("shows ERR for nonsense, divide by zero and too-long input", async () => { for (const e of ["", "2+", "foo(", "1/0", "x+", "5 5 5", "a".repeat(300)]) expect(await ev(e), e).toBe("ERR"); });
+});
+
+import katex from "katex";
+import { SHEETS } from "../src/data/formulas";
+describe("formula sheets", () => {
+  it("every formula is valid LaTeX that KaTeX can draw", () => {
+    let n = 0;
+    for (const s of SHEETS) for (const it of s.items) { n++; expect(() => katex.renderToString(it.tex, { throwOnError: true, strict: "ignore" }), `${s.id}: ${it.en}`).not.toThrow(); }
+    expect(n).toBeGreaterThan(50);
+  });
+  it("every formula has English and Spanish names, and sheet ids are unique", () => {
+    for (const s of SHEETS) { expect(s.en && s.es).toBeTruthy(); for (const it of s.items) expect(it.en.trim() && it.es.trim(), it.en).toBeTruthy(); }
+    expect(new Set(SHEETS.map((s) => s.id)).size).toBe(SHEETS.length);
+  });
+});
+
+import { checkWork, workLimits, hourLabel, gradProgress, gradTotal, GRAD_REQUIRED, GRAD_AREAS } from "../src/lib/laborlaw";
+describe("Texas teen work rules", () => {
+  const base = { age: 15, period: "school-day" as const, schoolWeek: true, hoursToday: 3, hoursWeek: 15, start: 16, end: 19 };
+  it("allows a legal school-day shift", () => expect(checkWork(base)).toMatchObject({ ok: true, issues: [] }));
+  it("school days: 3 hours a day, 18 a school week, 7 a.m. to 7 p.m.", () => {
+    expect(checkWork({ ...base, hoursToday: 4 }).issues).toEqual([{ kind: "dayHours", max: 3 }]);
+    expect(checkWork({ ...base, hoursWeek: 19 }).issues).toEqual([{ kind: "weekHours", max: 18 }]);
+    expect(checkWork({ ...base, end: 19.5 }).issues).toEqual([{ kind: "tooLate", until: 19 }]);
+    expect(checkWork({ ...base, start: 6 }).issues).toEqual([{ kind: "tooEarly", from: 7 }]);
+  });
+  it("summer allows 8 hours a day, 40 a week, until 9 p.m.", () => {
+    expect(workLimits("summer", false)).toEqual({ dayMax: 8, weekMax: 40, from: 7, until: 21 });
+    expect(checkWork({ ...base, period: "summer", hoursToday: 8, hoursWeek: 40, start: 12, end: 21 }).ok).toBe(true);
+    expect(checkWork({ ...base, period: "summer", hoursToday: 9 }).ok).toBe(false);
+  });
+  it("a non-school day in the school year still ends at 7 p.m., and the weekly cap depends on the week", () => {
+    expect(workLimits("non-school-day", true)).toEqual({ dayMax: 8, weekMax: 18, from: 7, until: 19 });
+    expect(workLimits("non-school-day", false).weekMax).toBe(40);
+  });
+  it("reports every problem at once", () => expect(checkWork({ ...base, hoursToday: 6, hoursWeek: 30, start: 5, end: 22 }).issues).toHaveLength(4));
+  it("under 14 is generally not allowed; 16 and 17 have no hour limits but a hazard note", () => {
+    expect(checkWork({ ...base, age: 13 })).toMatchObject({ ok: false, issues: [{ kind: "under14" }] });
+    expect(checkWork({ ...base, age: 16, hoursToday: 12, end: 23 })).toMatchObject({ ok: true, hazardNote: true });
+    expect(checkWork({ ...base, age: 18 })).toMatchObject({ ok: true, hazardNote: false });
+  });
+  it("formats clock hours in both languages", () => { expect(hourLabel(19, "en")).toBe("7 p.m."); expect(hourLabel(7.5, "en")).toBe("7:30 a.m."); expect(hourLabel(12, "en")).toBe("12 p.m."); expect(hourLabel(0, "es")).toBe("12 a. m."); });
+});
+describe("graduation credits", () => {
+  it("foundation is 22 credits and endorsement is 26", () => { expect(gradTotal("foundation")).toBe(22); expect(gradTotal("endorsement")).toBe(26); });
+  it("every area is listed for both plans", () => { for (const p of ["foundation", "endorsement"] as const) expect(Object.keys(GRAD_REQUIRED[p]).sort()).toEqual([...GRAD_AREAS].sort()); });
+  it("counts credits per area, never more than the area needs", () => {
+    const r = gradProgress({ plan: "foundation", earned: { english: 6, math: 2, science: 0 } });
+    expect(r.per.find((x) => x.area === "english")).toEqual({ area: "english", need: 4, have: 4 });
+    expect(r.have).toBe(6); expect(r.left).toBe(16); expect(r.pct).toBe(27);
+  });
+  it("ignores negative numbers", () => expect(gradProgress({ plan: "endorsement", earned: { math: -3 } }).have).toBe(0));
+});
+
+import { autoSchedule, spreadStudy, splitFairly } from "../src/lib/planner";
+import { buildICS } from "../src/lib/ics";
+import { weekScore, levelOf as loadLevel, burnoutSignals, balanceShares } from "../src/lib/load";
+describe("auto schedule", () => {
+  const cap = (n: number) => () => n;
+  it("fills days earliest-deadline first and never schedules after a due date", () => {
+    const r = autoSchedule([{ id: "a", title: "Essay", minutes: 120, due: "2026-10-22" }, { id: "b", title: "Lab", minutes: 60, due: "2026-10-21" }], cap(90), "2026-10-20", 5);
+    expect(r.sessions[0]).toMatchObject({ date: "2026-10-20", taskId: "b", minutes: 60 });
+    expect(r.sessions.filter((s) => s.taskId === "a").every((s) => s.date <= "2026-10-22")).toBe(true);
+    expect(r.unscheduled).toEqual([]);
+    expect(r.sessions.reduce((n, s) => n + s.minutes, 0)).toBe(180);
+  });
+  it("never goes over a day's free time, and splits a long task across days", () => {
+    const r = autoSchedule([{ id: "a", title: "Project", minutes: 240 }], cap(60), "2026-10-20", 10);
+    expect(r.sessions.every((s) => s.minutes <= 60)).toBe(true);
+    expect(r.sessions).toHaveLength(4);
+    expect(new Set(r.sessions.map((s) => s.date)).size).toBe(4);
+  });
+  it("reports what does not fit, and what is already overdue", () => {
+    const r = autoSchedule([{ id: "a", title: "Big", minutes: 300, due: "2026-10-21" }, { id: "o", title: "Old", minutes: 30, due: "2026-10-01" }], cap(60), "2026-10-20", 7);
+    expect(r.unscheduled.find((u) => u.taskId === "a")).toMatchObject({ minutes: 180, reason: "no-time" });
+    expect(r.unscheduled.find((u) => u.taskId === "o")).toMatchObject({ minutes: 30, reason: "overdue" });
+  });
+  it("skips days with no free time", () => {
+    const r = autoSchedule([{ id: "a", title: "A", minutes: 30 }], (d) => (d === "2026-10-22" ? 60 : 0), "2026-10-20", 5);
+    expect(r.sessions).toEqual([{ date: "2026-10-22", taskId: "a", title: "A", minutes: 30 }]);
+  });
+  it("priority breaks ties between the same due dates", () => {
+    const r = autoSchedule([{ id: "lo", title: "A", minutes: 60, due: "2026-10-25", priority: 1 }, { id: "hi", title: "B", minutes: 60, due: "2026-10-25", priority: 3 }], cap(60), "2026-10-20", 1);
+    expect(r.sessions[0].taskId).toBe("hi");
+  });
+});
+describe("study planner", () => {
+  it("spreads study time over the days before a test instead of cramming", () => {
+    const r = spreadStudy([{ id: "t", name: "Bio test", date: "2026-10-25", minutes: 150 }], () => 120, "2026-10-20");
+    expect(r.short).toEqual([]);
+    expect(r.sessions).toHaveLength(5);
+    expect(r.sessions.every((s) => s.minutes === 30)).toBe(true);
+    expect(r.sessions.every((s) => s.date < "2026-10-25")).toBe(true);
+  });
+  it("shares each day's free time between tests and reports a shortfall", () => {
+    const r = spreadStudy([{ id: "a", name: "A", date: "2026-10-22", minutes: 200 }, { id: "b", name: "B", date: "2026-10-23", minutes: 200 }], () => 60, "2026-10-20");
+    const perDay = new Map<string, number>(); r.sessions.forEach((s) => perDay.set(s.date, (perDay.get(s.date) ?? 0) + s.minutes));
+    expect([...perDay.values()].every((m) => m <= 60)).toBe(true);
+    expect(r.short.length).toBe(2);
+    expect(r.sessions.reduce((n, s) => n + s.minutes, 0) + r.short.reduce((n, s) => n + s.minutes, 0)).toBe(400);
+  });
+  it("a test today or in the past cannot be planned", () => expect(spreadStudy([{ id: "a", name: "A", date: "2026-10-20", minutes: 60 }], () => 60, "2026-10-20").short).toEqual([{ id: "a", name: "A", minutes: 60 }]));
+});
+describe("fair split of group work", () => {
+  it("balances effort, biggest task first", () => {
+    const r = splitFairly([{ id: "1", title: "Slides", points: 5 }, { id: "2", title: "Research", points: 8 }, { id: "3", title: "Poster", points: 3 }, { id: "4", title: "Practice", points: 2 }], ["Ana", "Ben"]);
+    expect(r.loads).toEqual({ Ana: 10, Ben: 8 });
+    expect(Object.values(r.assigned).flat()).toHaveLength(4);
+  });
+  it("gives everyone something when there are enough tasks, and works for one person", () => {
+    const t = [1, 2, 3].map((i) => ({ id: String(i), title: `T${i}`, points: 1 }));
+    expect(Object.values(splitFairly(t, ["A", "B", "C"]).assigned).every((x) => x.length === 1)).toBe(true);
+    expect(splitFairly(t, ["Solo"]).loads).toEqual({ Solo: 3 });
+  });
+});
+describe("calendar file (.ics)", () => {
+  const ics = buildICS([{ uid: "a1", date: "2026-10-25", title: "Essay, due; final", description: "Line one\nLine two" }, { uid: "b2", date: "2026-12-31", title: "x".repeat(120) }], { name: "My deadlines", now: new Date(Date.UTC(2026, 9, 20, 12, 0, 0)) });
+  it("is a valid calendar with CRLF line endings", () => { expect(ics.startsWith("BEGIN:VCALENDAR\r\n")).toBe(true); expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true); expect(ics.replace(/\r\n/g, "").includes("\n")).toBe(false); expect((ics.match(/BEGIN:VEVENT/g) ?? []).length).toBe(2); });
+  it("uses all-day dates, ending the next day, even across a year change", () => { expect(ics).toContain("DTSTART;VALUE=DATE:20261025\r\nDTEND;VALUE=DATE:20261026"); expect(ics).toContain("DTSTART;VALUE=DATE:20261231\r\nDTEND;VALUE=DATE:20270101"); });
+  it("escapes commas, semicolons and new lines", () => { expect(ics).toContain("SUMMARY:Essay\\, due\; final"); expect(ics).toContain("DESCRIPTION:Line one\\nLine two"); });
+  it("folds long lines at 75 characters", () => { for (const line of ics.split("\r\n")) expect(line.length).toBeLessThanOrEqual(75); });
+  it("stamps the creation time in UTC and gives each event a unique id", () => { expect(ics).toContain("DTSTAMP:20261020T120000Z"); expect(ics).toContain("UID:a1@rumbo.app"); expect(ics).toContain("X-WR-CALNAME:My deadlines"); });
+});
+describe("week load and burnout signs", () => {
+  it("scores a week with weights, and levels it", () => {
+    expect(weekScore({ tests: 2, projects: 1, homework: 4, commitmentHours: 6 })).toBe(15);
+    expect([loadLevel(0), loadLevel(6), loadLevel(7), loadLevel(12), loadLevel(13)]).toEqual(["light", "light", "medium", "medium", "heavy"]);
+  });
+  it("lists the warning signs it found", () => {
+    expect(burnoutSignals({ avgSleep: 8.5, lowMoodDays: 0, weekLevel: "light", studyHours: 8, restDays: 2 })).toEqual({ signals: [], level: "light" });
+    const r = burnoutSignals({ avgSleep: 6, lowMoodDays: 4, weekLevel: "heavy", studyHours: 30, restDays: 0 });
+    expect(r.signals.sort()).toEqual(["load", "mood", "rest", "sleepLow", "study"]);
+    expect(r.level).toBe("heavy");
+    expect(burnoutSignals({ avgSleep: 7.5, lowMoodDays: 0, weekLevel: "light", studyHours: 5, restDays: 1 })).toEqual({ signals: ["sleep"], level: "light" });
+    expect(burnoutSignals({ avgSleep: null, lowMoodDays: 0, weekLevel: "light", studyHours: 0, restDays: 3 }).signals).toEqual([]);
+  });
+  it("balance shares always add up to exactly 100", () => {
+    for (const h of [{ school: 35, activities: 10, rest: 56, friends: 7 }, { school: 1, activities: 1, rest: 1, friends: 0 }, { school: 3, activities: 3, rest: 3, friends: 3 }]) {
+      const s = balanceShares(h); expect(Object.values(s).reduce((a, b) => a + b, 0)).toBe(100);
+    }
+    expect(balanceShares({ school: 0, activities: 0, rest: 0, friends: 0 })).toEqual({ school: 0, activities: 0, rest: 0, friends: 0 });
+    expect(balanceShares({ school: 10, activities: 10, rest: 0, friends: 0 })).toEqual({ school: 50, activities: 50, rest: 0, friends: 0 });
+  });
+});
+
+import { toMin, fmtTime, validRange, overlaps, findConflicts, dayIndex, abDayFor, classesOn, type ScheduleDoc } from "../src/lib/schedule";
+describe("schedule helpers", () => {
+  it("reads and formats times", () => { expect(toMin("14:30")).toBe(870); expect(toMin("9:05")).toBe(545); expect(Number.isNaN(toMin("25"))).toBe(true); expect(fmtTime("14:30")).toBe("2:30 PM"); expect(fmtTime("00:15")).toBe("12:15 AM"); expect(fmtTime("12:00")).toBe("12:00 PM"); expect(fmtTime("14:30", "es")).toBe("14:30"); expect(validRange("09:00", "10:00")).toBe(true); expect(validRange("10:00", "09:00")).toBe(false); expect(validRange("10:00", "10:00")).toBe(false); });
+  it("overlap: touching is fine, crossing is not", () => { expect(overlaps({ start: "09:00", end: "10:00" }, { start: "10:00", end: "11:00" })).toBe(false); expect(overlaps({ start: "09:00", end: "10:30" }, { start: "10:00", end: "11:00" })).toBe(true); expect(overlaps({ start: "09:00", end: "12:00" }, { start: "10:00", end: "11:00" })).toBe(true); });
+  it("finds conflicts only on the same day", () => {
+    const s = [{ id: "a", label: "Math", day: 0, start: "09:00", end: "10:00" }, { id: "b", label: "Practice", day: 0, start: "09:30", end: "11:00" }, { id: "c", label: "Work", day: 1, start: "09:30", end: "11:00" }];
+    expect(findConflicts(s).map(([x, y]) => x.id + y.id)).toEqual(["ab"]);
+    expect(findConflicts([])).toEqual([]);
+  });
+  it("day index: Monday is 0", () => { expect(dayIndex("2026-10-19")).toBe(0); expect(dayIndex("2026-10-25")).toBe(6); });
+  it("A/B days alternate on school days and skip weekends", () => {
+    const anchor = { date: "2026-10-19", day: "A" as const }; // a Monday
+    expect(["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"].map((d) => abDayFor(d, anchor))).toEqual(["A", "B", "A", "B", "A"]);
+    expect(abDayFor("2026-10-24", anchor)).toBeNull();
+    expect(abDayFor("2026-10-26", anchor)).toBe("B"); // the Friday was A, so the next school day is B
+    expect(abDayFor("2026-10-16", anchor)).toBe("B"); // the Friday before a Monday A day was B
+    expect(abDayFor("2026-10-12", { date: "2026-10-19", day: "B" })).toBe("A"); // five school days earlier, an odd number, so the letter flips
+    expect(abDayFor("2026-10-05", { date: "2026-10-19", day: "B" })).toBe("B"); // ten school days earlier
+  });
+  it("lists a day's classes in time order, for weekday and A/B schedules", () => {
+    const c = (id: string, start: string, days: string[]) => ({ id, name: id, room: "", start, end: "23:00", days, bring: "" });
+    const wk: ScheduleDoc = { kind: "weekdays", anchor: null, classes: [c("late", "13:00", ["mon", "wed"]), c("early", "08:00", ["mon"]), c("tue", "09:00", ["tue"])] };
+    expect(classesOn("2026-10-19", wk).map((x) => x.id)).toEqual(["early", "late"]);
+    expect(classesOn("2026-10-20", wk).map((x) => x.id)).toEqual(["tue"]);
+    expect(classesOn("2026-10-24", wk)).toEqual([]);
+    const ab: ScheduleDoc = { kind: "ab", anchor: { date: "2026-10-19", day: "A" }, classes: [c("a1", "08:00", ["A"]), c("b1", "08:00", ["B"]), c("both", "12:00", ["A", "B"])] };
+    expect(classesOn("2026-10-19", ab).map((x) => x.id)).toEqual(["a1", "both"]);
+    expect(classesOn("2026-10-20", ab).map((x) => x.id)).toEqual(["b1", "both"]);
+    expect(classesOn("2026-10-20", { ...ab, anchor: null })).toEqual([]);
+  });
+});

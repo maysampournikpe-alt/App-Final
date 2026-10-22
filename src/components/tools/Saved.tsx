@@ -27,6 +27,7 @@ export function SavedTool() {
       ) : (
         <>
           <p className="mt-2 text-muted">{c.count(saved.length)} · {c.note}</p>
+          <h2 className="sr-only">{c.title}</h2>
           <div className="mt-6 grid gap-6 md:grid-cols-2">
             {saved.map((l) => (
               <OpportunityCard key={l.sourceUrl} listing={l} lang={lang} saved onToggle={() => toggle(l)} />

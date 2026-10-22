@@ -1,6 +1,7 @@
 import { addDays, diffDays, isValidISO, parseISO, toISO, type ISODate } from "./dates";
 import type { Assignment } from "./homework";
 import type { SavedListing } from "./saved";
+import type { SchoolEvent } from "./schedule";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MONTHS_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -38,18 +39,20 @@ export function parseDeadline(text: string | null | undefined, now: ISODate): IS
   return null;
 }
 
-export interface CalItem { id: string; date: ISODate; title: string; kind: "opportunity" | "homework" | "countdown"; href?: string }
+export interface CalItem { id: string; date: ISODate; title: string; kind: "opportunity" | "homework" | "countdown" | "event"; href?: string }
 
 export function collectItems(o: {
   saved: Pick<SavedListing, "title" | "deadline" | "sourceUrl">[];
   homework: Assignment[];
   countdowns: { id: string; name: string; date: ISODate }[];
+  events?: SchoolEvent[];
   now: ISODate;
 }): CalItem[] {
   const items: CalItem[] = [];
   for (const s of o.saved) { const d = parseDeadline(s.deadline, o.now); if (d) items.push({ id: `o-${s.sourceUrl}`, date: d, title: s.title, kind: "opportunity", href: s.sourceUrl ?? undefined }); }
   for (const h of o.homework) if (!h.done) items.push({ id: `h-${h.id}`, date: h.due, title: h.cls ? `${h.title} (${h.cls})` : h.title, kind: "homework" });
   for (const c of o.countdowns) items.push({ id: `c-${c.id}`, date: c.date, title: c.name, kind: "countdown" });
+  for (const e of o.events ?? []) items.push({ id: `e-${e.id}`, date: e.date, title: e.title, kind: "event" });
   return items.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
 }
 

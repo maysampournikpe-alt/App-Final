@@ -260,6 +260,11 @@ export const BUILT = new Set<string>([
   "foryou/trynew",
   "languages/conversation",
   "study/chess",
+  "ap/path",
+  "sat/path",
+  "psat/path",
+  "act/path",
+  "tsi/path",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */
@@ -433,6 +438,7 @@ export const GROUPS: Group[] = [
   group("testprep", "Test Prep", "Preparación para exámenes", [
     tab("ap", "trophy", "AP Prep", "Preparación AP", [
       t("ap", "courses", "list-checks", "Course picker", "Elige tus cursos AP", "Pick the AP courses you take. Each gets its own dashboard.", "Elige los cursos AP que llevas. Cada uno tiene su propio panel.", 1),
+      t("ap", "path", "route", "Study path", "Ruta de estudio", "Lessons unit by unit: notes, then a quiz. Pass it to climb to the next level.", "Lecciones unidad por unidad: apuntes y luego un cuestionario. Apruébalo para subir al siguiente nivel.", 1),
       t("ap", "dashboard", "chart-bar", "Course dashboard", "Panel del curso", "Units in official order, progress and a countdown to the May exam.", "Unidades en el orden oficial, tu avance y la cuenta regresiva para el examen de mayo.", 1),
       t("ap", "notes", "notebook", "Unit notes", "Apuntes por unidad", "A notebook for each unit of your AP courses, with flashcards from your term lines.", "Un cuaderno para cada unidad de tus cursos AP, con tarjetas hechas de tus líneas de término.", 1),
       t("ap", "quizzes", "puzzle", "Practice quizzes", "Cuestionarios de práctica", "Exam-style questions with an explanation for every answer.", "Preguntas estilo examen con explicación de cada respuesta.", 1),
@@ -450,6 +456,7 @@ export const GROUPS: Group[] = [
       }[id];
       return tab(id, "file-check", names[0], names[1], [
         t(id, "overview", "info", "Test overview", "Sobre el examen", "What the test is, who takes it, sections, timing and scoring.", "Qué es el examen, quién lo presenta, secciones, tiempo y puntaje.", 1),
+        t(id, "path", "route", "Study path", "Ruta de estudio", "Lessons skill by skill: notes, then a quiz. Pass it to climb to the next level.", "Lecciones habilidad por habilidad: apuntes y luego un cuestionario. Apruébalo para subir al siguiente nivel.", 1),
         t(id, "diagnostic", "target", "Diagnostic test", "Examen de diagnóstico", "A short starting test to find your level and weak areas.", "Un examen corto para ver tu nivel y tus puntos débiles.", 1),
         t(id, "sections", "puzzle", "Section practice", "Práctica por sección", "Quizzes by section and skill, with explanations.", "Cuestionarios por sección y habilidad, con explicaciones.", 1),
         t(id, "full", "timer", "Full practice tests", "Exámenes completos", "Timed tests that follow the real structure.", "Exámenes con tiempo que siguen la estructura real.", 1),

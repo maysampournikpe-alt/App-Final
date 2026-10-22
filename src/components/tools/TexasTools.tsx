@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { checkWork, gradProgress, GRAD_KEY, hourLabel, NO_GRAD, workLimits, type GradArea, type GradDoc, type GradPlan, type Period } from "@/lib/laborlaw";
 import { rankInfo } from "@/lib/career";
@@ -108,7 +109,7 @@ export function LaborLawTool() {
           {age >= 16 ? <p className="mt-2">{c.ageNote}</p> : null}{res.hazardNote ? <p className="mt-2">{c.hazard}</p> : null}<p className="mt-2 text-sm text-muted">{c.school}</p></section>) : null}</div>
       <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.limits}</h2>
       <p className="mt-3 max-w-prose text-lg">{c.lim(lim.dayMax, lim.weekMax, hourLabel(lim.from, lang), hourLabel(lim.until, lang))} ({c.periods[period]})</p>
-      <p className="mt-3 max-w-prose">{c.hardship}</p><p className="mt-3"><Ext href="https://efte.twc.texas.gov/child_labor.html">{c.twc}</Ext></p><p className="mt-2 text-sm"><a href="/t/money/paycheck" className="font-bold text-teal underline underline-offset-4">{c.pay}</a></p>
+      <p className="mt-3 max-w-prose">{c.hardship}</p><p className="mt-3"><Ext href="https://efte.twc.texas.gov/child_labor.html">{c.twc}</Ext></p><p className="mt-2 text-sm"><Link href="/t/money/paycheck" className="font-bold text-teal underline underline-offset-4">{c.pay}</Link></p>
       <Callout>{c.lNote}</Callout>
     </Head>
   );

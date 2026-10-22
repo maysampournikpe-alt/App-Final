@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { collectItems, startOfWeek, type CalItem } from "@/lib/calendar";
@@ -14,11 +15,10 @@ import { abDayFor, BLOCK_KINDS, BLOCKS_KEY, blockHours, classesOn, dayIndex, DAY
 import { NO_TASKS, TASKS_KEY, type Task } from "@/lib/tasks";
 import { useCopy } from "@/lib/use-copy";
 import { buttonClass, inputClass } from "../ui";
-import { Callout, Chips, Empty, Head, pick, type L } from "./shared";
+import { Callout, Chips, Empty, Head } from "./shared";
 
 const NO_SAVED: SavedListing[] = [];
 const NO_COUNTS: { id: string; name: string; date: string }[] = [];
-const l = (en: string, es: string): L => ({ en, es });
 
 const copy = {
   en: {
@@ -231,7 +231,7 @@ export function WeeklyTool({ layer }: { layer: "all" | "sports" }) {
         <button className={`${buttonClass.primary} mt-4`}><Plus size={18} />{c.addBlock}</button>
       </form>
       <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2"><p className="font-bold text-teal">{c.hoursWeek(totalHours)}</p>
-        {conflicts ? <a href="/t/calendar/conflicts" className="font-bold text-ruby underline underline-offset-4">{c.conflictsFound(conflicts)}</a> : null}
+        {conflicts ? <Link href="/t/calendar/conflicts" className="font-bold text-ruby underline underline-offset-4">{c.conflictsFound(conflicts)}</Link> : null}
         {sched.classes.length ? <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={showClasses} onChange={(e) => setShowClasses(e.target.checked)} className="h-5 w-5 accent-[var(--c-teal)]" />{c.showClasses}</label> : null}</div>
       {shown.length === 0 ? <Empty>{c.noBlocks}</Empty> : null}
       <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">{c.dayFull.map((name, i) => {

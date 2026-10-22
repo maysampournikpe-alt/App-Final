@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { today } from "@/lib/dates";
@@ -40,6 +41,7 @@ const copy = {
   },
 };
 
+const nowMs = () => Date.now();
 const clip = async (text: string) => { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } };
 const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 const area = "min-h-32 w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
@@ -180,11 +182,11 @@ export function ReadSpeedTool() {
   const p = PASSAGES.find((x) => x.id === pid)!;
   const wc = words(p.text).length;
   const ok = ans.filter((a, i) => a === p.qs[i].a).length;
-  const finish = () => { setSpeed(wpm(wc, (Date.now() - startRef.current) / 1000)); setPhase("quiz"); };
+  const finish = () => { setSpeed(wpm(wc, (nowMs() - startRef.current) / 1000)); setPhase("quiz"); };
   const submit = () => { setPhase("done"); if (ok >= 2) setBest((b) => ({ rs: Math.max(b.rs, speed) })); };
   return (
     <Head title={c.rsTitle} lead={c.rsLead}>
-      {phase === "pick" ? <section className="mt-5"><Chips<string> value={pid} onChange={setPid} label={c.rsPick} options={PASSAGES.map((x) => ({ id: x.id, label: x.title[lang] }))} /><button onClick={() => { startRef.current = Date.now(); setPhase("read"); }} className={`${buttonClass.primary} mt-4`}>{c.start}</button>{best.rs ? <p className="mt-3 font-bold text-teal">{c.rsBest(best.rs)}</p> : null}</section> : null}
+      {phase === "pick" ? <section className="mt-5"><Chips<string> value={pid} onChange={setPid} label={c.rsPick} options={PASSAGES.map((x) => ({ id: x.id, label: x.title[lang] }))} /><button onClick={() => { startRef.current = nowMs(); setPhase("read"); }} className={`${buttonClass.primary} mt-4`}>{c.start}</button>{best.rs ? <p className="mt-3 font-bold text-teal">{c.rsBest(best.rs)}</p> : null}</section> : null}
       {phase === "read" ? <section className="mt-5"><p className="font-bold text-teal">{c.rsRead}</p><article className="guide-card mt-3 p-6 text-xl leading-relaxed"><h2 className="text-2xl">{p.title[lang]}</h2><p className="mt-2 max-w-prose">{p.text}</p></article><button onClick={finish} className={`${buttonClass.primary} mt-4`}>{c.rsDone}</button></section> : null}
       {phase === "quiz" ? <section className="mt-5"><p className="font-bold text-teal">{c.rsQs}</p>{p.qs.map((q, i) => <fieldset key={i} className="guide-card mt-3 p-4"><legend className="px-1 text-lg font-bold">{i + 1}. {q.q}</legend>{q.o.map((o, j) => <label key={o} className="flex items-center gap-3 py-1.5"><input type="radio" name={`q${i}`} checked={ans[i] === j} onChange={() => setAns(ans.map((x, k) => (k === i ? j : x)))} className="h-5 w-5 accent-[var(--c-teal)]" />{o}</label>)}</fieldset>)}<button disabled={ans.includes(-1)} onClick={submit} className={`${buttonClass.primary} mt-4`}>{c.rsSubmit}</button></section> : null}
       {phase === "done" ? <section className="guide-card mt-5 p-6" aria-live="polite"><p className="font-display text-3xl font-semibold">{c.rsResult(speed, ok)}</p><p className={`mt-2 text-lg font-bold ${ok >= 2 ? "text-teal" : "text-ruby"}`}>{ok >= 2 ? c.rsGood : c.rsLow}</p><p className="mt-2 text-muted">{c.rsAvg}</p><button onClick={() => { setAns([-1, -1, -1]); setPhase("pick"); }} className={`${buttonClass.secondary} mt-4`}>{c.again}</button></section> : null}
@@ -202,12 +204,13 @@ export function TypingTool() {
   const [left, setLeft] = useState(60);
   const [state, setState] = useState<"idle" | "run" | "done">("idle");
   const t0 = useRef(0);
+  const typedRef = useRef("");
+  useEffect(() => { typedRef.current = typed; }, [typed]);
   const [best, setBest] = useLocalDoc<{ ty: number }>("typing-best", { ty: 0 });
   const target = TYPING[tl][i % 3];
   const [final, setFinal] = useState<{ wpm: number; accuracy: number } | null>(null);
   const end = (t: string, secs: number) => { setState("done"); const r = typingResult(target, t, Math.max(1, secs)); setFinal(r); if (r.accuracy >= 90) setBest((b) => ({ ty: Math.max(b.ty, r.wpm) })); };
   useEffect(() => { if (state !== "run") return; const id = setInterval(() => { const s = 60 - Math.floor((Date.now() - t0.current) / 1000); setLeft(Math.max(0, s)); if (s <= 0) { clearInterval(id); end(typedRef.current, 60); } }, 250); return () => clearInterval(id); }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
-  const typedRef = useRef(""); typedRef.current = typed;
   const onType = (v: string) => {
     if (state === "done") return;
     if (state === "idle") { t0.current = Date.now(); setState("run"); }
@@ -250,7 +253,7 @@ export function VocabBuilderTool() {
         <label><span className="block font-bold">{c.example}</span><input value={f.example} onChange={(e) => setF({ ...f, example: e.target.value })} maxLength={200} className={`${inputClass} mt-1`} /></label>
         {msg ? <p role="alert" className="font-bold text-ruby">{msg.t}</p> : null}<button className={`${buttonClass.primary} justify-self-start`}>{c.vbAdd}</button></form>
       <p className="mt-4 font-bold text-teal" aria-live="polite">{c.vbSaved(vocab.length)}</p>
-      <a href="/t/notes/spaced" className={`${buttonClass.secondary} mt-3 inline-flex`}>{c.vbReview}</a>
+      <Link href="/t/notes/spaced" className={`${buttonClass.secondary} mt-3 inline-flex`}>{c.vbReview}</Link>
     </Head>
   );
 }

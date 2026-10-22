@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { addDays, diffDays, formatDay, isValidISO, today } from "@/lib/dates";
+import { diffDays, formatDay, isValidISO, today } from "@/lib/dates";
 import { HOMEWORK_KEY, NO_ASSIGNMENTS, type Assignment } from "@/lib/homework";
 import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
 import { autoSchedule, spreadStudy, type PlanTask, type Session, type StudyTest } from "@/lib/planner";
-import { dayIndex, FREE_KEY, DEFAULT_FREE, type Block, BLOCKS_KEY, NO_BLOCKS } from "@/lib/schedule";
+import { dayIndex, FREE_KEY, DEFAULT_FREE } from "@/lib/schedule";
 import { NO_TASKS, TASKS_KEY, type Task } from "@/lib/tasks";
 import { useCopy } from "@/lib/use-copy";
 import { buttonClass, inputClass } from "../ui";

@@ -62,6 +62,7 @@ export function NotificationsTool() {
   const [n, setN] = useLocalDoc<NotifyPrefs>(NOTIFY_KEY, NO_NOTIFY);
   const [state, setState] = useState("default");
   const [msg, setMsg] = useState("");
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
   useEffect(() => setState(perm()), []);
   const ask = async () => { try { setState(await Notification.requestPermission()); } catch { setState(perm()); } };
   const test = async () => { try { new Notification("Rumbo", { body: c.ntTestBody, icon: "/icon-192.png" }); } catch { setMsg(c.ntDenied); } };
@@ -116,6 +117,7 @@ export function VoiceTool() {
   const [text, setText] = useState("");
   const [err, setErr] = useState(false);
   const rec = useRef<InstanceType<SR> | null>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
   useEffect(() => { const w = window as unknown as { SpeechRecognition?: SR; webkitSpeechRecognition?: SR }; setOk(!!(w.SpeechRecognition ?? w.webkitSpeechRecognition)); return () => rec.current?.stop(); }, []);
   const say = () => {
     const w = window as unknown as { SpeechRecognition?: SR; webkitSpeechRecognition?: SR };
@@ -143,6 +145,7 @@ export function ReadAloudTool() {
   const [vl, setVl] = useState<"en" | "es">(lang);
   const [on, setOn] = useState(false);
   const [ok, setOk] = useState(true);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
   useEffect(() => { setOk("speechSynthesis" in window); return () => { try { speechSynthesis.cancel(); } catch {} }; }, []);
   const play = () => { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = vl === "es" ? "es-MX" : "en-US"; u.rate = rate; u.onend = () => setOn(false); u.onerror = () => setOn(false); setOn(true); speechSynthesis.speak(u); } catch { setOn(false); } };
   const stop = () => { try { speechSynthesis.cancel(); } catch {} setOn(false); };
@@ -165,6 +168,7 @@ export function OfflineTool() {
   const [installed, setInstalled] = useState(false);
   const [docs, setDocs] = useState(0);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
     setOnline(navigator.onLine);
     const up = () => setOnline(true), down = () => setOnline(false);
     window.addEventListener("online", up); window.addEventListener("offline", down);
@@ -204,6 +208,7 @@ export function ExportTool() {
   const [pending, setPending] = useState<Record<string, unknown> | null>(null);
   const [msg, setMsg] = useState<{ t: string; bad: boolean } | null>(null);
   const file = useRef<HTMLInputElement>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- reading browser state or resetting for a retry; not derivable during render
   useEffect(() => setN(Object.keys(collectDocs()).length), []);
   const dump = () => download(`rumbo-data-${today()}.json`, JSON.stringify({ app: "rumbo", exported: new Date().toISOString(), docs: collectDocs() } satisfies Dump, null, 2), "application/json");
   const summary = () => {

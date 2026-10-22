@@ -1,3 +1,5 @@
+import generated from "@/data/bank/ap-generated.json";
+import { AP_CED } from "@/data/ap-ced";
 import type { SectionConfig } from "./types";
 
 export interface ApUnit { id: string; en: string; es: string }
@@ -23,7 +25,7 @@ export const AP_PRACTICE_COURSES: ApCourse[] = [
     u("u7", "Unit 7: Industrial and economic development", "Unidad 7: Desarrollo industrial y económico")] },
 ];
 
-/** Every course a student can pick. Practice questions exist only for the ones above, so far. */
+/** Every course a student can pick. */
 export const AP_ALL_COURSES: { id: string; en: string; es: string }[] = [
   ...AP_PRACTICE_COURSES.map(({ id, en, es }) => ({ id, en, es })),
   ...[
@@ -41,6 +43,18 @@ export function apScore(pct: number): 1 | 2 | 3 | 4 | 5 {
   return pct >= 0.72 ? 5 : pct >= 0.58 ? 4 : pct >= 0.45 ? 3 : pct >= 0.32 ? 2 : 1;
 }
 
-export const AP_SECTIONS: SectionConfig[] = AP_PRACTICE_COURSES.map((c) => ({
+/** Every course that has a unit list: the ones with hand-written starter questions plus those from the CED list. Each gets a study path. */
+export const AP_COURSES: ApCourse[] = [
+  ...AP_PRACTICE_COURSES,
+  ...AP_ALL_COURSES.filter((c) => AP_CED[c.en] && !AP_PRACTICE_COURSES.some((p) => p.id === c.id)).map((c) => ({
+    ...c, units: AP_CED[c.en].map((t, i) => u(`u${i + 1}`, `Unit ${i + 1}: ${t}`, `Unidad ${i + 1}: ${t}`)),
+  })),
+];
+
+/** Courses that can run a mock exam: starter questions, or at least 12 verified questions made by `npm run bank:generate`. */
+const generatedCount = (id: string) => (generated as { section: string }[]).filter((q) => q.section === id).length;
+export const hasQuestions = (id: string) => AP_PRACTICE_COURSES.some((c) => c.id === id) || generatedCount(id) >= 12;
+
+export const AP_SECTIONS: SectionConfig[] = AP_COURSES.filter((c) => hasQuestions(c.id)).map((c) => ({
   id: c.id, en: c.en, es: c.es, questions: 55, minutes: 80, skills: c.units.map((x) => ({ id: x.id, en: x.en, es: x.es })),
 }));

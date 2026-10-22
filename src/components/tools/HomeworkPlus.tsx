@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { addDays, formatDay, today } from "@/lib/dates";
@@ -48,7 +49,7 @@ export function BackpackTool() {
   const items = [...new Set(list.flatMap((x) => x.bring.split(",").map((s) => s.trim()).filter(Boolean)))];
   const all = [...c.bpAlwaysItems, ...items];
   const done = checked[date] ?? [];
-  const toggle = (it: string) => setChecked((p) => ({ [date]: done.includes(it) ? done.filter((x) => x !== it) : [...done, it] }));
+  const toggle = (it: string) => setChecked(() => ({ [date]: done.includes(it) ? done.filter((x) => x !== it) : [...done, it] }));
   return (
     <Head title={c.bpTitle} lead={c.bpLead}>
       {sched.classes.length === 0 ? <Empty>{c.bpNone}</Empty> : (
@@ -59,7 +60,7 @@ export function BackpackTool() {
           <ul className="mt-2 divide-y-2 divide-dotted divide-line">{all.map((it) => <li key={it}><label className="flex items-center gap-3 py-2.5"><input type="checkbox" checked={done.includes(it)} onChange={() => toggle(it)} className="h-5 w-5 accent-[var(--c-teal)]" /><span className={done.includes(it) ? "text-muted line-through" : ""}>{it}</span></label></li>)}</ul>
         </>
       )}
-      <a href="/t/calendar/schedule" className={`${buttonClass.secondary} mt-5 inline-flex`}>{c.bpOpen}</a>
+      <Link href="/t/calendar/schedule" className={`${buttonClass.secondary} mt-5 inline-flex`}>{c.bpOpen}</Link>
     </Head>
   );
 }

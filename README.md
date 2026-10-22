@@ -50,6 +50,8 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
   the one-shot AI helpers (summaries, quizzes, feedback and so on). The browser sends a task name and the student's text,
   never a prompt: the reviewed prompts live in `src/lib/ai/assist.ts`. It has input limits, a rate limit, and the same
   crisis handling as the Coach.
+- `/api/learn` powers the study paths (`/t/ap/path`, `/t/sat/path`, `/t/psat/path`, `/t/act/path`, `/t/tsi/path`). It takes only ids from our own lists (course, unit), writes unit notes, and writes practice questions that a second AI call solves blind; only questions where both agree are kept. Questions from the checked bank are always used first.
+- AP unit lists live in `src/data/ap-ced.ts`. They follow each College Board Course and Exam Description, and some courses are left out where the current structure was not confirmed. Compare with apcentral.collegeboard.org before relying on a list.
 - AI features need `GROQ_API_KEY` on the server. With `AI_FIXTURES=1` the helpers return a fixed reply, which is
   how the screens are tested without a key.
 - `chess.js` (BSD license) validates moves in the chess opening trainer.
@@ -70,13 +72,17 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 - **/api/health** shows what is configured on the live site (yes/no flags and short database messages,
   never a key). If the Coach, Finder or sign-up misbehave, open it first.
 
-## Growing the SAT question bank
+## Growing the question banks (SAT, ACT, TSI and every AP course)
 
 Needs to run on a computer that can reach Groq, with `GROQ_API_KEY` in `.env.local`:
 
 ```bash
-npm run bank:generate -- --all --per-skill 12     # every skill, both sections
+npm run bank:generate -- --all --per-skill 12     # every skill, both SAT sections
 npm run bank:generate -- --section math --skill algebra --count 8
+npm run bank:generate -- --exam ap --section ap-biology --per-skill 12   # one AP course, every unit
+npm run bank:generate -- --exam act --all --per-skill 8
+npm run bank:generate -- --exam tsi --all --per-skill 8
+npm run bank:generate -- --list                   # exams, course ids and unit ids
 ```
 
 Each question is checked by structure, by an independent AI solve that never sees the answer key, and

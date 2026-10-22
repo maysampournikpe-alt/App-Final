@@ -19,7 +19,7 @@ on:
       level:
         description: "Difficulty"
         type: choice
-        options: [mixed, easy, medium, hard, exam]
+        options: [mixed, easy, medium, hard]
         default: mixed
       per_skill:
         description: "Questions per unit or topic (4 to 12 is plenty)"
@@ -62,7 +62,7 @@ jobs:
       - name: Generate
         run: |
           case "$IN_EXAM" in sat|act|tsi|ap) ;; *) echo "bad exam"; exit 1;; esac
-          case "$IN_LEVEL" in mixed|easy|medium|hard|exam) ;; *) echo "bad level"; exit 1;; esac
+          case "$IN_LEVEL" in mixed|easy|medium|hard) ;; *) echo "bad level"; exit 1;; esac
           echo "$IN_PER" | grep -Eq '^[0-9]{1,2}$' || { echo "per_skill must be a number"; exit 1; }
           echo "$IN_SECTION" | grep -Eq '^[a-z0-9-]*$' || { echo "section must be lowercase letters, numbers and dashes"; exit 1; }
           echo "$IN_MAX" | grep -Eq '^[0-9]{1,5}$' || { echo "max_batches must be a number"; exit 1; }

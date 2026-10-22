@@ -7,7 +7,7 @@ import { apiTrack } from "@/lib/exam/courses";
 import { EXAMS, examPath, sectionOf } from "@/lib/exam/config";
 import { grade, newSession } from "@/lib/exam/engine";
 import { gather } from "@/lib/exam/gather";
-import { LEVELS, type Level } from "@/lib/exam/levels";
+import { PICKABLE_LEVELS, type Level } from "@/lib/exam/levels";
 import type { ExamId } from "@/lib/exam/types";
 import type { Cram } from "@/lib/ai/learn";
 import { today } from "@/lib/dates";
@@ -27,13 +27,13 @@ import { useExamData } from "./useExam";
 const copy = {
   en: {
     course: "AP course", section: "Section", unit: "Unit", skill: "Skill", whole: "The whole course", wholeSection: "The whole section", wholeUnit: "The whole unit", wholeSkill: "The whole skill", topic: "Topic (sub-unit)", how: "How many questions", timing: "Timing", timed: "Timed", untimed: "No clock", start: "Start", resume: "Resume your test", resumeLead: "You have a test in progress.", discard: "Throw it away",
-    level: "Difficulty", levels: { mixed: "Mixed", easy: "Easy", medium: "Medium", hard: "Hard", exam: "Real exam style" } as Record<string, string>,
-    levelHelp: { mixed: "A bit of everything, easy to hard.", easy: "One idea and one step. Good for learning a topic.", medium: "Typical test questions.", hard: "Multi-step questions with close wrong choices.", exam: "Like the real test: a passage, data or scenario first, then you apply what you know." } as Record<string, string>,
+    level: "Difficulty", levels: { easy: "Easy", medium: "Medium", hard: "Hard" } as Record<string, string>,
+    levelHelp: { easy: "One idea and one step. Good for learning a topic.", medium: "Typical test questions.", hard: "Multi-step questions with close wrong choices." } as Record<string, string>,
     quizTitle: "Practice quizzes", quizLead: "Pick a section or course, then the whole thing, one unit or one topic. Choose how hard you want it. Every answer has an explanation.",
     mockTitle: "Mock exams", mockLead: "A mock exam for one section or course, at the real length and pace. The questions come from every unit.",
     mockFull: (n: number, m: number) => `Full length: ${n} questions, about ${m} minutes`, mockHalf: (n: number, m: number) => `Half length: ${n} questions, about ${m} minutes`,
     mcOnly: "Practice here is multiple choice. The real exam also has free-response questions, which this app does not grade. Use the official free-response questions and scoring guides for those.",
-    making: (a: number, b: number) => `Getting your questions… ${a} of ${b}. Hard and real-exam-style questions can take a moment.`, noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.",
+    making: (a: number, b: number) => `Getting your questions… ${a} of ${b}. Hard questions can take a moment.`, noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.",
     errors: { rate_limited: "You have used a lot of AI this hour. Take a break and try again in a few minutes.", busy: "The AI is busy. Try again in a minute.", slow: "That took too long. Try again.", unavailable: "AI question writing is not switched on in this version yet.", failed: "Something went wrong on our side. Try again in a minute.", offline: "You are offline. Questions already on this device still work.", empty: "Not enough questions are ready for this yet." } as Record<string, string>,
     short: (n: number, w: number) => `Only ${n} of ${w} questions could be made this time, so your test is shorter.`, aiNote: "Questions come from our checked bank first. Extra ones are written by an AI and checked by a second AI, so a few may still have mistakes. Report any you see.",
     vocabTitle: "Vocabulary", vocabLead: "The key terms for a unit or a topic. Hide the meanings and test yourself, then send them to your flashcards.", hide: "Hide meanings", show: "Show meanings", reveal: "Show meaning", addAll: "Add all to my flashcards", added: (n: number) => `${n} flashcards added.`, dup: "These terms are already in your flashcards.", loading: "Writing your list…", retry: "Try again",
@@ -41,13 +41,13 @@ const copy = {
   },
   es: {
     course: "Curso AP", section: "Sección", unit: "Unidad", skill: "Habilidad", whole: "Todo el curso", wholeSection: "Toda la sección", wholeUnit: "Toda la unidad", wholeSkill: "Toda la habilidad", topic: "Tema (subunidad)", how: "Cuántas preguntas", timing: "Tiempo", timed: "Con tiempo", untimed: "Sin reloj", start: "Empezar", resume: "Seguir con tu examen", resumeLead: "Tienes un examen en progreso.", discard: "Tirarlo",
-    level: "Dificultad", levels: { mixed: "Mixta", easy: "Fácil", medium: "Media", hard: "Difícil", exam: "Estilo del examen real" } as Record<string, string>,
-    levelHelp: { mixed: "De todo un poco, de fácil a difícil.", easy: "Una idea y un paso. Buena para aprender un tema.", medium: "Preguntas típicas del examen.", hard: "Preguntas de varios pasos con opciones muy parecidas.", exam: "Como el examen real: primero un pasaje, datos o una situación, y luego aplicas lo que sabes." } as Record<string, string>,
+    level: "Dificultad", levels: { easy: "Fácil", medium: "Media", hard: "Difícil" } as Record<string, string>,
+    levelHelp: { easy: "Una idea y un paso. Buena para aprender un tema.", medium: "Preguntas típicas del examen.", hard: "Preguntas de varios pasos con opciones muy parecidas." } as Record<string, string>,
     quizTitle: "Cuestionarios de práctica", quizLead: "Elige una sección o curso, y luego todo, una unidad o un tema. Elige qué tan difícil lo quieres. Cada respuesta tiene una explicación.",
     mockTitle: "Exámenes de práctica", mockLead: "Un examen de práctica de una sección o curso, con la duración y el ritmo reales. Las preguntas vienen de todas las unidades.",
     mockFull: (n: number, m: number) => `Largo completo: ${n} preguntas, unos ${m} minutos`, mockHalf: (n: number, m: number) => `Medio largo: ${n} preguntas, unos ${m} minutos`,
     mcOnly: "La práctica aquí es de opción múltiple. El examen real también tiene preguntas de respuesta escrita, que esta app no califica. Para esas, usa las preguntas oficiales y sus guías de calificación.",
-    making: (a: number, b: number) => `Preparando tus preguntas… ${a} de ${b}. Las preguntas difíciles y del estilo del examen real pueden tardar un poco.`, noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.",
+    making: (a: number, b: number) => `Preparando tus preguntas… ${a} de ${b}. Las preguntas difíciles pueden tardar un poco.`, noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.",
     errors: { rate_limited: "Has usado mucha IA esta hora. Descansa y vuelve a intentar en unos minutos.", busy: "La IA está ocupada. Intenta de nuevo en un minuto.", slow: "Tardó demasiado. Intenta de nuevo.", unavailable: "La escritura de preguntas con IA todavía no está activada en esta versión.", failed: "Algo falló de nuestra parte. Intenta de nuevo en un minuto.", offline: "No tienes internet. Las preguntas que ya están en este dispositivo siguen funcionando.", empty: "Todavía no hay suficientes preguntas listas para esto." } as Record<string, string>,
     short: (n: number, w: number) => `Esta vez solo se pudieron hacer ${n} de ${w} preguntas, así que tu examen es más corto.`, aiNote: "Las preguntas salen primero de nuestro banco revisado. Las extra las escribe una IA y las revisa una segunda IA, así que algunas todavía pueden tener errores. Reporta las que veas.",
     vocabTitle: "Vocabulario", vocabLead: "Los términos clave de una unidad o un tema. Oculta los significados y ponte a prueba, y luego mándalos a tus tarjetas.", hide: "Ocultar significados", show: "Mostrar significados", reveal: "Mostrar significado", addAll: "Agregar todo a mis tarjetas", added: (n: number) => `${n} tarjetas agregadas.`, dup: "Estos términos ya están en tus tarjetas.", loading: "Escribiendo tu lista…", retry: "Intentar otra vez",
@@ -108,7 +108,7 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
   const sec = sectionOf(track, sc.course.id);
   const real = sec?.questions ?? 55;
   const [count, setCount] = useState(kind === "mock" ? -1 : 10); // -1 means "the real length"
-  const [level, setLevel] = useState<Level>(LEVELS.includes(params.get("level") as Level) ? (params.get("level") as Level) : "mixed");
+  const [level, setLevel] = useState<Level>(PICKABLE_LEVELS.includes(params.get("level") as Level) ? (params.get("level") as Level) : "medium");
   const [timed, setTimed] = useState(kind === "mock" && cfg.realTimed !== false);
   const [open, setOpen] = useState(false);
   const [resultId, setResultId] = useState<string | null>(null);
@@ -116,7 +116,7 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
   const [busy, setBusy] = useState<{ done: number; total: number } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
-  const levels = LEVELS.filter((l) => !cfg.maxDifficulty || cfg.maxDifficulty >= 3 || (l !== "hard" && l !== "exam"));
+  const levels = PICKABLE_LEVELS.filter((l) => !cfg.maxDifficulty || cfg.maxDifficulty >= 3 || l !== "hard");
   const perQ = sec ? sec.minutes / sec.questions : 1.5;
   const want = kind === "mock" ? (count === -1 ? real : count) : count;
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { coursesFor } from "@/lib/exam/courses";
 import { EXAMS } from "@/lib/exam/config";
-import { LEVELS, levelOfQuestion, matchesLevel, specFor } from "@/lib/exam/levels";
+import { LEVELS, PICKABLE_LEVELS, levelOfQuestion, matchesLevel, specFor } from "@/lib/exam/levels";
 import { buildGenPrompt, buildReviewPrompt, MIN_FIT, parseReview, topicOf, verifyQuestion } from "@/lib/exam/verify";
 import { AP_COURSES } from "@/lib/exam/ap";
 import { AP_PROFILES, AP_TOPIC_BRIEFS, AP_UNIT_BRIEFS } from "@/data/ap/briefs";
@@ -42,28 +42,29 @@ describe("ids fit what the API accepts", () => {
 });
 
 describe("difficulty levels", () => {
-  const q = (difficulty: 1 | 2 | 3, style?: "exam") => ({ difficulty, style });
-  it("matches by level, and exam style is its own level", () => {
-    expect(levelOfQuestion(q(1))).toBe("easy"); expect(levelOfQuestion(q(2))).toBe("medium"); expect(levelOfQuestion(q(3))).toBe("hard"); expect(levelOfQuestion(q(3, "exam"))).toBe("exam");
-    expect(matchesLevel(q(3, "exam"), "hard")).toBe(false); expect(matchesLevel(q(3, "exam"), "exam")).toBe(true);
-    expect(matchesLevel(q(1), "mixed")).toBe(true); expect(matchesLevel(q(1), undefined)).toBe(true); expect(matchesLevel(q(2), "easy")).toBe(false);
-    expect(LEVELS).toEqual(["mixed", "easy", "medium", "hard", "exam"]);
+  const q = (difficulty: 1 | 2 | 3) => ({ difficulty });
+  it("matches by level", () => {
+    expect(levelOfQuestion(q(1))).toBe("easy"); expect(levelOfQuestion(q(2))).toBe("medium"); expect(levelOfQuestion(q(3))).toBe("hard");
+    expect(matchesLevel(q(1), "mixed")).toBe(true); expect(matchesLevel(q(1), undefined)).toBe(true); expect(matchesLevel(q(2), "easy")).toBe(false); expect(matchesLevel(q(3), "hard")).toBe(true);
+    expect(LEVELS).toEqual(["mixed", "easy", "medium", "hard"]);
+    expect(PICKABLE_LEVELS).toEqual(["easy", "medium", "hard"]);
+  });
+  it("skips older saved questions written in the retired real-exam style", () => {
+    const old = { difficulty: 3 as const, style: "exam" };
+    expect(matchesLevel(old, "hard")).toBe(false); expect(matchesLevel(old, "mixed")).toBe(false); expect(matchesLevel(old, undefined)).toBe(false);
   });
   it("tells the writer what to make, and mixed sets cycle", () => {
-    expect(specFor("easy")).toEqual({ difficulty: 1 }); expect(specFor("exam")).toEqual({ difficulty: 3, style: "exam" });
+    expect(specFor("easy")).toEqual({ difficulty: 1 }); expect(specFor("hard")).toEqual({ difficulty: 3 });
     expect([0, 1, 2, 3].map((i) => specFor("mixed", i).difficulty)).toEqual([1, 2, 2, 3]);
   });
-  it("real exam style changes the prompt and is kept on the verified question", () => {
-    const spec = { exam: "ap" as const, section: "ap-biology", skill: "u1", topic: "u1-2", count: 3, ...specFor("exam") };
-    const p = buildGenPrompt(spec).user;
-    expect(p).toMatch(/REAL EXAM STYLE/); expect(p).toMatch(/Topic 1\.2/);
-    expect(buildGenPrompt({ ...spec, style: undefined, difficulty: 1 }).user).not.toMatch(/REAL EXAM STYLE/);
+  it("the prompt names the topic and the verified question is marked as checked", () => {
+    const spec = { exam: "ap" as const, section: "ap-biology", skill: "u1", topic: "u1-2", count: 3, ...specFor("hard") };
+    expect(buildGenPrompt(spec).user).toMatch(/Topic 1\.2/);
+    expect(buildGenPrompt(spec).user).not.toMatch(/REAL EXAM STYLE/);
     const v = verifyQuestion({ stem: "A long enough question stem here?", passage: "Stimulus.", type: "mc", choices: ["a", "b", "c", "d"], answer: "B", explanation: "Because B is right, for this reason." }, spec, "B", "x", "in");
-    expect(v.ok && v.question.style).toBe("exam");
     expect(v.ok && v.question.scoped).toBe(true);
   });
   it("a level filter applies to what is already on the device", () => {
-    expect(localPool({ exam: "sat", section: "math", skill: "algebra", level: "exam" })).toHaveLength(0);
     expect(localPool({ exam: "sat", section: "math", skill: "algebra", level: "easy" }).every((x) => x.difficulty === 1)).toBe(true);
   });
 });
@@ -91,11 +92,11 @@ describe("review keeps questions on their course and topic, and correct", () => 
     expect(parseReview("SCOPE: IN\nACCURATE: YES")).toBeNull(); expect(parseReview("SCOPE: IN")).toBeNull(); expect(parseReview("no verdict")).toBeNull();
     expect(parseReview("SCOPE: IN maybe\nSCOPE: OUT\nACCURATE: YES\nFIT: 9")).toBe("out");
   });
-  it("normal questions need a fit of 8 and real-exam-style questions need 9", () => {
-    expect(MIN_FIT).toEqual({ normal: 8, exam: 9 });
+  it("a question needs a fit of at least 8", () => {
+    expect(MIN_FIT).toBe(8);
     expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 8")).toBe("in");
-    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 8", MIN_FIT.exam)).toBe("weak");
-    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 10", MIN_FIT.exam)).toBe("in");
+    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 7")).toBe("weak");
+    expect(parseReview("SCOPE: IN\nACCURATE: YES\nFIT: 10")).toBe("in");
     const weak = verifyQuestion(item, spec, "B", "x", "weak"); expect(!weak.ok && weak.reason).toMatch(/not close enough/);
   });
   it("the reviewer is told to be harsh, to reject arguable answers, and sees how real questions are built", () => {

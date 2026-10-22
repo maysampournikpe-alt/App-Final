@@ -80,6 +80,8 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 
 ## Growing the question banks (SAT, ACT, TSI and every AP course)
 
+No computer needed: add a repository secret named `GROQ_API_KEY` (Settings > Secrets and variables > Actions), then open the Actions tab, pick "Generate practice questions" and press Run workflow. The new questions land on a `bank/...` branch for you to read and merge. The commands below do the same thing by hand.
+
 Needs to run on a computer that can reach Groq, with `GROQ_API_KEY` in `.env.local`:
 
 ```bash

@@ -17,6 +17,7 @@ import { DataGraphTool, LabReportTool, MindMapTool, OutlineTool, PalaceTool } fr
 import { DailyTool, DebateTool, MethodsTool, ScienceFairTool, SpeakingTool, TestDayTool, TimedTool } from "./StudyMore";
 import { CounterTool, EssayOutlineTool, ParaphraseTool, ReadLevelTool, ReadLogTool, ReadSpeedTool, ThesisTool, TypingTool, VocabBuilderTool, VocabCtxTool } from "./WritingTools";
 import { AssistTool } from "./AssistTools";
+import { ApFlashTool, ApNotesTool, ApPlanTool, AppTrackerTool, CitationTool } from "./MoreLocal";
 import { GuideTool } from "./GuideTool";
 import { BusTool, EventsTool, LocalMapTool } from "./LocalTools";
 import { LaborLawTool, TxAdmitTool, TxGradTool } from "./TexasTools";
@@ -274,4 +275,9 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "languages/bilingual": clientOnly(() => <AssistTool task="bilingual" />),
   "ap/frq": clientOnly(() => <AssistTool task="frq" />),
   "coach/interview": clientOnly(() => <CoachTool kind="practice" />),
+  "writing/citation": clientOnly(CitationTool),
+  "college/apptracker": clientOnly(AppTrackerTool),
+  "ap/notes": clientOnly(ApNotesTool),
+  "ap/flash": clientOnly(ApFlashTool),
+  "ap/plan": clientOnly(ApPlanTool),
 };

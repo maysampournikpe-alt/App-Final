@@ -231,6 +231,11 @@ export const BUILT = new Set<string>([
   "languages/bilingual",
   "ap/frq",
   "coach/interview",
+  "writing/citation",
+  "college/apptracker",
+  "ap/notes",
+  "ap/flash",
+  "ap/plan",
 ]);
 
 /** Tools marked [LOCAL] in the plan: no AI, no database, work offline. */
@@ -382,7 +387,7 @@ export const GROUPS: Group[] = [
       t("writing", "outline", "list-tree", "Essay outline template", "Esquema de ensayo", "Intro, body paragraphs and conclusion.", "Introducción, desarrollo y conclusión.", 4),
       t("writing", "thesis", "pen", "Thesis statement builder", "Armador de tesis", "Fill in the blanks to form a strong claim.", "Completa los espacios para formar una tesis sólida.", 4),
       t("writing", "counter", "type", "Word and character counter", "Contador de palabras", "With warnings for essay limits.", "Con avisos de límite de palabras.", 4),
-      t("writing", "citation", "link", "Citation generator", "Generador de citas", "MLA, APA and Chicago from a link or title.", "MLA, APA y Chicago desde un enlace o título.", 4),
+      t("writing", "citation", "link", "Citation generator", "Generador de citas", "MLA 9 and APA 7 from the details you type, so nothing is made up.", "MLA 9 y APA 7 con los datos que escribes, así que no se inventa nada.", 4),
       t("writing", "grammar", "spell-check", "Grammar coach", "Entrenador de gramática", "Explains why something is wrong instead of silently fixing it.", "Explica por qué algo está mal en vez de corregirlo sin decirte.", 4),
       t("writing", "paraphrase", "copy", "Paraphrase practice", "Práctica de parafraseo", "Checks if your rewrite is too close to the original.", "Revisa si tu versión se parece demasiado al original.", 4),
       t("writing", "readlevel", "glasses", "Reading level checker", "Nivel de lectura", "Tells you if your essay reads at your grade level.", "Te dice si tu ensayo está al nivel de tu grado.", 4),
@@ -405,11 +410,11 @@ export const GROUPS: Group[] = [
     tab("ap", "trophy", "AP Prep", "Preparación AP", [
       t("ap", "courses", "list-checks", "Course picker", "Elige tus cursos AP", "Pick the AP courses you take. Each gets its own dashboard.", "Elige los cursos AP que llevas. Cada uno tiene su propio panel.", 1),
       t("ap", "dashboard", "chart-bar", "Course dashboard", "Panel del curso", "Units in official order, progress and a countdown to the May exam.", "Unidades en el orden oficial, tu avance y la cuenta regresiva para el examen de mayo.", 1),
-      t("ap", "notes", "notebook", "Unit notes", "Apuntes por unidad", "Key terms, main ideas and examples for each unit.", "Términos clave, ideas principales y ejemplos de cada unidad.", 1),
+      t("ap", "notes", "notebook", "Unit notes", "Apuntes por unidad", "A notebook for each unit of your AP courses, with flashcards from your term lines.", "Un cuaderno para cada unidad de tus cursos AP, con tarjetas hechas de tus líneas de término.", 1),
       t("ap", "quizzes", "puzzle", "Practice quizzes", "Cuestionarios de práctica", "Exam-style questions with an explanation for every answer.", "Preguntas estilo examen con explicación de cada respuesta.", 1),
       t("ap", "exam", "timer", "Full practice exams", "Exámenes completos de práctica", "A timed exam with the real section structure.", "Un examen con tiempo y la estructura real.", 1),
       t("ap", "frq", "pen", "Free response feedback", "Comentarios en respuestas escritas", "Scored against a rubric with feedback on each point.", "Calificación con rúbrica y comentarios en cada punto.", 1),
-      t("ap", "flash", "layers", "Flashcards", "Tarjetas", "Made from each unit's notes.", "Hechas con los apuntes de cada unidad.", 1),
+      t("ap", "flash", "layers", "Flashcards", "Tarjetas", "Made by you or from your unit notes.", "Hechas por ti o con tus apuntes de cada unidad.", 1),
       t("ap", "weak", "target", "Weak spot report", "Reporte de puntos débiles", "Which units and skills to review next.", "Qué unidades y habilidades repasar después.", 1),
       t("ap", "score", "gauge", "Score estimate", "Calificación estimada", "A 1 to 5 range. Estimate only, not an official score.", "Un rango de 1 a 5. Solo es un estimado, no un puntaje oficial.", 1),
       t("ap", "plan", "calendar-check", "Study plan", "Plan de estudio", "One tap schedules every unit before exam day.", "Un toque programa todas las unidades antes del examen.", 1),

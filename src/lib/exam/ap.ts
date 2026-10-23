@@ -12,11 +12,9 @@ const u = (id: string, en: string, es = en): RawUnit => ({ id, en, es });
 /** Courses with practice questions. Units follow the College Board framework for each course. */
 const PRACTICE_RAW: RawCourse[] = [
   { id: "apstats", en: "AP Statistics", es: "AP Estadística", units: [
-    u("u1", "Unit 1: Exploring one-variable data", "Unidad 1: Datos de una variable"), u("u2", "Unit 2: Exploring two-variable data", "Unidad 2: Datos de dos variables"),
-    u("u3", "Unit 3: Collecting data", "Unidad 3: Recolección de datos"), u("u4", "Unit 4: Probability and random variables", "Unidad 4: Probabilidad y variables aleatorias"),
-    u("u5", "Unit 5: Sampling distributions", "Unidad 5: Distribuciones muestrales"), u("u6", "Unit 6: Inference for proportions", "Unidad 6: Inferencia para proporciones"),
-    u("u7", "Unit 7: Inference for means", "Unidad 7: Inferencia para medias"), u("u8", "Unit 8: Chi-square inference", "Unidad 8: Inferencia con chi cuadrada"),
-    u("u9", "Unit 9: Inference for slopes", "Unidad 9: Inferencia para pendientes")] },
+    u("u1", "Unit 1: Exploring one-variable data and collecting data", "Unidad 1: Datos de una variable y recolección de datos"), u("u2", "Unit 2: Probability, random variables and probability distributions", "Unidad 2: Probabilidad, variables aleatorias y distribuciones"),
+    u("u3", "Unit 3: Inference for categorical data: proportions", "Unidad 3: Inferencia para datos categóricos: proporciones"), u("u4", "Unit 4: Inference for quantitative data: means", "Unidad 4: Inferencia para datos cuantitativos: medias"),
+    u("u5", "Unit 5: Regression analysis", "Unidad 5: Análisis de regresión")] },
   { id: "apush", en: "AP US History", es: "AP Historia de EE. UU.", units: [
     u("p1", "Period 1: 1491 to 1607", "Periodo 1: 1491 a 1607"), u("p2", "Period 2: 1607 to 1754", "Periodo 2: 1607 a 1754"), u("p3", "Period 3: 1754 to 1800", "Periodo 3: 1754 a 1800"),
     u("p4", "Period 4: 1800 to 1848", "Periodo 4: 1800 a 1848"), u("p5", "Period 5: 1844 to 1877", "Periodo 5: 1844 a 1877"), u("p6", "Period 6: 1865 to 1898", "Periodo 6: 1865 a 1898"),

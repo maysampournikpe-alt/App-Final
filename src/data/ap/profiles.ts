@@ -11,8 +11,8 @@ const lang = (name: string, extra = ""): Profile => ({
 
 export const PROFILES: Record<string, Profile> = {
   "AP Statistics": {
-    about: "High school statistics: exploring one-variable and two-variable data, collecting data (sampling and experiments), probability and random variables, sampling distributions, and inference (confidence intervals and significance tests for proportions, means, chi-square and slopes). Questions give a short context or data summary and ask students to describe, check conditions, calculate with a calculator, and interpret results in context.",
-    avoid: "Calculus-based probability, matrix algebra, Bayesian methods, regression with more than one predictor, and any formula that is not taught in the course.",
+    about: "High school statistics in the redesigned five-unit course: exploring one-variable data and collecting data (sampling and experiments), probability and random variables, inference for proportions (including chi-square tests for two-way tables), inference for means, and regression analysis (description only, not inference for slopes). Questions give a short context or data summary and ask students to describe, check conditions, calculate with a calculator, and interpret results in context.",
+    avoid: "Calculus-based probability, matrix algebra, Bayesian methods, regression with more than one predictor, the geometric distribution, combining random variables, chi-square goodness of fit, inference for the slope of a regression line, and any formula that is not taught in the course.",
   },
   "AP US History": {
     about: "United States history from 1491 to the present in nine periods, using themes such as identity, work and exchange, politics and power, America in the world, environment and geography, and culture and society. Questions give a short primary or secondary source excerpt, image or data (written in the prompt) and test historical thinking: contextualization, comparison, causation, continuity and change, and argumentation.",

@@ -240,3 +240,39 @@ p { text-wrap: pretty; max-width: 68ch; }
     radial-gradient(34rem 20rem at -5% 110%, color-mix(in srgb, var(--c-ruby) 22%, transparent), transparent 70%),
     var(--c-paper);
 }
+
+/* ------------------------------------------------------------------
+   School look: notebook paper, folders with tabs, highlighter marks.
+   ------------------------------------------------------------------ */
+.notebook-hero {
+  background-color: var(--c-surface);
+  background-image:
+    linear-gradient(to right, transparent 3.2rem, color-mix(in srgb, var(--c-ruby) 60%, transparent) 3.2rem, color-mix(in srgb, var(--c-ruby) 60%, transparent) calc(3.2rem + 2px), transparent calc(3.2rem + 2px)),
+    repeating-linear-gradient(to bottom, transparent 0 2.2rem, color-mix(in srgb, var(--c-teal) 22%, transparent) 2.2rem calc(2.2rem + 1px));
+  background-position: 0 0, 0 1rem;
+}
+@media (max-width: 640px) {
+  .notebook-hero { background-image: repeating-linear-gradient(to bottom, transparent 0 2.2rem, color-mix(in srgb, var(--c-teal) 22%, transparent) 2.2rem calc(2.2rem + 1px)); background-position: 0 1rem; }
+}
+
+/* Highlighter marker under a few words. */
+.marker { background: linear-gradient(transparent 58%, color-mix(in srgb, var(--c-marigold) 80%, transparent) 58% 92%, transparent 92%); padding: 0 0.15em; }
+
+/* Folder: a card with a colored tab, like a subject folder in a binder. */
+.folder { position: relative; margin-top: 1.1rem; border: 1.5px solid var(--c-ink); border-radius: 4px 16px 16px 16px; background: var(--c-surface); box-shadow: 4px 4px 0 var(--c-ink); }
+.folder::before {
+  content: ""; position: absolute; left: -1.5px; top: -1.1rem; width: 42%; max-width: 9rem; height: 1.1rem;
+  background: var(--tone, var(--c-teal)); border: 1.5px solid var(--c-ink); border-bottom: 0; border-radius: 10px 10px 0 0;
+}
+.folder > .folder-body { position: relative; }
+
+.tone-1 { --tone: var(--c-teal); }
+.tone-2 { --tone: var(--c-marigold); }
+.tone-3 { --tone: var(--c-ruby); }
+.tone-4 { --tone: var(--c-palm); }
+.tone-5 { --tone: var(--c-terracotta); }
+.tone-6 { --tone: #7c3aed; }
+.tone-7 { --tone: #0891b2; }
+
+/* A small "hall pass" label. */
+.pass { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px dashed var(--c-ink); border-radius: 8px; padding: 0.15rem 0.6rem; font-weight: 800; background: var(--c-surface); }

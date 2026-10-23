@@ -116,14 +116,14 @@ export function Sidebar({ collapsible = true, onNavigate }: { collapsible?: bool
             ) : null}
 
             <ul className="space-y-1">
-              {HUBS.map((hub) => {
+              {HUBS.map((hub, i) => {
                 const Icon = ICONS[hub.icon];
                 const active = currentHub === hub.id;
                 return (
                   <li key={hub.id}>
                     <Link href={`/h/${hub.id}`} onClick={onNavigate} aria-current={active ? "page" : undefined}
                       className={`flex items-center gap-3 rounded-xl px-2 py-2 ${active ? "bg-teal text-on-teal" : "hover:bg-sunken"}`}>
-                      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${active ? "bg-marigold text-on-marigold" : "bg-sunken text-teal"}`}><Icon size={19} strokeWidth={2} aria-hidden /></span>
+                      <span className={`tone-${(i % 7) + 1} grid h-9 w-9 shrink-0 place-items-center rounded-lg border-[1.5px] border-ink ${active ? "bg-marigold text-on-marigold" : "bg-sunken text-ink"}`} style={active ? undefined : { boxShadow: "inset 0 -4px 0 var(--tone)" }}><Icon size={19} strokeWidth={2} aria-hidden /></span>
                       <span className="min-w-0 flex-1 truncate text-lg font-extrabold">{hub.name[lang]}</span>
                     </Link>
                   </li>

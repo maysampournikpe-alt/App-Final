@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { AI } from "@/config/ai";
 import { AiError, groqChat } from "@/lib/ai/groq";
 import { extractJson } from "@/lib/ai/finder";
+import { CRISIS_REPLY, needsCrisisReply } from "@/lib/ai/coach";
 import { buildPlanPrompt, planRequestSchema, toPlan } from "@/lib/plan";
 import { allow, clientIp } from "@/lib/rate-limit";
 import { hasSupabaseServer, supabaseServer } from "@/lib/supabase/server";
@@ -17,6 +18,9 @@ export async function POST(request: Request) {
   const parsed = planRequestSchema.safeParse(json);
   if (!parsed.success) return fail("bad_request", 400);
   const req = parsed.data;
+
+  // A goal that is really about self-harm or abuse gets the fixed, caring answer with real help lines, never AI output.
+  if (needsCrisisReply([req.goal, req.adjust?.instruction ?? ""].join(" "))) return NextResponse.json({ ok: false, error: "crisis", text: CRISIS_REPLY[req.lang] }, { headers: { "Cache-Control": "no-store" } });
 
   if (hasSupabaseServer()) {
     let who = `ip:${await clientIp()}`, perHour = 8;

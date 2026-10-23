@@ -1,5 +1,6 @@
 import "server-only";
 import { AI } from "@/config/ai";
+import { claudeBudgetOk } from "./budget";
 import { claudeChat, claudeStreamResponse, claudeUsable, ClaudeError } from "./claude";
 
 export type AiErrorCode = "unavailable" | "auth" | "model" | "rate" | "timeout" | "upstream" | "empty";
@@ -178,7 +179,7 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
   if (process.env.AI_FIXTURES === "1") return fixture(args.messages[0]?.content.includes("goal plans") ? "plan" : undefined); // local testing without a key
   // Web search stays on Groq. Everything else goes to Claude when it is set up, with Groq as the backup.
   const key = process.env.GROQ_API_KEY;
-  if (claudeUsable() && !args.model.includes("compound")) {
+  if (claudeUsable() && !args.model.includes("compound") && (await claudeBudgetOk())) {
     try {
       return { content: await claudeChat(args), searched: [] };
     } catch (e) {
@@ -216,7 +217,7 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
   }
   const key = process.env.GROQ_API_KEY;
   let res: Response | null = null;
-  if (claudeUsable() && !args.model.includes("compound")) {
+  if (claudeUsable() && !args.model.includes("compound") && (await claudeBudgetOk())) {
     try {
       res = await claudeStreamResponse(args);
     } catch (e) {

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { AI } from "@/config/ai";
 import { AiError, groqChat, type AiErrorCode } from "@/lib/ai/groq";
 import { buildPrompt, cacheKeyParts, extractJson, finalize, findRequestSchema, type FindResult } from "@/lib/ai/finder";
+import { CRISIS_REPLY, needsCrisisReply } from "@/lib/ai/coach";
 import { allow, clientIp } from "@/lib/rate-limit";
 import { hasSupabaseServer, supabaseAdmin, supabaseServer } from "@/lib/supabase/server";
 
@@ -10,7 +11,7 @@ import { hasSupabaseServer, supabaseAdmin, supabaseServer } from "@/lib/supabase
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-type ApiError = "bad_request" | "rate_limited" | "unavailable" | "busy" | "slow" | "no_results" | "failed";
+type ApiError = "bad_request" | "crisis" | "rate_limited" | "unavailable" | "busy" | "slow" | "no_results" | "failed";
 const fail = (error: ApiError, status: number, extra?: Record<string, unknown>) =>
   NextResponse.json({ ok: false, error, ...extra }, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -25,6 +26,9 @@ export async function POST(request: Request) {
   const parsed = findRequestSchema.safeParse(json);
   if (!parsed.success) return fail("bad_request", 400);
   const req = parsed.data;
+
+  // Same rule as the Coach: a search about self-harm or abuse gets the fixed, caring answer and real help lines.
+  if (needsCrisisReply(`${req.query} ${req.place}`)) return fail("crisis", 200, { text: CRISIS_REPLY[req.lang] });
 
   const hasDb = hasSupabaseServer();
   // Signed-in students get a bit more room than guests, counted per account instead of per address.

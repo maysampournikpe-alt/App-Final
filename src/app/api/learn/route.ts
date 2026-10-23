@@ -4,8 +4,10 @@ import { z } from "zod";
 import { AI } from "@/config/ai";
 import { AiError, groqChat } from "@/lib/ai/groq";
 import { extractJson } from "@/lib/ai/finder";
+import { docFresh, docGet, docPut } from "@/lib/ai/doc-cache";
+import { claudeUsable } from "@/lib/ai/claude";
 import { specFor } from "@/lib/exam/levels";
-import { ID_MAX, cramMessages, cramSchema, notesMessages, notesSchema, termsMessages, termsSchema, TRACKS } from "@/lib/ai/learn";
+import { DOC_VERSION, ID_MAX, cramMessages, cramSchema, notesMessages, notesSchema, termsMessages, termsSchema, TRACKS } from "@/lib/ai/learn";
 import { fromBank, toBank } from "@/lib/ai/qbank";
 import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, parseReview, parseSolved, topicOf, verifyQuestion, type GenSpec } from "@/lib/exam/verify";
 import type { Question } from "@/lib/exam/types";
@@ -56,6 +58,17 @@ export async function POST(request: Request) {
   const ref = topicOf(exam, section, skill, topic);
   if (!ref) return err("bad_request", 400);
 
+  // Notes, vocabulary and cram sheets are the same for every student, so a saved copy is shared. A saved copy costs nothing and does not count against the limit.
+  const cacheable = kind === "notes" || kind === "terms" || kind === "cram";
+  const compact = kind === "notes" && !claudeUsable(); // only the free models are available: ask for shorter notes that fit their per-minute limit
+  const ckey = `doc:${DOC_VERSION}:${kind}:${exam}:${section}:${skill}:${topic ?? ""}:${lang}`;
+  const payload = (v: unknown) => NextResponse.json({ ok: true, ...(kind === "notes" ? { notes: v } : kind === "terms" ? { terms: v } : { cram: v }) }, { headers });
+  const valid = (v: unknown) => (kind === "notes" ? notesSchema : kind === "terms" ? termsSchema.shape.terms : cramSchema).safeParse(v).success;
+  if (cacheable) {
+    const hit = await docGet<unknown>(ckey);
+    if (hit && docFresh(hit, !compact) && valid(hit.value)) return payload(hit.value);
+  }
+
   if (hasSupabaseServer()) {
     let who = `ip:${await clientIp()}`, perHour = 60;
     const { data } = await (await supabaseServer()).auth.getUser();
@@ -65,16 +78,22 @@ export async function POST(request: Request) {
 
   try {
     if (kind === "notes") {
-      const notes = await jsonOf(notesMessages(exam, ref, lang), (j) => { const r = notesSchema.safeParse(j); return r.success ? r.data : null; }, 7000, 58);
-      return notes ? NextResponse.json({ ok: true, notes }, { headers }) : err("failed", 502);
+      const notes = await jsonOf(notesMessages(exam, ref, lang, compact), (j) => { const r = notesSchema.safeParse(j); return r.success ? r.data : null; }, compact ? 4200 : 7000, 58);
+      if (!notes) return err("failed", 502);
+      await docPut(ckey, notes, compact);
+      return payload(notes);
     }
     if (kind === "terms") {
       const t = await jsonOf(termsMessages(exam, ref, lang), (j) => { const r = termsSchema.safeParse(j); return r.success ? r.data : null; }, 1500);
-      return t ? NextResponse.json({ ok: true, terms: t.terms }, { headers }) : err("failed", 502);
+      if (!t) return err("failed", 502);
+      await docPut(ckey, t.terms, false);
+      return payload(t.terms);
     }
     if (kind === "cram") {
       const c = await jsonOf(cramMessages(exam, ref, lang), (j) => { const r = cramSchema.safeParse(j); return r.success ? r.data : null; }, 1800);
-      return c ? NextResponse.json({ ok: true, cram: c }, { headers }) : err("failed", 502);
+      if (!c) return err("failed", 502);
+      await docPut(ckey, c, false);
+      return payload(c);
     }
 
     // Quiz. First the shared bank of questions that were already checked, then write the rest fresh.

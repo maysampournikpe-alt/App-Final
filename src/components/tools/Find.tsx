@@ -17,7 +17,7 @@ type Phase =
   | { kind: "idle" }
   | { kind: "loading"; step: number }
   | { kind: "done"; result: FindResult; cached: boolean }
-  | { kind: "error"; code: string };
+  | { kind: "error"; code: string; text?: string };
 
 const copy = {
   en: {
@@ -119,7 +119,7 @@ export function FindTool() {
         }),
       });
       const json = await res.json().catch(() => null);
-      setPhase(json?.ok ? { kind: "done", result: json.result, cached: !!json.cached } : { kind: "error", code: json?.error ?? "failed" });
+      setPhase(json?.ok ? { kind: "done", result: json.result, cached: !!json.cached } : { kind: "error", code: json?.error ?? "failed", text: typeof json?.text === "string" ? json.text : undefined });
     } catch {
       setPhase({ kind: "error", code: navigator.onLine ? "failed" : "offline" });
     } finally {
@@ -178,7 +178,7 @@ export function FindTool() {
         ) : null}
 
         {phase.kind === "error" ? (
-          <p role="alert" className="guide-card max-w-xl p-5 text-lg font-bold">{errorText(c.errors, phase.code, limit)}</p>
+          <p role="alert" className="guide-card max-w-xl whitespace-pre-line p-5 text-lg font-bold">{errorText({ ...c.errors, crisis: phase.text ?? c.errors.failed }, phase.code, limit)}</p>
         ) : null}
 
         {phase.kind === "done" ? (

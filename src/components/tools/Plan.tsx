@@ -64,6 +64,7 @@ export function PlanTool({ view }: { view: View }) {
   const [hours, setHours] = useState(5);
   const [busy, setBusy] = useState<"build" | "adjust" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [crisisText, setCrisisText] = useState("");
   const [justStarted, setJustStarted] = useState<string | null>(null);
 
   const current = plans.find((p) => p.id === selected) ?? plans[0] ?? null;
@@ -76,6 +77,7 @@ export function PlanTool({ view }: { view: View }) {
       const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lang, grade: profile.grade, ...body }) });
       const j = await res.json().catch(() => null);
       if (j?.ok) return j.plan as Plan;
+      if (j?.error === "crisis" && typeof j.text === "string") setCrisisText(j.text);
       setError(j?.error ?? "failed");
     } catch { setError(navigator.onLine ? "failed" : "offline"); }
     return null;
@@ -114,7 +116,7 @@ export function PlanTool({ view }: { view: View }) {
         </form>
       ) : null}
 
-      {error && error !== "bad_request" ? <p role="alert" className="guide-card mt-5 max-w-2xl p-4 font-bold">{errorText(c.errors, error, limit)}</p> : null}
+      {error && error !== "bad_request" ? <p role="alert" className="guide-card mt-5 max-w-2xl whitespace-pre-line p-4 font-bold">{errorText({ ...c.errors, crisis: crisisText || c.errors.failed }, error, limit)}</p> : null}
 
       {view === "templates" ? (
         <ul className="mt-6 grid gap-5 md:grid-cols-2">

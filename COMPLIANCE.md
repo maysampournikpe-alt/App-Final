@@ -30,7 +30,7 @@ Check each package's license in `node_modules/<name>/package.json` before you su
 
 Two different things need to be described honestly.
 
-1. AI inside the app (allowed by the rules as a feature): the Coach, the Opportunity Finder and the study helpers call the Groq API from the server. Practice questions for the study paths, mock exams, notes, vocabulary and cram sheets can be written by an AI and are checked by a second AI call. Say this in the video and in your write-up. These answers can be wrong, and the app tells students so.
+1. AI inside the app (allowed by the rules as a feature): the Coach, the Opportunity Finder and the study helpers call AI models from the server (Groq, and Claude through Cloudflare when it is switched on). Practice questions for the study paths, mock exams, notes, vocabulary and cram sheets can be written by an AI and are checked by a second AI call. Say this in the video and in your write-up. These answers can be wrong, and the app tells students so.
 2. AI used to build the app: an AI coding assistant (Claude Code) wrote and edited code in this repository at your direction. The rules ask you to disclose this fully. Describe what you decided, what you wrote and what you tested yourself, and state the AI's role truthfully. The rules say AI must not be the entirety of the development, so be ready to explain the parts you did yourself.
 
 ## Third-party content

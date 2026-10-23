@@ -59,7 +59,7 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 - Practice screens live in `src/components/exam/PracticeTools.tsx` (quizzes, mock exams, vocabulary, cram sheets), the home in `ApTools.tsx` (`ExamHubTool`), the path in `StudyPath.tsx`. Study notes are detailed (sections, examples, how it is tested, memory tips); bump `NOTES_VERSION` in `src/lib/ai/learn.ts` when that shape changes.
 - AP section screens (older note): `src/components/exam/StudyPath.tsx` (topic by topic path with YouTube and Khan Academy search links, notes, quiz, XP), `ApTools.tsx` (course picker and AP home), `ApStudy.tsx` (practice quizzes, mock exams, vocabulary, cram sheets). Questions are collected by `src/lib/exam/gather.ts`: bank first, then the AI, then kept on the device.
 - Google Maps features (bus map and finder maps) are switched off until after the 2026 Congressional App Challenge. See COMPLIANCE.md.
-- AI features need `GROQ_API_KEY` on the server. With `AI_FIXTURES=1` the helpers return a fixed reply, which is
+- AI features need `GROQ_API_KEY` on the server (Finder web search always uses Groq). Optionally add `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` to run everything else (Coach, notes, quizzes, the question checker, and the generator) on Claude through Cloudflare (`src/lib/ai/claude.ts`); Groq is then the backup. `AI_PROVIDER=groq` switches Claude off; `/api/health` shows whether it is on. With `AI_FIXTURES=1` the helpers return a fixed reply, which is
   how the screens are tested without a key.
 - `chess.js` (BSD license) validates moves in the chess opening trainer.
 - `src/app/globals.css`: the design tokens (color, type, card families, motion).
@@ -81,7 +81,7 @@ server-only; mark them Sensitive. Only variables starting with `NEXT_PUBLIC_` re
 
 ## Growing the question banks (SAT, ACT, TSI and every AP course)
 
-No computer needed: add a repository secret named `GROQ_API_KEY` (Settings > Secrets and variables > Actions), then open the Actions tab, pick "Generate practice questions" and press Run workflow. The new questions land on a `bank/...` branch for you to read and merge. The commands below do the same thing by hand.
+No computer needed: add repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` (Claude, better questions) or `GROQ_API_KEY` (Settings > Secrets and variables > Actions), then open the Actions tab, pick "Generate practice questions" and press Run workflow. The new questions land on a `bank/...` branch for you to read and merge. The commands below do the same thing by hand.
 
 Needs to run on a computer that can reach Groq, with `GROQ_API_KEY` in `.env.local`:
 

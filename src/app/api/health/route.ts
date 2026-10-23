@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { AI } from "@/config/ai";
+import { claudeConfigured, claudeModel } from "@/lib/ai/claude";
 import { groqChat, groqStream } from "@/lib/ai/groq";
 import { hasSupabasePublic, SUPABASE_URL_WAS_MESSY } from "@/lib/supabase/env";
 import { hasSupabaseServer, supabaseAdmin } from "@/lib/supabase/server";
@@ -16,6 +17,8 @@ export async function GET(request: Request) {
     supabaseUrlAndAnonKey: hasSupabasePublic(),
     supabaseServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     groqApiKey: !!process.env.GROQ_API_KEY,
+    claudeViaCloudflare: claudeConfigured(),
+    claudeModel: claudeConfigured() ? claudeModel() : undefined,
     aiFixtureMode: process.env.AI_FIXTURES === "1",
     supabaseUrlNeededTidying: SUPABASE_URL_WAS_MESSY,
   };
@@ -45,7 +48,7 @@ export async function GET(request: Request) {
   }
   // /api/health?ai=1 also asks the chat model one tiny question and shows what came back.
   let aiTest: string | undefined;
-  if (new URL(request.url).searchParams.has("ai") && env.groqApiKey && !env.aiFixtureMode) {
+  if (new URL(request.url).searchParams.has("ai") && (env.groqApiKey || env.claudeViaCloudflare) && !env.aiFixtureMode) {
     const ask = { model: AI.models.chat, timeoutSeconds: 7, maxTokens: 50, messages: [{ role: "user" as const, content: "Say hello in five words." }] };
     // Stop at 8 seconds whatever happens, so this page answers even when Groq does not (some hosts cut functions off at 10).
     const timed = async (name: string, run: () => Promise<string>) => {
@@ -67,6 +70,6 @@ export async function GET(request: Request) {
     ]);
     aiTest = results.join(" | ");
   }
-  const healthy = env.supabaseUrlAndAnonKey && env.supabaseServiceRoleKey && env.groqApiKey && Object.values(db).every((v) => v === "ok");
+  const healthy = env.supabaseUrlAndAnonKey && env.supabaseServiceRoleKey && (env.groqApiKey || env.claudeViaCloudflare) && Object.values(db).every((v) => v === "ok");
   return NextResponse.json({ healthy, env, db, groq, groqModels, ...(aiTest ? { aiTest } : {}) }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -15,6 +15,7 @@ import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
 import { FLASHCARDS_KEY, newCard, NO_CARDS, type Card } from "@/lib/srs";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { POINTS } from "@/lib/xp";
 import { buttonClass, inputClass, Page } from "../ui";
 import { MathText } from "./MathText";
@@ -98,6 +99,7 @@ const Radio = ({ name, checked, onChange, children, title }: { name: string; che
 /** Practice quizzes and mock exams for every test and AP course. Questions come from the bank first, then the AI (checked by a second AI). */
 export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "mock" }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const lang = useLang();
   const router = useRouter();
   const cfg = EXAMS[track];
@@ -178,7 +180,7 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
       <p className="mt-2 max-w-prose text-sm text-muted">{c.aiNote}</p>
       <button disabled={!!busy} onClick={begin} className={`${buttonClass.primary} mt-6`}>{c.start}</button>
       {busy ? <p role="status" className="mt-4 font-bold text-teal">{c.making(busy.done, busy.total)}</p> : null}
-      {err ? <p role="alert" className="mt-4 font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p> : null}
+      {err ? <p role="alert" className="mt-4 font-bold text-ruby">{errorText(c.errors, err, limit)}</p> : null}
       {note ? <p role="status" className="mt-4 font-bold">{note}</p> : null}
       <TrademarkNote />
     </Page>
@@ -211,7 +213,10 @@ function useLearned<T>(doc: string, key: string, body: object, field: "terms" | 
 
 type Term = { term: string; meaning: string };
 const Loading = ({ text }: { text: string }) => <p className="mt-6 text-lg text-muted" role="status">{text}</p>;
-const Failed = ({ c, err, retry }: { c: C; err: string; retry: () => void }) => <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p><button onClick={retry} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+function Failed({ c, err, retry }: { c: C; err: string; retry: () => void }) {
+  const limit = useAiLimitText();
+  return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{errorText(c.errors, err, limit)}</p><button onClick={retry} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+}
 
 export function VocabTool({ track }: { track: ExamId }) {
   const c = useCopy(copy);

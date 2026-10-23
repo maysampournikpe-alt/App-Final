@@ -6,6 +6,7 @@ import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
 import { useProfile } from "@/lib/profile";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { RichText } from "../RichText";
 import { buttonClass, inputClass, Page } from "../ui";
 
@@ -66,6 +67,7 @@ type Kind = "chat" | "homework" | "eli12" | "practice" | "language";
 
 export function CoachTool({ kind }: { kind: Kind }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const lang = useLang();
   const [profile] = useProfile();
   const [sub, setSub] = useState<"interview" | "debate" | "quiz">("interview");
@@ -155,7 +157,7 @@ export function CoachTool({ kind }: { kind: Kind }) {
           {messages.map((m, i) => <Bubble key={i} role={m.role} c={c}>{m.role === "assistant" ? <RichText text={m.content} /> : <p className="whitespace-pre-wrap">{m.content}</p>}</Bubble>)}
           {busy ? <Bubble role="assistant" c={c}>{live ? <RichText text={live} /> : <p className="text-muted">{c.thinking}</p>}</Bubble> : null}
           {error ? (
-            <div role="alert" className="guide-card p-4"><p className="font-bold">{c.errors[error] ?? c.errors.failed}</p>
+            <div role="alert" className="guide-card p-4"><p className="font-bold">{errorText(c.errors, error, limit)}</p>
               {lastUser && error !== "rate_limited" && error !== "unavailable" ? <button onClick={() => { setMessages(messages.slice(0, -1)); void send(lastUser.content); }} className="mt-2 font-bold text-teal underline underline-offset-4">{c.retry}</button> : null}</div>
           ) : null}
           <div ref={endRef} />

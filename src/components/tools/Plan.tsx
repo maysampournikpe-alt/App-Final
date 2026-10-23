@@ -8,6 +8,7 @@ import { useProfile } from "@/lib/profile";
 import { HORIZONS, keepProgress, NO_PLANS, PLANS_KEY, planForModel, progress, toggleStep, type Horizon, type Plan } from "@/lib/plan";
 import { TEMPLATES, templatePlan } from "@/lib/plan-templates";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { EmptyTrail } from "../art";
 import { buttonClass, Field, inputClass, Page } from "../ui";
 
@@ -54,6 +55,7 @@ const copy = {
 
 export function PlanTool({ view }: { view: View }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const lang = useLang();
   const [profile] = useProfile();
   const [plans, setPlans] = useLocalDoc<Plan[]>(PLANS_KEY, NO_PLANS);
@@ -112,7 +114,7 @@ export function PlanTool({ view }: { view: View }) {
         </form>
       ) : null}
 
-      {error && error !== "bad_request" ? <p role="alert" className="guide-card mt-5 max-w-2xl p-4 font-bold">{c.errors[error] ?? c.errors.failed}</p> : null}
+      {error && error !== "bad_request" ? <p role="alert" className="guide-card mt-5 max-w-2xl p-4 font-bold">{errorText(c.errors, error, limit)}</p> : null}
 
       {view === "templates" ? (
         <ul className="mt-6 grid gap-5 md:grid-cols-2">

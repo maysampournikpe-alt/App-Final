@@ -75,33 +75,56 @@ function requestBody(model: string, args: ChatArgs, stream: boolean): string {
   });
 }
 
+/** How long Groq says to wait after a 429, in milliseconds: the retry-after header, or "try again in 1.5s" / "in 850ms" in the message. */
+export function retryDelayMs(headers: Headers, body: string): number | null {
+  const h = Number(headers.get("retry-after"));
+  if (Number.isFinite(h) && h > 0) return Math.round(h * 1000);
+  const at = /try again in\s+([0-9hms.\s]+)/i.exec(body)?.[1];
+  if (!at) return null;
+  let ms = 0, found = false;
+  for (const t of at.matchAll(/(\d+(?:\.\d+)?)(ms|h|m|s)/g)) { found = true; ms += Number(t[1]) * ({ ms: 1, s: 1000, m: 60_000, h: 3_600_000 } as const)[t[2] as "ms" | "s" | "m" | "h"]; }
+  return found ? Math.round(ms) : null;
+}
+
 /**
  * Sends the request. Groq limits each model separately, so when one is full (429) or missing (404)
- * the next model is tried instead of showing students an error.
+ * the next model is tried instead of showing students an error. If every model says "wait a few seconds"
+ * (the per-minute limit), it waits that long and tries the list again, up to twice, while time allows.
  */
 async function send(args: ChatArgs, key: string, stream: boolean): Promise<Response> {
   const models = await candidates(args.model, key);
   const deadline = Date.now() + args.timeoutSeconds * 1000;
   let last: Response | null = null;
-  for (let i = 0; i < models.length; i++) {
-    let res: Response;
-    try {
-      res = await fetch(`${AI.baseUrl}/chat/completions`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: requestBody(models[i], args, stream),
-        signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())),
-      });
-    } catch (e) {
-      throw new AiError((e as Error).name === "TimeoutError" ? "timeout" : "upstream");
+  for (let round = 0; round < 3; round++) {
+    let shortest: number | null = null;
+    let allLimited = true;
+    for (let i = 0; i < models.length; i++) {
+      let res: Response;
+      try {
+        res = await fetch(`${AI.baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+          body: requestBody(models[i], args, stream),
+          signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())),
+        });
+      } catch (e) {
+        throw new AiError((e as Error).name === "TimeoutError" ? "timeout" : "upstream");
+      }
+      if (res.status === 429 || res.status === 404) {
+        const text = await res.text().catch(() => "");
+        if (res.status === 429) { const d = retryDelayMs(res.headers, text); if (d !== null) shortest = shortest === null ? d : Math.min(shortest, d); }
+        else allLimited = false;
+        last = new Response(text, { status: res.status, headers: res.headers });
+        if (i < models.length - 1) console.warn(`groq ${models[i]} answered ${res.status}, trying ${models[i + 1]}`);
+        continue;
+      }
+      return res;
     }
-    if ((res.status === 429 || res.status === 404) && i < models.length - 1) {
-      console.warn(`groq ${models[i]} answered ${res.status}, trying ${models[i + 1]}`);
-      last = res;
-      await res.text().catch(() => "");
-      continue;
-    }
-    return res;
+    // Every model said no. A short wait means a per-minute limit: wait it out and go round again.
+    const wait = shortest === null ? null : shortest + 300;
+    if (!allLimited || wait === null || wait > 9000 || Date.now() + wait + 2000 > deadline || round === 2) break;
+    console.warn(`groq: every model is at its per-minute limit, waiting ${Math.round(wait)} ms`);
+    await new Promise((r) => setTimeout(r, wait));
   }
   return last!;
 }

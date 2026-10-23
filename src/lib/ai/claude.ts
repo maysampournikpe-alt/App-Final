@@ -17,7 +17,15 @@ export interface ClaudeArgs {
   maxTokens?: number;
 }
 
+/** After a refusal that will not fix itself in seconds (no credit, bad token), stop asking for a few minutes so each student request does not waste calls. */
+let blockedUntil = 0;
+export const CLAUDE_PAUSE_MS = 5 * 60_000;
+export const pauseClaude = (ms: number = CLAUDE_PAUSE_MS) => { blockedUntil = Date.now() + ms; };
+export const resumeClaude = () => { blockedUntil = 0; };
+
 export const claudeConfigured = (): boolean => !!process.env.CLOUDFLARE_ACCOUNT_ID && !!process.env.CLOUDFLARE_API_TOKEN && process.env.AI_PROVIDER !== "groq";
+/** Configured, and not paused by a recent refusal. */
+export const claudeUsable = (): boolean => claudeConfigured() && Date.now() >= blockedUntil;
 export const claudeModel = (): string => process.env.CLAUDE_MODEL || DEFAULT_CLAUDE_MODEL;
 const endpoint = () => `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/messages`;
 
@@ -76,6 +84,7 @@ async function post(args: ClaudeArgs, stream: boolean): Promise<Response> {
   if (!res.ok) {
     const detail = (await res.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 220);
     console.error("claude error", res.status, detail);
+    if (res.status === 402 || res.status === 401 || res.status === 403) pauseClaude(); // no credit or a refused token: not worth retrying for a while
     const ra = Number(res.headers.get("retry-after"));
     throw new ClaudeError(codeOf(res.status), Number.isFinite(ra) ? ra : undefined, `${res.status} ${detail}`);
   }

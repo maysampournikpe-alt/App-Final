@@ -37,12 +37,12 @@ export function HomeView() {
 
   return (
     <>
-      <section className="hero-blobs border-b-[1.5px] border-ink">
+      <section className="notebook-hero border-b-[1.5px] border-ink">
         <Page wide>
           <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
             <div>
-              <p className="text-lg font-extrabold text-terracotta">{BRAND.tagline[lang]}</p>
-              <h1 className="mt-2 text-4xl sm:text-5xl lg:text-6xl">{t("homeAsk")}</h1>
+              <p className="pass text-lg text-terracotta">{BRAND.tagline[lang]}</p>
+              <h1 className="mt-3 text-4xl sm:text-5xl lg:text-6xl"><span className="marker">{t("homeAsk")}</span></h1>
               <form onSubmit={go} className="mt-7 flex max-w-xl flex-col gap-3 sm:flex-row">
                 <label className="min-w-0 flex-1">
                   <span className="sr-only">{t("homeAsk")}</span>
@@ -77,7 +77,7 @@ export function HomeView() {
       </section>
 
       <Page wide>
-        <h2 className="text-2xl sm:text-3xl">{lang === "es" ? "Empieza aquí" : "Start here"}</h2>
+        <h2 className="text-2xl sm:text-3xl">{lang === "es" ? "Tu plan de hoy" : "Today's plan"}</h2>
         <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
           {QUICK.map(({ href, icon, en, es, tone }) => {
             const Icon = ICONS[icon];
@@ -92,13 +92,13 @@ export function HomeView() {
           })}
         </ul>
 
-        <h2 className="mt-12 text-2xl sm:text-3xl">{lang === "es" ? "Todo lo que hay" : "Everything in Rumbo"}</h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {HUBS.map((hub) => {
+        <h2 className="mt-12 text-2xl sm:text-3xl">{lang === "es" ? "Tus carpetas" : "Your folders"}</h2>
+        <ul className="mt-2 grid gap-x-4 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+          {HUBS.map((hub, i) => {
             const Icon = ICONS[hub.icon];
             return (
               <li key={hub.id}>
-                <Link href={`/h/${hub.id}`} className="guide-card flex h-full items-start gap-3 p-4 hover:-translate-y-0.5">
+                <Link href={`/h/${hub.id}`} className={`folder tone-${(i % 7) + 1} flex h-full items-start gap-3 p-4 hover:-translate-y-0.5`}>
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sunken text-teal"><Icon size={24} strokeWidth={2} aria-hidden /></span>
                   <span className="min-w-0"><span className="block text-lg font-extrabold">{hub.name[lang]}</span><span className="block text-sm text-muted">{hub.blurb[lang]}</span></span>
                 </Link>

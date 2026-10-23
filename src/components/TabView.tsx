@@ -12,12 +12,12 @@ export function TabView({ tab }: { tab: Tab; group: Group }) {
   const hub = hubOfTab(tab.id);
   return (
     <>
-      <div className="contours border-b-[1.5px] border-ink">
+      <div className="notebook-hero border-b-[1.5px] border-ink">
         <Page>
           {hub ? <Link href={`/h/${hub.id}`} className="font-display text-terracotta underline-offset-4 hover:underline">{hub.name[lang]}</Link> : null}
           <h1 className="mt-1 flex items-center gap-3 text-4xl sm:text-5xl">
             <Icon size={38} strokeWidth={1.75} className="shrink-0 text-teal" />
-            {tab.name[lang]}
+            <span className="marker">{tab.name[lang]}</span>
           </h1>
         </Page>
       </div>

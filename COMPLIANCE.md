@@ -40,11 +40,13 @@ Two different things need to be described honestly.
 - The YouTube and Khan Academy buttons only open a search page on those sites in a new tab. The app does not copy, embed or download their videos or text.
 - AP topic names follow the usual public course outlines, which College Board publishes. They were not checked against the official Course and Exam Descriptions, so verify them before you claim they are exact.
 - Trademark notice: AP, SAT and PSAT are trademarks of College Board, and ACT is a trademark of ACT, Inc. The app shows a "not affiliated or endorsed" line on its test-prep screens.
-- Privacy: the app stores study data on the device and, when signed in, in your Supabase project. Student passwords are handled by Supabase Auth. No unmoderated chat or message boards.
+- Privacy: the app stores study data on the device and, when signed in, in your Supabase project. Student passwords are handled by Supabase Auth. No unmoderated chat or message boards. A "report this question" click sends only the question id (no name, no account) so a bad AI question leaves the shared bank after two reports.
 
 ## Before you submit
 
 - Run the checks in `README.md` ("Before you submit").
-- Run migration `supabase/migrations/0004_question_bank.sql` in the Supabase SQL editor so the shared question bank works.
+- Run migration `supabase/migrations/0004_question_bank.sql`, then `0005_question_reports.sql`, in the Supabase SQL editor so the shared question bank and the report button work.
+- AI cost and limits: add Cloudflare credit (or upgrade Groq) before judges test the app, and keep `CLAUDE_DAILY_CALLS` at a number you can afford.
+- Check Vercel Deployment Protection is off for production so judges can open the link without logging in.
 - Generate more questions on your own computer (see "Growing the question banks" in `README.md`) and read a sample before you commit it.
 - Test the live link on a phone.

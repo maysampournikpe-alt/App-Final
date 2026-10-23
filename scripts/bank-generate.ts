@@ -18,6 +18,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { AI } from "../src/config/ai";
+import { claudeChat, claudeConfigured, claudeModel, ClaudeError } from "../src/lib/ai/claude";
 import { coursesFor } from "../src/lib/exam/courses";
 import { EXAMS } from "../src/lib/exam/config";
 import { LEVELS, specFor, type Level } from "../src/lib/exam/levels";
@@ -39,12 +40,13 @@ if (args.includes("--list")) {
 }
 
 function loadKey(): string {
+  if (claudeConfigured()) return ""; // Claude through Cloudflare is used instead, so no Groq key is needed
   if (process.env.GROQ_API_KEY) return process.env.GROQ_API_KEY;
   for (const f of [".env.local", ".env"]) if (existsSync(f)) {
     const m = /^GROQ_API_KEY=(.+)$/m.exec(readFileSync(f, "utf8"));
     if (m) return m[1].trim().replace(/^["']|["']$/g, "");
   }
-  console.error("No GROQ_API_KEY. Put it in .env.local or run: GROQ_API_KEY=... npm run bank:generate");
+  console.error("No AI key. Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN (Claude), or GROQ_API_KEY, in .env.local or the environment.");
   process.exit(1);
 }
 const KEY = loadKey();
@@ -59,6 +61,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const MAX_WAIT_SECONDS = 120; // a longer wait than this means a daily limit, not a passing rate limit
 
 async function chat(system: string, user: string, temperature: number): Promise<string> {
+  if (claudeConfigured()) return claudeWithRetries(system, user, temperature);
   for (let attempt = 1; attempt <= 8; attempt++) {
     const res = await fetch(`${AI.baseUrl}/chat/completions`, {
       method: "POST", headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
@@ -80,6 +83,23 @@ async function chat(system: string, user: string, temperature: number): Promise<
     await sleep(wait * 1000);
   }
   throw new Error("Groq kept failing after 8 tries");
+}
+
+/** Claude through Cloudflare, with the same patience as the Groq path: wait out rate limits, stop on a long wait. */
+async function claudeWithRetries(system: string, user: string, temperature: number): Promise<string> {
+  for (let attempt = 1; attempt <= 8; attempt++) {
+    try {
+      return await claudeChat({ messages: [{ role: "system", content: system }, { role: "user", content: user }], timeoutSeconds: 120, temperature, maxTokens: 4000 });
+    } catch (e) {
+      if (!(e instanceof ClaudeError)) throw e;
+      if (e.code === "auth" || e.code === "model") throw new Error(`Claude ${e.code === "auth" ? "key or token was refused" : "model was not found"} (${e.message.slice(0, 160)})`);
+      if (e.retryAfter && e.retryAfter > MAX_WAIT_SECONDS) throw new QuotaStop(`Cloudflare asked us to wait ${Math.round(e.retryAfter / 60)} minutes (probably a limit)`);
+      const wait = e.retryAfter && e.retryAfter > 0 ? e.retryAfter + 1 : Math.min(60, 4 * 2 ** (attempt - 1));
+      console.log(`  Claude is busy or rate limited (${e.code}), waiting ${Math.round(wait)}s (try ${attempt} of 8)`);
+      await sleep(wait * 1000);
+    }
+  }
+  throw new Error("Claude kept failing after 8 tries");
 }
 
 const bank: Question[] = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : [];
@@ -125,7 +145,7 @@ async function main() {
   if (!jobs.length) { console.error("Nothing to do. Use --all, or --section <id> [--skill <id>] --count 12 (see --list), with --exam sat|act|tsi|ap"); process.exit(1); }
   const maxBatches = Number(opt("max-batches", "0"));
   if (maxBatches && jobs.length > maxBatches) { console.error(`That is ${jobs.length} batches, more than the limit of ${maxBatches}. Pick one section, a smaller per-skill number, or turn topics off.`); process.exit(1); }
-  console.log(`${jobs.length} batch(es), starting with model ${MODELS[0]}${dry ? " (dry run, nothing will be saved)" : ""}`);
+  console.log(`${jobs.length} batch(es), starting with model ${claudeConfigured() ? claudeModel() : MODELS[0]}${dry ? " (dry run, nothing will be saved)" : ""}`);
   let kept = 0, tossed = 0, failed = 0, failedInARow = 0;
   for (const job of jobs) {
     console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty})`);

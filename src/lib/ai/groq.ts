@@ -1,5 +1,6 @@
 import "server-only";
 import { AI } from "@/config/ai";
+import { claudeChat, claudeConfigured, claudeStreamResponse, ClaudeError } from "./claude";
 
 export type AiErrorCode = "unavailable" | "auth" | "model" | "rate" | "timeout" | "upstream" | "empty";
 export class AiError extends Error {
@@ -105,6 +106,13 @@ async function send(args: ChatArgs, key: string, stream: boolean): Promise<Respo
   return last!;
 }
 
+/** Claude failures use the same error codes the routes already understand. */
+function asAiError(e: unknown): AiError {
+  if (e instanceof AiError) return e;
+  if (e instanceof ClaudeError) return new AiError(e.code, e.message);
+  return new AiError("upstream");
+}
+
 async function failure(res: Response, what: string): Promise<AiError> {
   const detail = (await res.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 220);
   console.error(what, res.status, detail);
@@ -145,7 +153,16 @@ export async function groqChat(args: ChatArgs): Promise<ChatReply> {
   if (process.env.AI_FIXTURES === "1" && args.messages[0]?.content.includes("ORIGINAL practice questions")) { const tag = [...args.messages.map((m) => m.content).join("|")].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7).toString(36); return { content: JSON.stringify({ questions: [1, 2, 3, 4, 5].map((n) => ({ stem: `Fixture question number ${n} (${tag}): which choice is correct for this test?`, passage: null, type: "mc", choices: [`Right answer ${n}`, `Wrong one ${n}`, `Wrong two ${n}`, `Wrong three ${n}`], answer: "A", accept: null, explanation: `Explanation for fixture question ${n}: choice A is correct.` })) }), searched: [] }; }
   if (process.env.AI_FIXTURES === "1" && args.messages[0]?.content.includes("study helper")) return { content: "Fixture reply for testing.\n1. First step\n2. Second step", searched: [] };
   if (process.env.AI_FIXTURES === "1") return fixture(args.messages[0]?.content.includes("goal plans") ? "plan" : undefined); // local testing without a key
+  // Web search stays on Groq. Everything else goes to Claude when it is set up, with Groq as the backup.
   const key = process.env.GROQ_API_KEY;
+  if (claudeConfigured() && !args.model.includes("compound")) {
+    try {
+      return { content: await claudeChat(args), searched: [] };
+    } catch (e) {
+      if (!key) throw asAiError(e);
+      console.warn("claude failed, using groq:", (e as Error).message);
+    }
+  }
   if (!key) throw new AiError("unavailable");
 
   const res = await send(args, key, false);
@@ -175,9 +192,21 @@ export async function groqStream(args: ChatArgs): Promise<ReadableStream<Uint8Ar
     });
   }
   const key = process.env.GROQ_API_KEY;
-  if (!key) throw new AiError("unavailable");
-  const res = await send(args, key, true);
-  if (!res.ok || !res.body) throw await failure(res, "groq stream error");
+  let res: Response | null = null;
+  if (claudeConfigured() && !args.model.includes("compound")) {
+    try {
+      res = await claudeStreamResponse(args);
+    } catch (e) {
+      if (!key) throw asAiError(e);
+      console.warn("claude stream failed, using groq:", (e as Error).message);
+    }
+  }
+  if (!res) {
+    if (!key) throw new AiError("unavailable");
+    res = await send(args, key, true);
+    if (!res.ok || !res.body) throw await failure(res, "groq stream error");
+  }
+  if (!res.body) throw new AiError("upstream");
   const { parseSseText } = await import("./coach");
   const reader = res.body.getReader();
   const dec = new TextDecoder();

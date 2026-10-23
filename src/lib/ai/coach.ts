@@ -68,8 +68,12 @@ export function parseSseText(buffer: string): { text: string; rest: string; done
     const data = line.slice(5).trim();
     if (data === "[DONE]") { done = true; continue; }
     try {
-      const delta = JSON.parse(data)?.choices?.[0]?.delta?.content;
+      const j = JSON.parse(data);
+      const delta = j?.choices?.[0]?.delta?.content;
       if (typeof delta === "string") text += delta;
+      // Claude's streaming format: text arrives in content_block_delta events and the end is message_stop.
+      if (j?.type === "content_block_delta" && typeof j?.delta?.text === "string") text += j.delta.text;
+      if (j?.type === "message_stop") done = true;
     } catch { /* ignore a malformed line */ }
   }
   return { text, rest, done };

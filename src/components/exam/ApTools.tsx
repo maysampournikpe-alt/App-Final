@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CalendarCheck, Check, ClipboardCheck, Crown, ExternalLink, FileText, Flame, Gauge, Languages, Layers, Lightbulb, ListChecks, Route, Target, Timer, Zap } from "lucide-react";
 import { diffDays, formatDay, isValidISO, today } from "@/lib/dates";
 import { AP_ALL_COURSES, apScore } from "@/lib/exam/ap";
 import { EXAMS, examPath } from "@/lib/exam/config";
 import type { ExamId } from "@/lib/exam/types";
-import { skillStats } from "@/lib/exam/engine";
+import { skillStats, topicStats } from "@/lib/exam/engine";
+import { reviewQueue } from "@/lib/review";
 import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
 import { levelName, levelOf } from "@/lib/progress";
@@ -27,12 +29,19 @@ export function ApCoursesTool() {
   const lang = useLang();
   const [picked, setPicked] = useLocalDoc<string[]>("ap-courses", NO_COURSES);
   const toggle = (id: string) => setPicked(picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id]);
+  const [find, setFind] = useState("");
+  const needle = find.trim().toLowerCase();
+  const shown = AP_ALL_COURSES.filter((course) => !needle || course.en.toLowerCase().includes(needle) || course.es.toLowerCase().includes(needle));
   return (
     <Page>
       <h1 className="text-3xl sm:text-4xl">{c.ap.picked}</h1>
       <p className="mt-2 max-w-prose text-muted">{c.ap.pickLead}</p>
-      <ul className="mt-6 grid gap-2 sm:grid-cols-2">
-        {AP_ALL_COURSES.map((course) => {
+      <label className="mt-5 block max-w-md"><span className="block font-bold">{lang === "es" ? "Buscar un curso" : "Find a course"}</span>
+        <input type="search" value={find} onChange={(e) => setFind(e.target.value)} className={`${inputClass} mt-1`} placeholder={lang === "es" ? "Por ejemplo: Biología" : "For example: Biology"} /></label>
+      <p className="sr-only" aria-live="polite">{lang === "es" ? `${shown.length} cursos` : `${shown.length} courses`}</p>
+      {!shown.length ? <p className="mt-4 text-muted">{lang === "es" ? "Ningún curso coincide." : "No course matches."}</p> : null}
+      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+        {shown.map((course) => {
           const on = picked.includes(course.id);
           return (
             <li key={course.id}>
@@ -52,14 +61,16 @@ export function ApCoursesTool() {
 
 const hub = {
   en: {
-    course: "Course", section: "Section", cont: "Continue", allDone: "You passed every topic. Try a mock exam.", start: "Start the path", overall: (d: number, n: number) => `${d} of ${n} topics passed`, mastered: (n: number) => `${n} mastered`,
+    course: "Course", section: "Section", cont: "Continue", allDone: "You passed every topic. Try a mock exam.", reviewH: "Review next", reviewLead: "The topics that will help you most right now.", noPicked: "Showing all AP courses. Pick yours on the course picker to see only those.",
+    why: { retry: (p: number) => `You tried the quiz and scored ${p}%. Try again.`, weak: (p: number) => `Only ${p}% right in your practice.`, refresh: (d: number) => `Passed ${d} days ago. See it again so it sticks.` }, start: "Start the path", overall: (d: number, n: number) => `${d} of ${n} topics passed`, mastered: (n: number) => `${n} mastered`,
     tools: { path: "Study path", pathD: "Topic by topic, with videos, notes and a quiz", quiz: "Practice quizzes", quizD: "Any unit or topic, easy to hard", mock: "Mock exams", mockD: "Real length and pace", diag: "Diagnostic test", diagD: "Find your level and weak areas", strat: "Strategy guide", stratD: "Pacing, methods and test day", vocab: "Vocabulary", vocabD: "Key terms to test yourself", cram: "Cram sheet", cramD: "One page for the night before", flash: "Flashcards", flashD: "Your cards, on a spaced schedule", weak: "Weak spots", weakD: "What to review next", score: "Score estimate", scoreD: "Estimate only", plan: "Study plan", planD: "Spread every unit before exam day", res: "Official free prep", resD: "Links from the test makers" },
     units: "Units", skills: "Skills", unitDone: (d: number, n: number) => `${d} of ${n} topics`, study: "Study", quiz: "Quiz", topics: "Topics", recent: "Recent practice", noRecent: "No practice yet. Take a quiz or a mock exam and your results show up here.", pct: (a: number, b: number) => `${a} of ${b} right`,
     xpWord: "XP", dayStreak: (n: number) => `${n}-day streak`, estimate: "Estimate only, not an official score.", testDate: "Your test date", about: "About this test",
     lv: ["Not started", "Notes read", "Passed", "Mastered"], opens: "(opens in a new tab)",
   },
   es: {
-    course: "Curso", section: "Sección", cont: "Continuar", allDone: "Aprobaste todos los temas. Prueba un examen de práctica.", start: "Empezar la ruta", overall: (d: number, n: number) => `${d} de ${n} temas aprobados`, mastered: (n: number) => `${n} dominados`,
+    course: "Curso", section: "Sección", cont: "Continuar", allDone: "Aprobaste todos los temas. Prueba un examen de práctica.", reviewH: "Repasa después", reviewLead: "Los temas que más te ayudan ahora.", noPicked: "Se muestran todos los cursos AP. Elige los tuyos en el selector de cursos para ver solo esos.",
+    why: { retry: (p: number) => `Hiciste el cuestionario y sacaste ${p}%. Inténtalo otra vez.`, weak: (p: number) => `Solo ${p}% correctas en tu práctica.`, refresh: (d: number) => `Lo aprobaste hace ${d} días. Vuélvelo a ver para que se quede.` }, start: "Empezar la ruta", overall: (d: number, n: number) => `${d} de ${n} temas aprobados`, mastered: (n: number) => `${n} dominados`,
     tools: { path: "Ruta de estudio", pathD: "Tema por tema, con videos, apuntes y cuestionario", quiz: "Cuestionarios de práctica", quizD: "Cualquier unidad o tema, de fácil a difícil", mock: "Exámenes de práctica", mockD: "Con la duración y el ritmo reales", diag: "Examen de diagnóstico", diagD: "Descubre tu nivel y tus puntos débiles", strat: "Guía de estrategia", stratD: "Ritmo, métodos y día del examen", vocab: "Vocabulario", vocabD: "Términos clave para ponerte a prueba", cram: "Hoja de repaso", cramD: "Una página para la noche anterior", flash: "Tarjetas", flashD: "Tus tarjetas, en un calendario espaciado", weak: "Puntos débiles", weakD: "Qué repasar después", score: "Puntaje estimado", scoreD: "Solo un estimado", plan: "Plan de estudio", planD: "Reparte cada unidad antes del examen", res: "Preparación oficial gratis", resD: "Enlaces de quienes hacen el examen" },
     units: "Unidades", skills: "Habilidades", unitDone: (d: number, n: number) => `${d} de ${n} temas`, study: "Estudiar", quiz: "Cuestionario", topics: "Temas", recent: "Práctica reciente", noRecent: "Todavía no has practicado. Haz un cuestionario o un examen de práctica y tus resultados aparecen aquí.", pct: (a: number, b: number) => `${a} de ${b} correctas`,
     xpWord: "XP", dayStreak: (n: number) => `Racha de ${n} días`, estimate: "Es solo un estimado, no un puntaje oficial.", testDate: "La fecha de tu examen", about: "Sobre este examen",
@@ -92,6 +103,8 @@ export function ExamHubTool({ track }: { track: ExamId }) {
   const passed = topics.filter(({ t }) => levelOfProg(prog[key(t.id)]) >= 2).length;
   const gold = topics.filter(({ t }) => levelOfProg(prog[key(t.id)]) >= 3).length;
   const next = topics.find(({ t }) => levelOfProg(prog[key(t.id)]) < 2);
+  const tStats = topicStats(mine).filter((x) => x.section === course.id);
+  const review = reviewQueue({ topicIds: topics.map(({ t }) => t.id), progOf: (id) => prog[key(id)], stats: tStats, today: today() });
   const lvl = levelOf(xp.xp);
   const recent = [...mine].filter((a) => a.items[0]?.section === course.id).sort((a, b) => b.finishedAt - a.finishedAt).slice(0, 5);
   const q = `?course=${course.id}`, base = `/t/${track}`;
@@ -118,7 +131,7 @@ export function ExamHubTool({ track }: { track: ExamId }) {
           <span className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-ink bg-surface px-3 py-1 font-bold"><Flame size={16} aria-hidden />{h.dayStreak(streakOf(xp.days, today()))}</span>
         </div>
       </div>
-      {ap && !hasPicked ? <p className="guide-card mt-4 max-w-xl p-4">{c.ap.none} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.ap.picked}</Link></p> : null}
+      {ap && !hasPicked ? <p className="mt-3 max-w-xl text-sm text-muted">{h.noPicked} <Link href="/t/ap/courses" className="font-bold text-teal underline underline-offset-4">{c.ap.picked}</Link></p> : null}
 
       <div className="mt-5 flex flex-wrap items-end gap-4">
         <label className="min-w-0 max-w-md flex-1"><span className="block font-bold">{ap ? h.course : h.section}</span>
@@ -140,6 +153,29 @@ export function ExamHubTool({ track }: { track: ExamId }) {
             : <p className="font-bold text-teal">{h.allDone}</p>}
         </div>
       </section>
+
+      {review.length ? (
+        <section className="mt-6" aria-labelledby="review-h">
+          <h2 id="review-h" className="text-2xl">{h.reviewH}</h2>
+          <p className="text-muted">{h.reviewLead}</p>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {review.map((r) => {
+              const t = topics.find((x) => x.t.id === r.topicId)!.t;
+              const pct = Math.round(r.score * 100);
+              const why = r.kind === "refresh" ? h.why.refresh(r.days ?? 7) : r.kind === "retry" ? h.why.retry(pct) : h.why.weak(pct);
+              return (
+                <li key={r.topicId} className="guide-card flex flex-col justify-between gap-2 p-4">
+                  <p><span className="font-bold"><span className="mr-2 tabular-nums text-terracotta">{t.num}</span>{t[lang]}</span><span className="block text-sm text-muted">{why}</span></p>
+                  <p className="flex gap-3">
+                    <Link href={`${base}/path?course=${course.id}&topic=${t.id}`} className="font-bold text-teal underline underline-offset-4"><span aria-hidden>{h.study}</span><span className="sr-only">{h.study} {t.num} {t[lang]}</span></Link>
+                    <Link href={`${base}/${ap ? "quizzes" : "sections"}?course=${course.id}&topic=${t.id}`} className="font-bold text-teal underline underline-offset-4"><span aria-hidden>{h.quiz}</span><span className="sr-only">{h.quiz} {t.num} {t[lang]}</span></Link>
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
 
       <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map(({ href, Icon, t, d }) => (

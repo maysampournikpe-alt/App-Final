@@ -45,7 +45,7 @@ export interface ExamConfig {
   realTimed?: boolean;
 }
 
-export interface Answered { qid: string; section: string; skill: string; answer: string; correct: boolean }
+export interface Answered { qid: string; section: string; skill: string; /** The topic inside the unit (like u1-2), when the question has one. */ topic?: string; answer: string; correct: boolean }
 export interface Attempt {
   id: string;
   exam: ExamId;

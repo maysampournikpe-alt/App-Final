@@ -15,8 +15,6 @@ export interface Question {
   answer: string;                // mc: "A" to "D"; grid: the main accepted answer
   accept?: string[];             // grid: other accepted spellings, e.g. ["7.5", "15/2"]
   explanation: string;
-  /** "exam" marks real-exam-style questions: a stimulus plus an application of skills. */
-  style?: "exam";
   /** Set when a second AI check confirmed the question belongs to its course and topic. Written questions without it are not used. */
   scoped?: true;
   source?: "seed" | "generated";

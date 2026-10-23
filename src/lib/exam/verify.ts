@@ -5,7 +5,7 @@ import { coursesFor } from "./courses";
 import { isCorrect, parseNumeric } from "./engine";
 import type { Question } from "./types";
 
-export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** One topic inside the unit or skill, like 1.2. */ topic?: string; count: number; difficulty: 1 | 2 | 3; /** "exam" asks for real-exam-style questions. */ style?: "exam" }
+export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** One topic inside the unit or skill, like 1.2. */ topic?: string; count: number; difficulty: 1 | 2 | 3 }
 
 /** Readable names for a section and skill. AP courses come from the full CED list, so a course can be generated before it has any questions. */
 export interface TopicRef { section: string; skill: string; topic?: string; topicNum?: string; cover?: string; unitTopics?: string[]; others?: string[]; /** AP course profile: what the course is about, and what must never be tested in it. */ about?: string; avoid?: string; /** How real questions in this course are built. */ style?: string; /** Good settings for questions on this topic (AP Biology). */ contexts?: string }
@@ -27,12 +27,6 @@ const STYLE: Record<GenSpec["exam"], string> = {
   ap: "College Board AP multiple-choice questions, aligned with the unit named below in the course's Course and Exam Description. Use realistic stimulus (a short passage, scenario or data described in words or a small text table) when it fits. Text only: never refer to an image, graph or map the student cannot see",
 };
 
-const EXAM_STYLE: Record<GenSpec["exam"], string> = {
-  ap: "REAL EXAM STYLE. Make each question look and feel like the real AP exam. Put a stimulus in \"passage\" (60 to 180 words): a source excerpt, an experiment or data described in words or a small text table, a scenario, a short argument or a code segment, whichever fits the course. The question must ask the student to APPLY course skills to the stimulus (analyze, interpret, compare, predict, justify, calculate, evaluate), never to recall a bare fact. Use the phrasing AP uses, such as \"Which of the following best explains...\", \"The data most directly support...\" or \"Which of the following would most likely...\". Make the three wrong choices plausible, each based on a real misconception.",
-  sat: "REAL EXAM STYLE. Make each question look and feel like the digital SAT. Reading and writing questions have a short original passage (25 to 120 words) in \"passage\" and one question about it. Math questions use a realistic context, take two or more steps, and have close wrong choices that come from common mistakes.",
-  act: "REAL EXAM STYLE. Make each question look and feel like the ACT: English questions sit in a short original passage with the part to fix, Reading and Science questions give a short passage or a described data table first, and Math questions are multi-step with common-mistake wrong choices.",
-  tsi: "REAL EXAM STYLE. Make each question look and feel like the TSIA2: a short original passage or a practical problem first, then a question that asks the student to apply the skill.",
-};
 const LEVEL_TEXT = ["", "Easy: one clear idea, one step, direct wording.", "Medium: a typical test question that needs two steps or careful reading.", "Hard: multi-step reasoning with close wrong choices and little hand-holding, but still only content from this course and topic. Harder means harder thinking, never outside content."];
 
 const genItem = z.object({
@@ -61,7 +55,7 @@ export function buildGenPrompt(spec: GenSpec): { system: string; user: string } 
       "Content must be appropriate for ages 13 to 18. Teach history, government and social science accurately and neutrally.",
       "Return ONLY JSON: {\"questions\":[{\"stem\":\"\",\"passage\":null,\"type\":\"mc\",\"choices\":[\"\",\"\",\"\",\"\"],\"answer\":\"A\",\"accept\":null,\"explanation\":\"\"}]}",
     ].join("\n"),
-    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.about ? `Course: ${topic.about}\nNEVER use or test: ${topic.avoid ?? "ideas from other courses"}\n` : ""}${topic.others?.length ? `Other topics in this unit, which you must NOT test: ${topic.others.slice(0, 14).join("; ")}\n` : ""}${topic.style ? `How real questions in this course are built: ${topic.style}\n` : ""}${topic.contexts ? `Good settings for questions on this topic (use a different one for each question): ${topic.contexts}\n` : ""}${topic.cover ? `${topic.topic ? "What this topic covers" : "What this unit covers"} (draw the question content from this and stay inside it): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\n${spec.style === "exam" ? EXAM_STYLE[spec.exam] + "\n" : ""}Vary the position of the correct answer.`,
+    user: `Write ${spec.count} questions.\nSection: ${sec.en}\nSkill: ${skill.en}\n${topic.topic ? `Topic ${topic.topicNum}: ${topic.topic}. Every question must be about this topic only.\n` : ""}${topic.about ? `Course: ${topic.about}\nNEVER use or test: ${topic.avoid ?? "ideas from other courses"}\n` : ""}${topic.others?.length ? `Other topics in this unit, which you must NOT test: ${topic.others.slice(0, 14).join("; ")}\n` : ""}${topic.style ? `How real questions in this course are built: ${topic.style}\n` : ""}${topic.contexts ? `Good settings for questions on this topic (use a different one for each question): ${topic.contexts}\n` : ""}${topic.cover ? `${topic.topic ? "What this topic covers" : "What this unit covers"} (draw the question content from this and stay inside it): ${topic.cover}\n` : ""}Difficulty: ${spec.difficulty} on a 1 to 3 scale (1 easiest). ${LEVEL_TEXT[spec.difficulty]}\nVary the position of the correct answer.`,
   };
 }
 
@@ -93,10 +87,10 @@ export function buildReviewPrompt(spec: GenSpec, q: { stem: string; passage?: st
     user: [where, "", "Question:", q.passage ?? "", q.stem, (q.choices ?? []).map((c, i) => `${"ABCD"[i]}. ${c}`).join("\n"), `Key: ${q.answer}`, q.explanation ? `Explanation given: ${q.explanation}` : ""].filter((x) => x !== undefined).join("\n"),
   };
 }
-/** The lowest FIT score a question may have. Real-exam-style questions must be closer to the real thing. */
-export const MIN_FIT = { normal: 8, exam: 9 } as const;
+/** The lowest FIT score (1 to 10) a question may have. */
+export const MIN_FIT = 8;
 /** Reads the reviewer's three final lines. "in" means on scope, accurate and close enough to a real exam question. */
-export function parseReview(text: string, minFit: number = MIN_FIT.normal): "in" | "out" | "inaccurate" | "weak" | null {
+export function parseReview(text: string, minFit: number = MIN_FIT): "in" | "out" | "inaccurate" | "weak" | null {
   const sc = [...text.matchAll(/SCOPE:\s*(IN|OUT)\b/gi)].pop()?.[1]?.toUpperCase();
   const ac = [...text.matchAll(/ACCURATE:\s*(YES|NO)\b/gi)].pop()?.[1]?.toUpperCase();
   const fit = Number([...text.matchAll(/FIT:\s*(\d{1,2})\b/gi)].pop()?.[1]);
@@ -122,7 +116,7 @@ export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, sol
     id, exam: spec.exam, section: spec.section, skill: spec.skill, ...(spec.topic ? { topic: spec.topic } : {}), difficulty: spec.difficulty, type: item.type,
     stem: item.stem.trim(), ...(item.passage ? { passage: item.passage.trim() } : {}),
     ...(item.type === "mc" ? { choices: item.choices!.map((c) => c.trim()) } : { accept: item.accept ?? [] }),
-    answer: item.answer.trim(), explanation: item.explanation.trim(), ...(spec.style ? { style: spec.style } : {}), scoped: true, source: "generated",
+    answer: item.answer.trim(), explanation: item.explanation.trim(), scoped: true, source: "generated",
   };
   if (!solved) return { ok: false, reason: "checker gave no answer" };
   if (!isCorrect(q, solved)) return { ok: false, reason: `checker disagreed (key ${q.answer}, checker ${solved})` };

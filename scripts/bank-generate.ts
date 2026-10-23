@@ -4,7 +4,7 @@
 //   npm run bank:generate -- --exam ap --section ap-biology --skill u3 --count 12            (one AP unit)
 //   npm run bank:generate -- --exam ap --section ap-biology --per-skill 12                   (every unit of one AP course)
 //   npm run bank:generate -- --exam ap --section ap-biology --topics --per-skill 4           (every topic, like 1.1 and 1.2)
-//   npm run bank:generate -- --exam sat --all --topics --level exam --per-skill 4              (real-exam-style, every sub-skill)
+//   npm run bank:generate -- --exam sat --all --topics --level hard --per-skill 4              (hard questions, every sub-skill)
 //   npm run bank:generate -- --exam act --all --per-skill 8                                  (the whole ACT)
 //   npm run bank:generate -- --exam tsi --all --per-skill 8
 //   npm run bank:generate -- --exam ap --all --per-skill 10                                  (every AP course: a lot of calls)
@@ -22,7 +22,7 @@ import { coursesFor } from "../src/lib/exam/courses";
 import { EXAMS } from "../src/lib/exam/config";
 import { LEVELS, specFor, type Level } from "../src/lib/exam/levels";
 import { extractJson } from "../src/lib/ai/finder";
-import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, normalizeStem, parseReview, MIN_FIT, parseSolved, topicOf, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
+import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, normalizeStem, parseReview, parseSolved, topicOf, verifyQuestion, type GenSpec } from "../src/lib/exam/verify";
 import type { Question } from "../src/lib/exam/types";
 
 const args = process.argv.slice(2);
@@ -99,7 +99,7 @@ async function run(spec: GenSpec) {
     const solved = dup ? null : parseSolved(await chat(solve.system, solve.user, 0));
     const id = `${spec.exam}-${spec.section}-g${createHash("sha1").update(item.stem).digest("hex").slice(0, 8)}`;
     let review: "in" | "out" | "inaccurate" | "weak" | null = null;
-    if (!dup && solved) { const sp = buildReviewPrompt(spec, item); review = parseReview(await chat(sp.system, sp.user, 0), spec.style ? MIN_FIT.exam : MIN_FIT.normal); }
+    if (!dup && solved) { const sp = buildReviewPrompt(spec, item); review = parseReview(await chat(sp.system, sp.user, 0)); }
     const verdict = dup ? ({ ok: false, reason: "duplicate" } as const) : verifyQuestion(item, spec, solved, id, review);
     if (verdict.ok) { bank.push(verdict.question); seen.add(normalizeStem(item.stem)); kept++; } else { tossed++; console.log(`  rejected: ${verdict.reason}`); }
   }
@@ -128,7 +128,7 @@ async function main() {
   console.log(`${jobs.length} batch(es), starting with model ${MODELS[0]}${dry ? " (dry run, nothing will be saved)" : ""}`);
   let kept = 0, tossed = 0, failed = 0, failedInARow = 0;
   for (const job of jobs) {
-    console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty}${job.style ? ", real exam style" : ""})`);
+    console.log(`${job.section}/${job.skill}${job.topic ? `/${job.topic}` : ""} x${job.count} (difficulty ${job.difficulty})`);
     try {
       const r = await run(job); kept += r.kept; tossed += r.tossed; failedInARow = 0;
     } catch (e) {

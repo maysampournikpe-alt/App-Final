@@ -7,7 +7,7 @@ import { extractJson } from "@/lib/ai/finder";
 import { specFor } from "@/lib/exam/levels";
 import { ID_MAX, cramMessages, cramSchema, notesMessages, notesSchema, termsMessages, termsSchema, TRACKS } from "@/lib/ai/learn";
 import { fromBank, toBank } from "@/lib/ai/qbank";
-import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, parseReview, MIN_FIT, parseSolved, topicOf, verifyQuestion, type GenSpec } from "@/lib/exam/verify";
+import { buildGenPrompt, buildReviewPrompt, buildSolvePrompt, genBatch, parseReview, parseSolved, topicOf, verifyQuestion, type GenSpec } from "@/lib/exam/verify";
 import type { Question } from "@/lib/exam/types";
 import { allow, clientIp } from "@/lib/rate-limit";
 import { hasSupabaseServer, supabaseServer } from "@/lib/supabase/server";
@@ -22,7 +22,7 @@ const schema = z.object({
   topic: z.string().max(ID_MAX.topic).optional(),
   kind: z.enum(["notes", "quiz", "terms", "cram"]),
   lang: z.enum(["en", "es"]).default("en"),
-  level: z.enum(["mixed", "easy", "medium", "hard", "exam"]).default("mixed"),
+  level: z.enum(["mixed", "easy", "medium", "hard"]).default("mixed").catch("mixed"),
   count: z.number().int().min(1).max(10).default(5),
   seen: z.array(z.string().max(80)).max(120).default([]),
 });
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     if (need > 0) {
       const spec: GenSpec = { exam, section, skill, topic, count: Math.min(6, need + 1), ...specFor(level, Math.floor(Math.random() * 4)) };
       const { system, user } = buildGenPrompt(spec);
-      const gen = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0.8, maxTokens: spec.style ? 3600 : 2600, messages: [{ role: "system", content: system }, { role: "user", content: user }] });
+      const gen = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0.8, maxTokens: 2600, messages: [{ role: "system", content: system }, { role: "user", content: user }] });
       const j = extractJson(gen.content), batch = j ? genBatch.safeParse(j) : null;
       if (batch?.success) {
         // A second call solves each question without seeing the key. Only questions where both agree are kept.
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
           // A third call checks the question is on this course and topic and is correct and fair.
           const sp = buildReviewPrompt(spec, item);
           const review = await groqChat({ model: AI.models.chat, timeoutSeconds: AI.chatTimeoutSeconds, temperature: 0, maxTokens: 700, messages: [{ role: "system", content: sp.system }, { role: "user", content: sp.user }] }).catch(() => null);
-          return verifyQuestion(item, spec, reply ? parseSolved(reply.content) : null, id, review ? parseReview(review.content, spec.style ? MIN_FIT.exam : MIN_FIT.normal) : null);
+          return verifyQuestion(item, spec, reply ? parseSolved(reply.content) : null, id, review ? parseReview(review.content) : null);
         }));
         const fresh: Question[] = [];
         const have = new Set([...seen, ...questions.map((q) => q.id)]);

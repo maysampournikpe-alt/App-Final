@@ -35,10 +35,10 @@ Everything in [BRACKETS] is yours to fill in. Use your real story, real names an
 **On screen:** Name captions: **[FULL NAME]**, **[FULL NAME]**. Say every name out loud. The rules require it.
 
 ### Beat 3: The one sentence (0:16 to 0:30)
-**Visual:** A sticky note slaps onto the screen with the sentence written on it. Zoom on a crowd of students (stock-free: your friends, with permission).
+**Visual:** A sticky note slaps onto the screen with the sentence written on it. Smash cut to the Rumbo home page: the notebook-paper header, the colorful **Today's plan** tiles, then scroll down to **Your folders** (Discover, Learn, Test Prep and the rest, each with its own colored tab). Quick cut of your friends using it, with permission.
 **Say:** "Rumbo is a free app, in English and Spanish, that helps middle and high school students in the Rio Grande Valley find opportunities and prepare for college. That's it. That's the whole pitch."
 **On screen:** The sentence in big text. Under it: **For: middle and high school students, South Texas.**
-**Joke:** Beat. Look at the camera. "Okay, it's also a lot more than that. Let me show you."
+**Joke:** Beat. Look at the camera. "It looks like my school binder. On purpose. It's also a lot more than that. Let me show you."
 
 ### Beat 4: Find it (0:30 to 0:55)
 **Visual:** Screen recording, sped up 1.5x with a satisfying "whoosh" on each click. Home page → type "chess tournaments for middle schoolers near Edinburg" → results appear.
@@ -68,9 +68,9 @@ Everything in [BRACKETS] is yours to fill in. Use your real story, real names an
 **Sound:** Music cuts out here. Let it be quiet for a second. This is the line judges will remember.
 
 ### Beat 7: Everything else, fast (1:55 to 2:15)
-**Visual:** Rapid-fire 1-second cuts with a pop sound each: flashcards flipping, habit tracker check, GPA calculator, savings goal, focus timer, college finder, dark mode toggle.
+**Visual:** Open a folder (for example Learn), tap a section, and show how everything is sorted into folders. Then rapid-fire 1-second cuts with a pop sound each: flashcards flipping, habit tracker check, GPA calculator, savings goal, focus timer, college finder, dark mode toggle.
 **Say:** "Flashcards that remember what you forget. A GPA calculator. A habit tracker. A college and career explorer. Lots of it works with no internet at all, and it installs on your phone like a real app."
-**On screen:** Each tool name pops up as a sticker. Counter in the corner: **[ONE_NUMBER] free tools**, use the real count from `FEATURES.md` ("246 built" at the time of writing; check before you record).
+**On screen:** Each tool name pops up as a sticker. Counter in the corner: **200+ free tools** (`FEATURES.md` says 246 of 280 built at the time of writing; re-check before you record, and say the lower round number).
 **Privacy line (quick):** "No email. Pick a username, get a recovery code. That's it."
 
 ### Beat 8: How I built it (2:15 to 2:35)
@@ -105,6 +105,7 @@ Everything in [BRACKETS] is yours to fill in. Use your real story, real names an
 
 - [ ] Cold open: phone text on screen, staged. Face to camera.
 - [ ] Hallway or school shots with permission, plus a map shot.
+- [ ] Screen recording: home page (notebook header, Today's plan, Your folders), then open the Learn folder.
 - [ ] Screen recording: Finder search, results, "not confirmed, ask first", EN to ES.
 - [ ] Screen recording: AP Biology path, notes, quiz, difficulty, **Review next**.
 - [ ] The old wrong-question screenshot (you already have it) and the fixed quiz.

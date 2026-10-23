@@ -30,7 +30,7 @@ export function AccountTool() {
     body = (
       <>
         <p className="mb-6 max-w-prose text-lg">{t("acctGuestLead")}</p>
-        <div role="tablist" className="mb-6 inline-flex overflow-hidden rounded-md border-[1.5px] border-ink">
+        <div role="tablist" className="mb-6 inline-flex overflow-hidden rounded-xl border-[1.5px] border-ink">
           {(["create", "signin"] as const).map((v) => (
             <button key={v} role="tab" aria-selected={view === v || (v === "signin" && view === "recover")} onClick={() => setView(v)}
               className={`px-4 py-2 font-bold ${view === v || (v === "signin" && view === "recover") ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>

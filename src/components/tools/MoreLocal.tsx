@@ -34,7 +34,7 @@ const copy = {
 };
 
 const clip = async (text: string) => { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } };
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 
 export function CitationTool() {
   const c = useCopy(copy);
@@ -97,11 +97,11 @@ export function AppTrackerTool() {
         <ul className="mt-3 space-y-3">{sorted.map((a) => { const left = a.deadline ? diffDays(now, a.deadline) : null; const nd = a.done.filter(Boolean).length; return (
           <li key={a.id} className={`guide-card p-4 ${left !== null && left < 0 && a.status !== "submitted" && a.status !== "accepted" ? "border-l-[6px] border-l-ruby" : ""}`}>
             <div className="flex flex-wrap items-start gap-3"><div className="min-w-0 flex-1"><h2 className="text-xl">{a.name}</h2><p className="text-sm text-muted">{c.kinds[a.kind]}{a.deadline ? ` · ${formatDay(a.deadline, lang)}` : ""}{left !== null ? ` · ${c.daysLeft(left)}` : ""}</p><p className="text-sm font-bold">{c.done(nd, c.checklist.length)}</p></div>
-              <label><span className="sr-only">{c.status}: {a.name}</span><select value={a.status} onChange={(e) => upd(a.id, { status: e.target.value as Status })} className="rounded-md border-[1.5px] border-ink bg-surface px-2 py-1.5 font-bold">{(Object.keys(c.statuses) as Status[]).map((s) => <option key={s} value={s}>{c.statuses[s]}</option>)}</select></label>
+              <label><span className="sr-only">{c.status}: {a.name}</span><select value={a.status} onChange={(e) => upd(a.id, { status: e.target.value as Status })} className="rounded-xl border-[1.5px] border-ink bg-surface px-2 py-1.5 font-bold">{(Object.keys(c.statuses) as Status[]).map((s) => <option key={s} value={s}>{c.statuses[s]}</option>)}</select></label>
               {rm(a.name, c.remove, () => setApps((p) => p.filter((x) => x.id !== a.id)))}</div>
             <button onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id} className="mt-2 font-bold text-teal underline underline-offset-4">{open === a.id ? c.closes : c.opens}: {a.name}</button>
             {open === a.id ? <div className="mt-2"><ul>{c.checklist.map((it, i) => <li key={it}><label className="flex items-center gap-3 py-1.5"><input type="checkbox" checked={a.done[i] ?? false} onChange={() => upd(a.id, { done: c.checklist.map((_, j) => (j === i ? !(a.done[j] ?? false) : a.done[j] ?? false)) })} className="h-5 w-5 accent-[var(--c-teal)]" /><span className={a.done[i] ? "text-muted line-through" : ""}>{it}</span></label></li>)}</ul>
-              <label className="mt-2 block"><span className="block font-bold">{c.notes}</span><textarea value={a.notes} onChange={(e) => upd(a.id, { notes: e.target.value.slice(0, 1000) })} rows={3} className="mt-1 w-full rounded-md border-[1.5px] border-ink bg-surface p-2" /></label></div> : null}</li>); })}</ul></>}
+              <label className="mt-2 block"><span className="block font-bold">{c.notes}</span><textarea value={a.notes} onChange={(e) => upd(a.id, { notes: e.target.value.slice(0, 1000) })} rows={3} className="mt-1 w-full rounded-xl border-[1.5px] border-ink bg-surface p-2" /></label></div> : null}</li>); })}</ul></>}
     </Head>
   );
 }
@@ -147,7 +147,7 @@ export function ApNotesTool() {
     <Head title={c.anTitle} lead={c.anLead}>
       {u.courses.length === 0 ? <NoCourses c={c} /> : <>
         <UnitPickers c={c} u={u} />
-        <label className="mt-4 block"><span className="sr-only">{c.anTitle}</span><textarea value={text} onChange={(e) => setNotes({ ...notes, [key]: e.target.value.slice(0, 20000) })} placeholder={c.notesPh} rows={14} className="w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted" /></label>
+        <label className="mt-4 block"><span className="sr-only">{c.anTitle}</span><textarea value={text} onChange={(e) => setNotes({ ...notes, [key]: e.target.value.slice(0, 20000) })} placeholder={c.notesPh} rows={14} className="w-full rounded-xl border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted" /></label>
         <p className="mt-2 text-sm text-muted">{c.hint}</p>
         <div className="mt-3 flex flex-wrap items-center gap-3"><button onClick={make} className={buttonClass.secondary}>{c.flash}</button><span className="font-bold text-teal" role="status">{msg}</span><span className="text-sm text-muted">{c.noteCount(written)}</span></div></>}
     </Head>

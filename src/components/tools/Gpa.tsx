@@ -108,7 +108,7 @@ export function GpaTool() {
                   <input type="checkbox" checked={x.planned} onChange={(e) => update(x.id, { planned: e.target.checked })} className="h-5 w-5 accent-[var(--c-teal)]" />
                   {c.whatIf}
                 </label>
-                <button onClick={() => setCourses(courses.filter((y) => y.id !== x.id))} aria-label={`${c.remove}: ${x.name}`} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken">
+                <button onClick={() => setCourses(courses.filter((y) => y.id !== x.id))} aria-label={`${c.remove}: ${x.name}`} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken">
                   <Trash2 size={18} strokeWidth={1.75} />
                 </button>
               </li>

@@ -45,8 +45,8 @@ export function BudgetTool() {
     <Page>
       <h1 className="text-3xl sm:text-4xl">{c.title}</h1>
       <p className="mt-2 max-w-prose text-muted">{c.lead}</p>
-      <div className="mt-6 flex items-center gap-2"><button onClick={() => shift(-1)} aria-label={c.prev} className="rounded-md border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">‹</button>
-        <h2 className="min-w-40 text-center font-display text-2xl capitalize" aria-live="polite">{title}</h2><button onClick={() => shift(1)} aria-label={c.next} className="rounded-md border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">›</button></div>
+      <div className="mt-6 flex items-center gap-2"><button onClick={() => shift(-1)} aria-label={c.prev} className="rounded-xl border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">‹</button>
+        <h2 className="min-w-40 text-center font-display text-2xl capitalize" aria-live="polite">{title}</h2><button onClick={() => shift(1)} aria-label={c.next} className="rounded-xl border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">›</button></div>
       <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-live="polite">
         {([[c.income, s.income, ""], [c.spend, s.spend, ""], [c.save, s.save, ""], [c.left, s.left, s.left < 0 ? "text-ruby" : "text-teal"]] as const).map(([k, v, cls]) => (
           <div key={k} className="guide-card p-3"><dt className="text-sm font-bold text-muted">{k}</dt><dd className={`font-display text-2xl font-semibold ${cls}`}>{money(v)}</dd></div>))}</dl>
@@ -62,7 +62,7 @@ export function BudgetTool() {
         <ul className="mt-4 divide-y-2 divide-dotted divide-line">{mine.map((l) => (
           <li key={l.id} className="flex items-center gap-3 py-2.5"><div className="min-w-0 flex-1"><p className="font-bold">{l.label}</p><p className="text-sm text-muted">{c.kinds[l.kind]}</p></div>
             <p className={`font-bold tabular-nums ${l.kind === "income" ? "text-teal" : ""}`}>{l.kind === "income" ? "+" : "−"}{money(l.amount)}</p>
-            <button onClick={() => setLines((p) => p.filter((x) => x.id !== l.id))} aria-label={`${c.remove}: ${l.label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
+            <button onClick={() => setLines((p) => p.filter((x) => x.id !== l.id))} aria-label={`${c.remove}: ${l.label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
       )}
     </Page>
   );

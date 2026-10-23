@@ -92,7 +92,7 @@ export function Runner({ session, onFinish, onExit }: { session: Session; onFini
                 const on = given === letter;
                 return (
                   <li key={letter}>
-                    <label className={`flex cursor-pointer items-start gap-3 rounded-md border-[1.5px] border-ink p-3 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"}`}>
+                    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border-[1.5px] border-ink p-3 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"}`}>
                       <input type="radio" name={q.id} checked={on} onChange={() => setAnswer(letter)} className="peer sr-only" />
                       <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-current font-bold peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]`}>{letter}</span>
                       <MathText text={choice} className="min-w-0 flex-1 pt-0.5 text-lg" />
@@ -131,7 +131,7 @@ export function Runner({ session, onFinish, onExit }: { session: Session; onFini
               <li key={x.id}>
                 <button onClick={() => setIdx(i)} aria-current={i === idx ? "step" : undefined}
                   aria-label={`${c.jump} ${i + 1}${done ? `, ${c.answered}` : ""}${fl ? `, ${c.flagged}` : ""}`}
-                  className={`relative grid h-10 w-10 place-items-center rounded-md border-[1.5px] border-ink font-bold ${i === idx ? "bg-ink text-paper" : done ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"}`}>
+                  className={`relative grid h-10 w-10 place-items-center rounded-xl border-[1.5px] border-ink font-bold ${i === idx ? "bg-ink text-paper" : done ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"}`}>
                   {i + 1}{fl ? <span aria-hidden className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-ink bg-marigold" /> : null}
                 </button>
               </li>

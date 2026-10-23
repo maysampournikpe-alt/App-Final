@@ -56,7 +56,7 @@ export function StackingTool() {
       {stacks.length === 0 ? <div className="mt-4 flex max-w-xl items-center gap-5"><EmptyTrail className="h-20 w-32 shrink-0 text-ink" /><p className="text-lg">{c.empty}</p></div> : (
         <ul className="divide-y-2 divide-dotted divide-line">{stacks.map((s) => (
           <li key={s.id} className="flex items-center gap-3 py-3"><p className="min-w-0 flex-1 text-lg font-bold">{c.sentence(s.anchor, s.habit)}</p>
-            <button onClick={() => setStacks((p) => p.filter((x) => x.id !== s.id))} aria-label={`${c.remove}: ${s.habit}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
+            <button onClick={() => setStacks((p) => p.filter((x) => x.id !== s.id))} aria-label={`${c.remove}: ${s.habit}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
       )}
       <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.ideasTitle}</h2>
       <ul className="mt-2 divide-y-2 divide-dotted divide-line">{c.ideas.map(([a, h]) => (

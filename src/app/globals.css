@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/nunito/wght.css";
 @import "@fontsource/atkinson-hyperlegible/400.css";
 @import "@fontsource/atkinson-hyperlegible/700.css";
 @import "@fontsource/opendyslexic/latin-400.css";
@@ -12,59 +12,59 @@
    Checked for WCAG AA by `npm run check:contrast`.
    ------------------------------------------------------------------ */
 :root {
-  --c-paper: #ece3d0;       /* sand */
-  --c-surface: #f6f0e2;     /* field-guide page */
-  --c-sunken: #e0d5bc;      /* pressed / well */
-  --c-ink: #2a251e;
-  --c-muted: #5a5142;
-  --c-line: #b9ab8d;        /* dotted trail lines, borders */
-  --c-ruby: #b42f39;        /* main accent */
-  --c-on-ruby: #fff8ee;
-  --c-teal: #0c5a60;        /* resaca */
-  --c-on-teal: #f2f7f4;
-  --c-marigold: #e8a41f;    /* highlights, celebrations */
-  --c-on-marigold: #2a251e;
-  --c-terracotta: #a24a28;
-  --c-palm: #266a40;        /* success */
-  --c-focus: #0c5a60;
-  --contour-alpha: 0.16;
+  --c-paper: #f3f5ff;       /* sand */
+  --c-surface: #ffffff;     /* field-guide page */
+  --c-sunken: #e4e8fb;      /* pressed / well */
+  --c-ink: #1d1b3a;
+  --c-muted: #4d4a6d;
+  --c-line: #c4cbee;        /* dotted trail lines, borders */
+  --c-ruby: #c81f62;        /* main accent */
+  --c-on-ruby: #ffffff;
+  --c-teal: #3a3fd1;        /* resaca */
+  --c-on-teal: #ffffff;
+  --c-marigold: #ffc933;    /* highlights, celebrations */
+  --c-on-marigold: #1d1b3a;
+  --c-terracotta: #c2410c;
+  --c-palm: #15803d;        /* success */
+  --c-focus: #3a3fd1;
+  --contour-alpha: 0;
 }
 :root[data-theme="dark"] {
-  --c-paper: #111a2b;       /* night trail */
-  --c-surface: #182339;
-  --c-sunken: #0c1422;
-  --c-ink: #eee6d4;
-  --c-muted: #b4b0a3;
-  --c-line: #3d4c68;
-  --c-ruby: #f0757c;
-  --c-on-ruby: #1a0f12;
-  --c-teal: #62c3c8;
-  --c-on-teal: #0b1d20;
-  --c-marigold: #f3b94d;
+  --c-paper: #14122b;       /* night trail */
+  --c-surface: #1f1c3f;
+  --c-sunken: #0e0c20;
+  --c-ink: #f1efff;
+  --c-muted: #b8b4de;
+  --c-line: #3b376b;
+  --c-ruby: #ff7aa8;
+  --c-on-ruby: #2a0a17;
+  --c-teal: #9ba3ff;
+  --c-on-teal: #14122b;
+  --c-marigold: #ffd35a;
   --c-on-marigold: #241b08;
-  --c-terracotta: #e48d65;
-  --c-palm: #6fc58d;
-  --c-focus: #f3b94d;
-  --contour-alpha: 0.2;
+  --c-terracotta: #ff9a6b;
+  --c-palm: #6ee7a0;
+  --c-focus: #ffd35a;
+  --contour-alpha: 0;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --c-paper: #111a2b;
-    --c-surface: #182339;
-    --c-sunken: #0c1422;
-    --c-ink: #eee6d4;
-    --c-muted: #b4b0a3;
-    --c-line: #3d4c68;
-    --c-ruby: #f0757c;
-    --c-on-ruby: #1a0f12;
-    --c-teal: #62c3c8;
-    --c-on-teal: #0b1d20;
-    --c-marigold: #f3b94d;
+    --c-paper: #14122b;
+    --c-surface: #1f1c3f;
+    --c-sunken: #0e0c20;
+    --c-ink: #f1efff;
+    --c-muted: #b8b4de;
+    --c-line: #3b376b;
+    --c-ruby: #ff7aa8;
+    --c-on-ruby: #2a0a17;
+    --c-teal: #9ba3ff;
+    --c-on-teal: #14122b;
+    --c-marigold: #ffd35a;
     --c-on-marigold: #241b08;
-    --c-terracotta: #e48d65;
-    --c-palm: #6fc58d;
-    --c-focus: #f3b94d;
-    --contour-alpha: 0.2;
+    --c-terracotta: #ff9a6b;
+    --c-palm: #6ee7a0;
+    --c-focus: #ffd35a;
+    --contour-alpha: 0;
   }
 }
 
@@ -88,7 +88,7 @@
 }
 
 :root {
-  --font-display-stack: "Fraunces Variable", Georgia, serif;
+  --font-display-stack: "Nunito Variable", "Atkinson Hyperlegible", "Segoe UI", sans-serif;
   --font-body-stack: "Atkinson Hyperlegible", "Segoe UI", sans-serif;
 }
 :root[data-dyslexia="true"] {
@@ -112,7 +112,7 @@ body {
 }
 :root[data-dyslexia="true"] body { line-height: 1.75; letter-spacing: 0.02em; word-spacing: 0.08em; }
 
-h1, h2, h3, h4 { font-family: var(--font-display-stack); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
+h1, h2, h3, h4 { font-family: var(--font-display-stack); font-weight: 800; line-height: 1.15; letter-spacing: -0.015em; text-wrap: balance; }
 :root[data-dyslexia="true"] :is(h1, h2, h3, h4) { letter-spacing: 0; }
 p { text-wrap: pretty; max-width: 68ch; }
 
@@ -123,7 +123,7 @@ p { text-wrap: pretty; max-width: 68ch; }
    Topographic contour texture (turned off in low data mode).
    Painted as a mask so it takes the ink color of the current theme.
    ------------------------------------------------------------------ */
-.contours { position: relative; isolation: isolate; }
+.contours { position: relative; isolation: isolate; background: radial-gradient(34rem 16rem at 100% 0%, color-mix(in srgb, var(--c-marigold) 35%, transparent), transparent 70%), var(--c-paper); }
 .contours::before {
   content: "";
   position: absolute; inset: 0; z-index: -1;
@@ -151,7 +151,7 @@ p { text-wrap: pretty; max-width: 68ch; }
   position: relative;
   background: var(--c-surface);
   border: 1.5px solid var(--c-ink);
-  border-radius: 6px;
+  border-radius: 14px;
   --notch: 11px;
   -webkit-mask:
     radial-gradient(circle var(--notch) at 0 3.6rem, #0000 98%, #000) left / 51% 100% no-repeat,
@@ -179,8 +179,8 @@ p { text-wrap: pretty; max-width: 68ch; }
 .guide-card {
   background: var(--c-surface);
   border: 1.5px solid var(--c-ink);
-  border-radius: 10px 4px 10px 4px;
-  box-shadow: 4px 4px 0 var(--c-line);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--c-ink);
 }
 
 /* Embroidered patch edge: used by the Patch component. */
@@ -231,4 +231,12 @@ p { text-wrap: pretty; max-width: 68ch; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .theme-sun { display: block; }
   :root:not([data-theme="light"]) .theme-moon { display: none; }
+}
+
+/* Friendly hero: soft color blobs instead of a map texture. */
+.hero-blobs {
+  background:
+    radial-gradient(40rem 22rem at 90% -10%, color-mix(in srgb, var(--c-marigold) 45%, transparent), transparent 70%),
+    radial-gradient(34rem 20rem at -5% 110%, color-mix(in srgb, var(--c-ruby) 22%, transparent), transparent 70%),
+    var(--c-paper);
 }

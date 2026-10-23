@@ -83,9 +83,9 @@ function Compound({ c }: { c: C }) {
           {r.byYear.filter((_, i, all) => all.length <= 12 || i % Math.ceil(all.length / 12) === 0 || i === all.length - 1).map((row) => (
             <li key={row.year} className="flex items-center gap-3 text-sm">
               <span className="w-16 shrink-0 text-muted">{c.year} {row.year}</span>
-              <span className="relative h-5 flex-1 rounded-sm bg-sunken" aria-hidden>
-                <span className="absolute inset-y-0 left-0 rounded-sm bg-teal" style={{ width: `${(row.contributed / max) * 100}%` }} />
-                <span className="absolute inset-y-0 left-0 rounded-sm bg-marigold/80" style={{ width: `${(row.balance / max) * 100}%`, clipPath: `inset(0 0 0 ${(row.contributed / row.balance) * 100}%)` }} />
+              <span className="relative h-5 flex-1 rounded-lg bg-sunken" aria-hidden>
+                <span className="absolute inset-y-0 left-0 rounded-lg bg-teal" style={{ width: `${(row.contributed / max) * 100}%` }} />
+                <span className="absolute inset-y-0 left-0 rounded-lg bg-marigold/80" style={{ width: `${(row.balance / max) * 100}%`, clipPath: `inset(0 0 0 ${(row.contributed / row.balance) * 100}%)` }} />
               </span>
               <span className="w-24 shrink-0 text-right font-bold tabular-nums">{money(row.balance, lang)}</span>
             </li>
@@ -144,7 +144,7 @@ function Savings({ c }: { c: C }) {
                     <p className="font-display text-xl font-semibold">{g.name}</p>
                     <p className="text-sm text-muted">{money(g.saved, lang)} / {money(g.target, lang)} · {formatDay(g.by, lang)} · {p.late ? "" : c.daysLeft(Math.max(0, diffDays(now, g.by)))}</p>
                   </div>
-                  <button onClick={() => setGoals((q) => q.filter((x) => x.id !== g.id))} aria-label={`${c.remove}: ${g.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+                  <button onClick={() => setGoals((q) => q.filter((x) => x.id !== g.id))} aria-label={`${c.remove}: ${g.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
                 </div>
                 <div className="mt-3 h-4 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" role="progressbar" aria-valuenow={p.percent} aria-valuemin={0} aria-valuemax={100} aria-label={g.name}>
                   <div className="h-full bg-teal" style={{ width: `${p.percent}%` }} />

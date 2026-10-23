@@ -65,7 +65,7 @@ export function OpportunityCard({ listing, saved, onToggle, lang }: { listing: L
     >
       {listing.description ? <p className="mb-2">{listing.description}</p> : null}
       {listing.scam.length ? (
-        <div role="note" className="mt-2 rounded-md border-[1.5px] border-ruby bg-sunken p-3">
+        <div role="note" className="mt-2 rounded-xl border-[1.5px] border-ruby bg-sunken p-3">
           <p className="flex items-center gap-2 font-bold text-ruby"><ShieldAlert size={18} />{c.scamTitle}</p>
           <ul className="mt-1 list-disc pl-5">{listing.scam.map((r) => <li key={r}>{c.scam[r]}</li>)}</ul>
           <p className="mt-1 text-sm">{c.scamTip}</p>

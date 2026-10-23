@@ -64,7 +64,7 @@ export function GeometryTool() {
           <h2 className="mt-3 text-lg">{c.sizes}</h2>
           <div className="mt-2 grid grid-cols-2 gap-3">
             {shape.dims.map((d) => (
-              <label key={d.key}><span className="block text-sm font-bold"><span className="mr-1 rounded-sm border border-ink px-1 font-mono">{d.key}</span>{d[lang]}</span>
+              <label key={d.key}><span className="block text-sm font-bold"><span className="mr-1 rounded-lg border border-ink px-1 font-mono">{d.key}</span>{d[lang]}</span>
                 <input inputMode="decimal" value={vals[d.key] ?? ""} onChange={(e) => setVals({ ...vals, [d.key]: e.target.value })} className={`${inputClass} mt-1`} /></label>
             ))}
           </div>

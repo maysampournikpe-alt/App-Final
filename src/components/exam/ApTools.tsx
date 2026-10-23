@@ -45,7 +45,7 @@ export function ApCoursesTool() {
           const on = picked.includes(course.id);
           return (
             <li key={course.id}>
-              <label className={`flex cursor-pointer items-center gap-3 rounded-md border-[1.5px] border-ink p-3 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"}`}>
+              <label className={`flex cursor-pointer items-center gap-3 rounded-xl border-[1.5px] border-ink p-3 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"}`}>
                 <input type="checkbox" checked={on} onChange={() => toggle(course.id)} className="peer sr-only" />
                 <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded border-2 border-current peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]`}>{on ? <Check size={16} strokeWidth={3} /> : null}</span>
                 <span className="min-w-0 flex-1 font-bold">{course[lang]}</span>
@@ -179,7 +179,7 @@ export function ExamHubTool({ track }: { track: ExamId }) {
 
       <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map(({ href, Icon, t, d }) => (
-          <li key={t}><Link href={href} className="guide-card flex h-full items-start gap-3 p-4 hover:bg-sunken"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-md border-[1.5px] border-ink bg-marigold text-on-marigold"><Icon size={20} aria-hidden /></span><span className="min-w-0"><span className="block font-bold">{t}</span><span className="block text-sm text-muted">{d}</span></span></Link></li>
+          <li key={t}><Link href={href} className="guide-card flex h-full items-start gap-3 p-4 hover:bg-sunken"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border-[1.5px] border-ink bg-marigold text-on-marigold"><Icon size={20} aria-hidden /></span><span className="min-w-0"><span className="block font-bold">{t}</span><span className="block text-sm text-muted">{d}</span></span></Link></li>
         ))}
       </ul>
 
@@ -208,7 +208,7 @@ export function ExamHubTool({ track }: { track: ExamId }) {
                   <summary className="cursor-pointer font-bold text-teal">{h.topics} ({unit.topics.length})</summary>
                   <ul className="mt-2 space-y-1">
                     {unit.topics.map((t) => (
-                      <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md px-1 py-1 hover:bg-sunken">
+                      <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-1 py-1 hover:bg-sunken">
                         <span className="min-w-0"><span className="mr-2 tabular-nums text-terracotta">{t.num}</span>{t[lang]} <span className="text-sm text-muted">· {h.lv[levelOfProg(prog[key(t.id)])]}</span></span>
                         <span className="flex gap-2">
                           <Link href={`${base}/path?course=${course.id}&topic=${t.id}`} className="font-bold text-teal underline underline-offset-4"><span aria-hidden>{h.study}</span><span className="sr-only">{h.study} {t.num} {t[lang]}</span></Link>

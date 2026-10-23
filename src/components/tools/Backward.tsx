@@ -85,7 +85,7 @@ export function BackwardTool() {
                   <select value={s.weight} onChange={(e) => setSteps(steps.map((x) => (x.id === s.id ? { ...x, weight: Number(e.target.value) } : x)))} className={inputClass}>
                     {[1, 2, 3, 4, 5].map((w) => <option key={w} value={w}>{"▮".repeat(w)}</option>)}
                   </select></label>
-                <button type="button" onClick={() => setSteps(steps.filter((x) => x.id !== s.id))} aria-label={`${c.remove}: ${s.label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+                <button type="button" onClick={() => setSteps(steps.filter((x) => x.id !== s.id))} aria-label={`${c.remove}: ${s.label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
               </li>
             ))}
           </ul>

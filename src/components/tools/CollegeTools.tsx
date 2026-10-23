@@ -149,7 +149,7 @@ export function CreditsTool() {
             <div className="mt-2 h-3 overflow-hidden rounded-full border-[1.5px] border-ink bg-sunken" role="progressbar" aria-valuenow={Math.min(100, Math.round((total / ASSOCIATE_HOURS) * 100))} aria-valuemin={0} aria-valuemax={100} aria-label={c.credTitle}><div className="h-full bg-teal" style={{ width: `${Math.min(100, (total / ASSOCIATE_HOURS) * 100)}%` }} /></div></section>
           <ul className="mt-4 divide-y-2 divide-dotted divide-line">{list.map((x) => (
             <li key={x.id} className="flex items-center gap-3 py-2.5"><div className="min-w-0 flex-1"><p className="font-bold">{x.name} · {x.hours}</p><p className="text-sm text-muted">{[x.term, x.source].filter(Boolean).join(" · ")}</p></div>
-              <button onClick={() => setList((p) => p.filter((y) => y.id !== x.id))} aria-label={`${c.remove}: ${x.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
+              <button onClick={() => setList((p) => p.filter((y) => y.id !== x.id))} aria-label={`${c.remove}: ${x.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
         </>
       )}
     </Page>

@@ -48,7 +48,7 @@ const copy = {
 };
 
 const clip = async (text: string) => { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } };
-const area = "min-h-28 w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
+const area = "min-h-28 w-full rounded-xl border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
 type Goal = "facts" | "concepts" | "problems" | "essay" | "test";
 
 export function MethodsTool() {
@@ -132,7 +132,7 @@ export function DailyTool() {
       <div className="mt-5"><Chips<"math" | "word" | "debate"> value={kind} onChange={(k) => { setKind(k); setAns(""); setRes(null); }} label={c.dlKind} options={(["math", "word", "debate"] as const).map((k) => ({ id: k, label: c.kinds[k] }))} /></div>
       <section className="guide-card mt-5 p-6">
         {kind === "math" ? <form onSubmit={check}><p className="font-display text-3xl font-semibold">{c.dlMathQ(a, b, cc)}</p><label className="mt-3 block"><span className="sr-only">{c.answer}</span><input inputMode="numeric" value={ans} onChange={(e) => setAns(e.target.value)} className={`${inputClass} max-w-40`} /></label><button className={`${buttonClass.primary} mt-3`}>{c.check}</button>{res !== null ? <p role="status" className={`mt-3 text-lg font-bold ${res ? "text-teal" : "text-ruby"}`}>{res ? c.right : c.wrong(String(a * b - cc))}</p> : null}</form> : null}
-        {kind === "word" ? <div><p className="text-muted">{c.dlWordQ}</p><p className="font-display text-4xl font-semibold" lang={lang}>{word.w}</p><div className="mt-3 grid gap-2">{options.map((o) => <button key={o} onClick={() => setRes(o === word.m)} className="rounded-md border-[1.5px] border-ink bg-surface p-3 text-left text-lg hover:bg-sunken">{o}</button>)}</div>{res !== null ? <p role="status" className={`mt-3 text-lg font-bold ${res ? "text-teal" : "text-ruby"}`}>{res ? c.right : c.wrong(word.m)}</p> : null}</div> : null}
+        {kind === "word" ? <div><p className="text-muted">{c.dlWordQ}</p><p className="font-display text-4xl font-semibold" lang={lang}>{word.w}</p><div className="mt-3 grid gap-2">{options.map((o) => <button key={o} onClick={() => setRes(o === word.m)} className="rounded-xl border-[1.5px] border-ink bg-surface p-3 text-left text-lg hover:bg-sunken">{o}</button>)}</div>{res !== null ? <p role="status" className={`mt-3 text-lg font-bold ${res ? "text-teal" : "text-ruby"}`}>{res ? c.right : c.wrong(word.m)}</p> : null}</div> : null}
         {kind === "debate" ? <div><p className="font-display text-3xl font-semibold">{DEBATES[lang][day % DEBATES[lang].length]}</p><p className="mt-3 max-w-prose text-lg">{c.dlDebateQ}</p></div> : null}</section>
     </Head>
   );

@@ -36,7 +36,7 @@ const copy = {
   },
 };
 
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 const names = (s: string) => [...new Set(s.split(",").map((x) => x.trim()).filter(Boolean))].slice(0, 8);
 
 export function BackpackTool() {
@@ -127,7 +127,7 @@ export function KanbanTool() {
       <div className="mt-5 grid gap-4 md:grid-cols-3">{c.cols.map((name, ci) => (
         <section key={name} aria-label={name} className="guide-card p-3"><h2 className="text-xl">{name} <span className="text-base text-muted">({cards.filter((x) => x.col === ci).length})</span></h2>
           <ul className="mt-2 space-y-2">{cards.filter((x) => x.col === ci).map((x) => (
-            <li key={x.id} className="rounded-md border-[1.5px] border-ink bg-surface p-2"><p className="font-bold">{x.text}</p>
+            <li key={x.id} className="rounded-xl border-[1.5px] border-ink bg-surface p-2"><p className="font-bold">{x.text}</p>
               <div className="mt-1 flex items-center gap-1">{ci > 0 ? <button onClick={() => move(x.id, -1)} aria-label={`${c.back}: ${x.text}`} className="grid h-9 w-9 place-items-center rounded hover:bg-sunken"><ArrowLeft size={16} /></button> : null}{ci < 2 ? <button onClick={() => move(x.id, 1)} aria-label={`${c.fwd}: ${x.text}`} className="grid h-9 w-9 place-items-center rounded hover:bg-sunken"><ArrowRight size={16} /></button> : null}
                 <span className="flex-1" />{rm(x.text, c.remove, () => setCards((p) => p.filter((y) => y.id !== x.id)))}</div></li>))}
             {cards.filter((x) => x.col === ci).length === 0 ? <li className="text-sm text-muted">{c.kbEmpty}</li> : null}</ul></section>))}</div>

@@ -59,9 +59,9 @@ export function ScientificTool() {
           {([true, false] as const).map((d) => <button type="button" key={String(d)} onClick={() => setDeg(d)} aria-pressed={deg === d} className={`rounded-full border-[1.5px] border-ink px-3 py-1 text-sm font-bold ${deg === d ? "bg-ink text-paper" : "bg-surface"}`}>{d ? c.deg : c.rad}</button>)}
         </div>
         <div className="mt-3 grid grid-cols-6 gap-1.5">
-          {KEYS.map(([label, ins]) => <button type="button" key={label} onClick={() => add(ins)} className="rounded-md border-[1.5px] border-ink bg-surface py-2.5 text-lg font-bold hover:bg-sunken">{label}</button>)}
-          <button type="button" onClick={() => { setExpr(""); setErr(false); }} aria-label={c.clear} className="rounded-md border-[1.5px] border-ink bg-surface py-2.5 text-lg font-bold text-ruby hover:bg-sunken">C</button>
-          <button type="button" onClick={() => setExpr((x) => x.slice(0, -1))} aria-label={c.back} className="grid place-items-center rounded-md border-[1.5px] border-ink bg-surface py-2.5 hover:bg-sunken"><Delete size={20} /></button>
+          {KEYS.map(([label, ins]) => <button type="button" key={label} onClick={() => add(ins)} className="rounded-xl border-[1.5px] border-ink bg-surface py-2.5 text-lg font-bold hover:bg-sunken">{label}</button>)}
+          <button type="button" onClick={() => { setExpr(""); setErr(false); }} aria-label={c.clear} className="rounded-xl border-[1.5px] border-ink bg-surface py-2.5 text-lg font-bold text-ruby hover:bg-sunken">C</button>
+          <button type="button" onClick={() => setExpr((x) => x.slice(0, -1))} aria-label={c.back} className="grid place-items-center rounded-xl border-[1.5px] border-ink bg-surface py-2.5 hover:bg-sunken"><Delete size={20} /></button>
           <button className={`${buttonClass.primary} col-span-4 !py-2.5`} aria-label={c.equals}>=</button>
         </div>
       </form>
@@ -117,7 +117,7 @@ export function GraphingTool() {
   const ys = Array.from({ length: Math.ceil((view.ymax - view.ymin) / gy) + 2 }, (_, i) => (Math.floor(view.ymin / gy) + i) * gy).filter((y) => y >= view.ymin && y <= view.ymax);
   const active = compiled.filter((f) => f.fn).length;
   const ev = parseFloat(evalX.replace(",", "."));
-  const btn = "grid h-11 w-11 place-items-center rounded-md border-[1.5px] border-ink bg-surface hover:bg-sunken";
+  const btn = "grid h-11 w-11 place-items-center rounded-xl border-[1.5px] border-ink bg-surface hover:bg-sunken";
 
   return (
     <Page wide>

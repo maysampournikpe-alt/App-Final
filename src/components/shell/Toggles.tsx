@@ -8,7 +8,7 @@ export function LangToggle() {
   const { lang } = usePrefs();
   const t = useT();
   return (
-    <div role="group" aria-label={t("language")} className="flex overflow-hidden rounded-md border-[1.5px] border-ink">
+    <div role="group" aria-label={t("language")} className="flex overflow-hidden rounded-xl border-[1.5px] border-ink">
       {LANGS.map((l) => (
         <button
           key={l.code}
@@ -35,7 +35,7 @@ export function ThemeToggle() {
       onClick={() => setPrefs({ theme: next })}
       aria-label={`${t("switchTheme")} (${theme === "system" ? t("themeSystem") : theme === "light" ? t("themeLight") : t("themeDark")})`}
       title={t("switchTheme")}
-      className="grid h-9 w-9 place-items-center rounded-md border-[1.5px] border-ink bg-surface text-ink hover:bg-sunken"
+      className="grid h-9 w-9 place-items-center rounded-xl border-[1.5px] border-ink bg-surface text-ink hover:bg-sunken"
     >
       <Moon size={18} strokeWidth={1.75} className="theme-moon" />
       <Sun size={18} strokeWidth={1.75} className="theme-sun" />

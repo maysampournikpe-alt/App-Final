@@ -82,7 +82,7 @@ export function InterestPicker({ onDone, allowSkip = false }: { onDone?: () => v
             <p className="mb-3">{t("notSureLead")}</p>
             <ul className="flex flex-wrap gap-2">
               {MOODS.map((m) => (
-                <li key={m.key}><button onClick={() => addMood(m.picks)} className="rounded-md border-[1.5px] border-ink bg-surface px-3 py-2 font-bold hover:bg-sunken">{t(m.key)}</button></li>
+                <li key={m.key}><button onClick={() => addMood(m.picks)} className="rounded-xl border-[1.5px] border-ink bg-surface px-3 py-2 font-bold hover:bg-sunken">{t(m.key)}</button></li>
               ))}
             </ul>
           </div>

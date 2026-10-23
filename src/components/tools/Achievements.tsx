@@ -36,7 +36,7 @@ const copy = {
   },
 };
 type C = typeof copy.en;
-const del = (c: C, label: string, onClick: () => void) => <button onClick={onClick} aria-label={`${c.remove}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken print:hidden"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const del = (c: C, label: string, onClick: () => void) => <button onClick={onClick} aria-label={`${c.remove}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken print:hidden"><Trash2 size={18} strokeWidth={1.75} /></button>;
 const hoursNum = (s: string) => { const n = parseFloat(s.replace(",", ".")); return Number.isFinite(n) ? n : 0; };
 
 export function TrackerTool() {

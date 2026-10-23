@@ -310,12 +310,12 @@ function QuizView({ r, lang, onDone }: { r: LessonRef; lang: "en" | "es"; onDone
     <section className="mt-6" aria-label={c.quiz}>
       <p className="font-bold text-teal">{c.qOf(i + 1, qs.length)}{qs.length < want ? ` · ${c.short(qs.length)}` : ""}</p>
       <div className="guide-card mt-2 p-5">
-        {q.passage ? <MathText text={q.passage} className="mb-3 rounded-md border-l-[5px] border-l-line bg-sunken p-3 text-lg" /> : null}
+        {q.passage ? <MathText text={q.passage} className="mb-3 rounded-xl border-l-[5px] border-l-line bg-sunken p-3 text-lg" /> : null}
         <MathText text={q.stem} className="text-xl font-semibold" />
         <fieldset className="mt-4"><legend className="sr-only">{c.choose}</legend>
           <div className="grid gap-2">{q.choices!.map((ch, k) => {
             const sel = pick === letter(k), correct = checked && letter(k) === q.answer, wrong = checked && sel && !correct;
-            return <label key={k} className={`flex cursor-pointer items-start gap-3 rounded-md border-[1.5px] p-3 ${correct ? "border-palm bg-palm/15" : wrong ? "border-ruby bg-ruby/10" : sel ? "border-ink bg-sunken" : "border-line bg-surface hover:bg-sunken"}`}>
+            return <label key={k} className={`flex cursor-pointer items-start gap-3 rounded-xl border-[1.5px] p-3 ${correct ? "border-palm bg-palm/15" : wrong ? "border-ruby bg-ruby/10" : sel ? "border-ink bg-sunken" : "border-line bg-surface hover:bg-sunken"}`}>
               <input type="radio" name={`q-${q.id}`} disabled={checked} checked={sel} onChange={() => setPick(letter(k))} className="mt-1.5 h-5 w-5 accent-[var(--c-teal)]" />
               <span className="font-bold">{letter(k)}.</span><MathText text={ch} className="min-w-0 flex-1" />{correct ? <Check size={18} aria-label={c.right} /> : null}</label>;
           })}</div></fieldset>

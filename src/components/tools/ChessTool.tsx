@@ -49,7 +49,7 @@ function Trainer({ o }: { o: Opening }) {
   const cols = flip ? [...FILES].reverse() : [...FILES];
   return (
     <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,28rem)_1fr]">
-      <div role="group" aria-label={c.board} className="grid aspect-square w-full max-w-[28rem] grid-cols-8 overflow-hidden rounded-md border-[1.5px] border-ink">
+      <div role="group" aria-label={c.board} className="grid aspect-square w-full max-w-[28rem] grid-cols-8 overflow-hidden rounded-xl border-[1.5px] border-ink">
         {rows.flatMap((r) => cols.map((f) => {
           const sq = `${f}${r}` as Square, p = game.get(sq), dark = (FILES.indexOf(f) + r) % 2 === 1;
           const label = `${sq}, ${p ? `${c.colors[p.color]} ${c.pieces[p.type]}` : c.empty}${sel === sq ? `, ${c.selected}` : ""}${targets.includes(sq) ? `, ${c.legalTo}` : ""}`;

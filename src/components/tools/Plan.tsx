@@ -138,7 +138,7 @@ export function PlanTool({ view }: { view: View }) {
               <div className="flex flex-wrap gap-2">
                 {plans.map((p) => {
                   const pr = progress(p);
-                  return <button key={p.id} onClick={() => setSelected(p.id)} aria-pressed={current?.id === p.id} className={`rounded-md border-[1.5px] border-ink px-3 py-2 text-left font-bold ${current?.id === p.id ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{p.title} <span className="font-normal">· {pr.pct}%</span></button>;
+                  return <button key={p.id} onClick={() => setSelected(p.id)} aria-pressed={current?.id === p.id} className={`rounded-xl border-[1.5px] border-ink px-3 py-2 text-left font-bold ${current?.id === p.id ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{p.title} <span className="font-normal">· {pr.pct}%</span></button>;
                 })}
               </div>
             </div>

@@ -150,7 +150,7 @@ export function CoachTool({ kind }: { kind: Kind }) {
             <div>
               <p className="mb-3 font-bold">{c.emptyHint}</p>
               <ul className="flex flex-wrap gap-2">
-                {c.starters[mode].map((s) => <li key={s}><button onClick={() => send(s)} className="rounded-md border-[1.5px] border-ink bg-surface px-3 py-2 text-left font-bold hover:bg-sunken">{s}</button></li>)}
+                {c.starters[mode].map((s) => <li key={s}><button onClick={() => send(s)} className="rounded-xl border-[1.5px] border-ink bg-surface px-3 py-2 text-left font-bold hover:bg-sunken">{s}</button></li>)}
               </ul>
             </div>
           ) : null}

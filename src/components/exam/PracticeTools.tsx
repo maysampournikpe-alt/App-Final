@@ -93,7 +93,7 @@ function Pickers({ track, sc, c, needUnit, withTopic = true }: { track: ExamId; 
 
 const Radio = ({ name, checked, onChange, children, title }: { name: string; checked: boolean; onChange: () => void; children: React.ReactNode; title?: string }) => (
   <label className="cursor-pointer" title={title}><input type="radio" name={name} checked={checked} onChange={onChange} className="peer sr-only" />
-    <span className="inline-block rounded-md border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">{children}</span></label>
+    <span className="inline-block rounded-xl border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">{children}</span></label>
 );
 
 /** Practice quizzes and mock exams for every test and AP course. Questions come from the bank first, then the AI (checked by a second AI). */

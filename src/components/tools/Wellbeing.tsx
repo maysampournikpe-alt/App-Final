@@ -65,7 +65,7 @@ export function MoodTool() {
       <section className="guide-card mt-6 p-5">
         <h2 className="text-xl">{c.howFeel}</h2>
         <div className="mt-3 grid grid-cols-5 gap-2" role="group" aria-label={c.howFeel}>{([1, 2, 3, 4, 5] as const).map((n) => (
-          <button key={n} onClick={() => setMood(n)} aria-pressed={todays?.mood === n} className={`rounded-md border-[1.5px] border-ink px-1 py-3 text-center font-bold ${todays?.mood === n ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}><span className="block font-display text-2xl">{n}</span><span className="block text-xs sm:text-sm">{c.names[n - 1]}</span></button>))}</div>
+          <button key={n} onClick={() => setMood(n)} aria-pressed={todays?.mood === n} className={`rounded-xl border-[1.5px] border-ink px-1 py-3 text-center font-bold ${todays?.mood === n ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}><span className="block font-display text-2xl">{n}</span><span className="block text-xs sm:text-sm">{c.names[n - 1]}</span></button>))}</div>
         <label className="mt-4 block"><span className="block font-bold">{c.noteL}</span><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} maxLength={300} className={`${inputClass} mt-1`} /></label>
         <p className="mt-2 text-sm text-muted" role="status">{justSaved || todays ? c.saved : ""}</p>
       </section>
@@ -78,7 +78,7 @@ export function MoodTool() {
       <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.last14}</h2>
       <ol className="mt-3 flex gap-1.5" aria-label={c.last14}>{days.map((d) => { const m = byDay.get(d); return (
         <li key={d} className="flex flex-1 flex-col items-center gap-1" title={`${formatDay(d, lang)}${m ? `: ${c.names[m.mood - 1]}` : ""}`}>
-          <span className={`h-10 w-full rounded-sm border border-ink ${m ? COLORS[m.mood - 1] : "bg-sunken"}`} aria-hidden /><span className="text-[0.65rem] text-muted">{Number(d.slice(8))}</span></li>); })}</ol>
+          <span className={`h-10 w-full rounded-lg border border-ink ${m ? COLORS[m.mood - 1] : "bg-sunken"}`} aria-hidden /><span className="text-[0.65rem] text-muted">{Number(d.slice(8))}</span></li>); })}</ol>
     </Page>
   );
 }
@@ -113,7 +113,7 @@ export function SleepTool() {
       {rows.length === 0 ? <div className="guide-card mt-6 flex max-w-xl items-center gap-5 p-5"><EmptyTrail className="h-24 w-36 shrink-0 text-ink" /><p className="text-lg">{c.none}</p></div> : (
         <ul className="mt-4 divide-y-2 divide-dotted divide-line">{rows.slice(0, 30).map((r) => { const h = sleepHours(r.bed, r.wake)!; const v = sleepVerdict(h); return (
           <li key={r.date} className="flex items-center gap-3 py-2.5"><div className="min-w-0 flex-1"><p className="font-bold">{formatDay(r.date, lang)} · {c.h(h)}</p><p className="text-sm text-muted">{r.bed} → {r.wake} · <span className={v === "good" ? "font-bold text-teal" : "font-bold text-terracotta"}>{c.verdict[v]}</span></p></div>
-            <button onClick={() => setLog((p) => p.filter((x) => x.date !== r.date))} aria-label={`${c.remove}: ${r.date}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>); })}</ul>
+            <button onClick={() => setLog((p) => p.filter((x) => x.date !== r.date))} aria-label={`${c.remove}: ${r.date}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>); })}</ul>
       )}
     </Page>
   );
@@ -132,7 +132,7 @@ export function HelpTool() {
       <ul className="mt-6 space-y-3">{c.lines.map((l) => (
         <li key={l.name} className="guide-card flex items-center gap-4 p-4"><span className="grid h-14 w-14 shrink-0 place-items-center rounded-full border-[1.5px] border-ink bg-marigold text-on-marigold"><Phone size={22} aria-hidden /></span>
           <div className="min-w-0 flex-1"><p className="font-display text-xl font-semibold">{l.name}</p><p className="text-muted">{l.d}</p></div>
-          {l.tel ? <a href={`tel:${l.tel}`} className={`${buttonClass.primary} shrink-0`}>{l.n}</a> : <span className="shrink-0 rounded-md border-[1.5px] border-ink px-3 py-2 font-bold">{l.n}</span>}</li>))}</ul>
+          {l.tel ? <a href={`tel:${l.tel}`} className={`${buttonClass.primary} shrink-0`}>{l.n}</a> : <span className="shrink-0 rounded-xl border-[1.5px] border-ink px-3 py-2 font-bold">{l.n}</span>}</li>))}</ul>
       <p className="mt-3 max-w-prose text-sm text-muted">{c.verify}</p>
       <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.mine}</h2>
       <p className="mt-2 max-w-prose text-muted">{c.mineLead}</p>
@@ -144,7 +144,7 @@ export function HelpTool() {
       {people.length === 0 ? <p className="mt-3 text-muted">{c.c_empty}</p> : (
         <ul className="mt-3 divide-y-2 divide-dotted divide-line">{people.map((p) => (
           <li key={p.id} className="flex items-center gap-3 py-2.5"><p className="min-w-0 flex-1"><span className="font-bold">{p.name}</span>{p.how ? <span className="text-muted"> · {p.how}</span> : null}</p>
-            <button onClick={() => setPeople((q) => q.filter((x) => x.id !== p.id))} aria-label={p.name} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
+            <button onClick={() => setPeople((q) => q.filter((x) => x.id !== p.id))} aria-label={p.name} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button></li>))}</ul>
       )}
     </Page>
   );

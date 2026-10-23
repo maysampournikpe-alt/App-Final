@@ -57,7 +57,7 @@ function ItemRow({ i, now, c, lang }: { i: CalItem; now: string; c: C; lang: "en
     <li className="flex items-center gap-3 py-2.5">
       <span className={`h-3 w-3 shrink-0 rounded-full ${KIND_DOT[i.kind]}`} aria-hidden />
       <div className="min-w-0 flex-1"><p className="font-bold">{i.title}</p><p className="text-sm text-muted">{c.kinds[i.kind]} · {formatDay(i.date, lang)} · {c.days(diffDays(now, i.date))}</p></div>
-      {i.href ? <a href={i.href} target="_blank" rel="noopener noreferrer" aria-label={`${c.openSource}: ${i.title}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><ExternalLink size={18} strokeWidth={1.75} /></a> : null}
+      {i.href ? <a href={i.href} target="_blank" rel="noopener noreferrer" aria-label={`${c.openSource}: ${i.title}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><ExternalLink size={18} strokeWidth={1.75} /></a> : null}
     </li>
   );
 }
@@ -89,9 +89,9 @@ function Deadlines({ c, lang, now, items }: P) {
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <section className="guide-card p-4" aria-label={title}>
           <div className="flex items-center justify-between">
-            <button onClick={() => shift(-1)} aria-label={c.prev} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken"><ChevronLeft size={22} /></button>
+            <button onClick={() => shift(-1)} aria-label={c.prev} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken"><ChevronLeft size={22} /></button>
             <h2 className="font-display text-2xl capitalize" aria-live="polite">{title}</h2>
-            <button onClick={() => shift(1)} aria-label={c.next} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken"><ChevronRight size={22} /></button>
+            <button onClick={() => shift(1)} aria-label={c.next} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken"><ChevronRight size={22} /></button>
           </div>
           <div className="mt-3 grid grid-cols-7 gap-1 text-center text-xs font-bold text-muted">{heads.map((h) => <span key={h}>{h}</span>)}</div>
           <div className="mt-1 grid grid-cols-7 gap-1">
@@ -99,7 +99,7 @@ function Deadlines({ c, lang, now, items }: P) {
               const here = byDay.get(date) ?? [];
               return (
                 <button key={date} onClick={() => setSel(sel === date ? null : date)} aria-pressed={sel === date} aria-label={`${formatDay(date, lang)}${here.length ? `, ${here.length}` : ""}`}
-                  className={`flex min-h-14 flex-col items-center rounded-md border-[1.5px] p-1 sm:min-h-16 ${sel === date ? "border-ink bg-marigold text-on-marigold" : date === now ? "border-ink" : "border-transparent hover:bg-sunken"} ${inMonth ? "" : "text-muted"}`}>
+                  className={`flex min-h-14 flex-col items-center rounded-xl border-[1.5px] p-1 sm:min-h-16 ${sel === date ? "border-ink bg-marigold text-on-marigold" : date === now ? "border-ink" : "border-transparent hover:bg-sunken"} ${inMonth ? "" : "text-muted"}`}>
                   <span className="text-sm font-bold">{Number(date.slice(8))}</span>
                   <span className="mt-1 flex flex-wrap justify-center gap-0.5" aria-hidden>{here.slice(0, 4).map((i) => <span key={i.id} className={`h-2 w-2 rounded-full ${KIND_DOT[i.kind]}`} />)}</span>
                 </button>

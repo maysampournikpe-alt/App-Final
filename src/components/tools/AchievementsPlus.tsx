@@ -44,7 +44,7 @@ const copy = {
 type C = typeof copy.en;
 
 const monthOf = (d: string) => d.slice(0, 7);
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 
 const AREAS = ["leadership", "academics", "service", "arts", "athletics"] as const;
 const NO_RADAR: Record<string, number> = {};

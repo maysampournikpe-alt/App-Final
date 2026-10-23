@@ -45,7 +45,7 @@ const copy = {
   },
 };
 
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 const num = (s: string, lo: number, hi: number) => { const n = Number(s); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : lo; };
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const last7 = (now: string) => Array.from({ length: 7 }, (_, i) => addDays(now, i - 6));
@@ -185,7 +185,7 @@ export function LadderTool() {
       {l.goal || l.rungs.length ? <section className="mt-6 max-w-xl">
         <p className="font-bold text-teal" aria-live="polite">{c.ldProg(done, l.rungs.length)}</p>
         <div className="mt-2 rounded-lg border-[1.5px] border-ink bg-marigold p-4 text-on-marigold"><p className="text-sm font-bold uppercase tracking-wide">{c.ldTop}</p><p className="font-display text-2xl font-semibold">{l.goal || "—"}</p></div>
-        <ol className="mt-2 flex flex-col-reverse gap-2">{l.rungs.map((r, i) => <li key={r.id} className="flex items-center gap-2 rounded-md border-[1.5px] border-ink bg-surface p-2" style={{ marginInline: `${Math.min(i, 5) * 6}px` }}><label className="flex min-w-0 flex-1 items-center gap-3"><input type="checkbox" checked={r.done} onChange={() => setL({ ...l, rungs: l.rungs.map((x) => (x.id === r.id ? { ...x, done: !x.done } : x)) })} className="h-5 w-5 accent-[var(--c-teal)]" /><span className={r.done ? "text-muted line-through" : ""}>{i + 1}. {r.text}</span></label>{rm(r.text, c.remove, () => setL({ ...l, rungs: l.rungs.filter((x) => x.id !== r.id) }))}</li>)}</ol></section> : null}
+        <ol className="mt-2 flex flex-col-reverse gap-2">{l.rungs.map((r, i) => <li key={r.id} className="flex items-center gap-2 rounded-xl border-[1.5px] border-ink bg-surface p-2" style={{ marginInline: `${Math.min(i, 5) * 6}px` }}><label className="flex min-w-0 flex-1 items-center gap-3"><input type="checkbox" checked={r.done} onChange={() => setL({ ...l, rungs: l.rungs.map((x) => (x.id === r.id ? { ...x, done: !x.done } : x)) })} className="h-5 w-5 accent-[var(--c-teal)]" /><span className={r.done ? "text-muted line-through" : ""}>{i + 1}. {r.text}</span></label>{rm(r.text, c.remove, () => setL({ ...l, rungs: l.rungs.filter((x) => x.id !== r.id) }))}</li>)}</ol></section> : null}
     </Head>
   );
 }

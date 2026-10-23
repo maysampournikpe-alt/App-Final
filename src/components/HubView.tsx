@@ -15,7 +15,7 @@ export function HubView({ hub }: { hub: Hub }) {
     <>
       <div className="notebook-hero border-b-[1.5px] border-ink">
         <Page>
-          <h1 className="flex items-center gap-3 text-4xl sm:text-5xl"><HubIcon size={38} strokeWidth={1.75} className="shrink-0 text-teal" /><span className="marker">{hub.name[lang]}</span></h1>
+          <h1 className="flex items-center gap-3 text-4xl sm:text-5xl"><HubIcon size={38} strokeWidth={1.75} className="shrink-0 text-teal" />{hub.name[lang]}</h1>
           <p className="mt-2 max-w-prose text-lg text-muted">{hub.blurb[lang]}</p>
         </Page>
       </div>

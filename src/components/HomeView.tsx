@@ -42,7 +42,7 @@ export function HomeView() {
           <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
             <div>
               <p className="pass text-lg text-terracotta">{BRAND.tagline[lang]}</p>
-              <h1 className="mt-3 text-4xl sm:text-5xl lg:text-6xl"><span className="marker">{t("homeAsk")}</span></h1>
+              <h1 className="mt-3 text-4xl sm:text-5xl lg:text-6xl">{t("homeAsk")}</h1>
               <form onSubmit={go} className="mt-7 flex max-w-xl flex-col gap-3 sm:flex-row">
                 <label className="min-w-0 flex-1">
                   <span className="sr-only">{t("homeAsk")}</span>

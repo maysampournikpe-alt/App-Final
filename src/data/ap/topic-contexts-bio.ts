@@ -29,7 +29,6 @@ export const BIO_CONTEXTS: string[][] = [
     "a cell using ATP to build a molecule, muscle contraction, why organisms need a constant supply of energy",
     "a leaf in light or in the dark, an algae experiment with a pH indicator, why a plant stops growing when light is low",
     "yeast fermenting sugar in a sealed tube, an athlete's muscles when oxygen is low, a mitochondrion and a poison that blocks the electron transport chain",
-    "why one organism survives a drought or a cold winter better than another because of how it stores and uses energy",
   ],
   [
     "yeast cells releasing a signal to find a mate, a hormone traveling in the blood, a neuron signaling a muscle",
@@ -61,6 +60,7 @@ export const BIO_CONTEXTS: string[][] = [
   [
     "finch beaks after a drought, peppered moths, a population where individuals vary and some leave more offspring",
     "antibiotic resistance in bacteria, a trait that becomes more common under a selection pressure, a graph of trait distributions before and after selection",
+    "why one organism survives a drought or a cold winter better than another because of how it stores and uses energy",
     "a dog breed or a crop bred for a trait, loss of genetic diversity in a bred population",
     "a small island population after a storm (bottleneck), a few birds founding a new island population, gene flow between two populations",
     "a Hardy-Weinberg calculation from a described recessive trait frequency, deciding if a population is evolving",
@@ -69,7 +69,6 @@ export const BIO_CONTEXTS: string[][] = [
     "pesticide-resistant insects, a flu virus changing, a hospital outbreak",
     "reading a phylogenetic tree of described species, deciding which two are most closely related",
     "two populations separated by a river that stop interbreeding, flowers that bloom at different times, Galapagos adaptive radiation",
-    "a mass extinction opening niches, a species lost after habitat destruction",
     "a cheetah population with low diversity, a crop monoculture hit by a disease",
     "a lab that forms organic molecules from simple gases, the RNA world idea, protocells with membranes",
   ],

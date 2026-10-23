@@ -34,7 +34,6 @@ export const STYLES: Record<string, string> = {
   "AP World History: Modern": "Start from a short source excerpt, map description or scenario with enough context. Ask about causation, comparison, continuity and change, or the best interpretation. Wrong choices are true statements from a different region or period.",
   "AP Seminar": "Give a short stimulus and ask about claim, evidence, reasoning, perspective or bias. Wrong choices misidentify the part of the argument.",
   "AP Research": "Give a short research scenario and ask students to evaluate the method, design, evidence or ethics. Wrong choices miss the flaw that matters most.",
-  "AP Studio Art": "Describe a work or a process in words and ask about elements and principles of design or how to describe a sustained investigation.",
   "AP Chinese Language and Culture": LANG,
   "AP French Language and Culture": LANG,
   "AP German Language and Culture": LANG,

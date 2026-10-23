@@ -29,8 +29,6 @@ export const HUMANITIES: Record<string, Outline> = {
     U("Rhetorical Analysis Essay", ["Reading the Prompt", "Analyzing Rhetorical Choices", "Building Line of Reasoning", "Sophistication in Analysis"]),
     U("Argument Essay", ["Taking a Position", "Choosing Evidence from Experience, Reading, and Observation", "Anticipating Counterarguments", "Concluding Effectively"]),
     U("Synthesis Essay", ["Reading and Citing Sources", "Corroborating, Qualifying, and Challenging Sources", "Weaving Sources into Your Argument", "Using Sources Responsibly"]),
-    U("Multiple-Choice Strategies", ["Reading Passages Closely", "Rhetorical Analysis Questions", "Reading Questions and Writing Questions", "Revising Sentences and Paragraphs"]),
-    U("Conventions and Revision", ["Sentence Structure and Variety", "Punctuation for Effect", "Grammar in Context", "Revising for Clarity and Style"]),
   ] },
   "AP Music Theory": { units: [
     U("Music Fundamentals I: Pitch, Major Scales and Key Signatures, Rhythm, Meter, and Expressive Elements", ["Pitch and the Staff", "Half and Whole Steps", "Major Scales and Scale Degrees", "Major Keys and Key Signatures", "Rhythmic Values and Beat Division", "Time Signatures and Meter", "Tempo, Dynamics, and Expressive Elements"]),
@@ -55,19 +53,14 @@ export const HUMANITIES: Record<string, Outline> = {
     U("Evaluate and Synthesize", ["Analyzing Results", "Drawing Conclusions", "Limitations and Implications", "Connecting to Existing Research"]),
     U("Write, Present, and Defend", ["Writing the Academic Paper", "Citing and Documenting Sources", "Presenting Your Research", "Defending Your Work"]),
   ] },
-  "AP Studio Art": { units: [
-    U("Investigate and Develop Ideas", ["Choosing a Theme for Sustained Investigation", "Practice, Experimentation, and Revision", "Visual Research and Sketchbooks", "Writing About Your Process"]),
-    U("Make Art: Elements and Principles", ["Line, Shape, and Form", "Color and Value", "Space and Composition", "Balance, Emphasis, and Rhythm"]),
-    U("Develop a Sustained Investigation", ["Planning a Body of Work", "Revisiting and Extending Ideas", "Synthesizing Materials, Processes, and Ideas", "Documenting Your Progress"]),
-    U("Selected Works and Portfolio Submission", ["Choosing Your Best Works", "Writing About Materials, Processes, and Ideas", "Photographing and Presenting Work", "Submitting the Portfolio"]),
-  ] },
   "AP Latin": { units: [
     U("Vergil's Aeneid: Book 1", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary Analysis"]),
     U("Vergil's Aeneid: Book 2", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary Analysis"]),
     U("Vergil's Aeneid: Book 4", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary Analysis"]),
     U("Vergil's Aeneid: Book 6", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary Analysis"]),
-    U("Caesar's Gallic War", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary and Historical Analysis"]),
-    U("Meter, Rhetoric, and Sight Reading", ["Dactylic Hexameter Scansion", "Stylistic Devices", "Reading Latin at Sight", "Comparing Vergil and Caesar"]),
+    U("Vergil's Aeneid: Books 7, 11, and 12 (selections)", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary Analysis"]),
+    U("Pliny the Younger's Letters", ["Selected Passages and Context", "Vocabulary and Grammar", "Translation Strategies", "Literary and Historical Analysis"]),
+    U("Meter, Rhetoric, and Sight Reading", ["Dactylic Hexameter Scansion", "Stylistic Devices", "Reading Latin at Sight", "Comparing Vergil and Pliny"]),
   ] },
   "AP Spanish Literature and Culture": { units: [
     U("Medieval and Early Spanish Literature", ["Reading Medieval Texts", "Historical and Cultural Context", "Literary Devices", "Analysis and Interpretation"]),

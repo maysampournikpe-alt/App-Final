@@ -2,6 +2,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff, Printer } from "lucide-react";
+import { AP_UNASSESSED } from "@/lib/exam/ap";
 import { bankById } from "@/lib/exam/bank";
 import { apiTrack } from "@/lib/exam/courses";
 import { EXAMS, examPath, sectionOf } from "@/lib/exam/config";
@@ -126,7 +127,7 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
     setErr(null); setNote(null);
     const needs = sc.topic && kind === "quiz" ? [{ skill: sc.unit!.id, topic: sc.topic.id, n: want }]
       : sc.unit && kind === "quiz" ? [{ skill: sc.unit.id, n: want }]
-      : (() => { const units = sc.course.units; const base = Math.floor(want / units.length), extra = want % units.length; return units.map((u, i) => ({ skill: u.id, n: base + (i < extra ? 1 : 0) })).filter((x) => x.n > 0); })();
+      : (() => { const units = sc.course.units.filter((x) => !(AP_UNASSESSED[sc.course.id] ?? []).includes(x.id));  const base = Math.floor(want / units.length), extra = want % units.length; return units.map((u, i) => ({ skill: u.id, n: base + (i < extra ? 1 : 0) })).filter((x) => x.n > 0); })();
     setBusy({ done: 0, total: want });
     const g = await gather({ exam: cfg.bank, section: sc.course.id, needs, lang, hidden, level: kind === "mock" ? "mixed" : level, maxDifficulty: cfg.maxDifficulty, onProgress: (done, total) => setBusy({ done, total }) });
     setBusy(null);

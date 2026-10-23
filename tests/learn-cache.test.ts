@@ -21,7 +21,7 @@ describe("shared saved copies of notes, vocabulary and cram sheets", () => {
     const body = { track: "ap", section: "ap-biology", skill: "u1", topic: "u1-1", kind: "notes", lang: "en" };
     const first = await (await POST(post(body))).json();
     expect(first.ok).toBe(true); expect(first.notes.sections.length).toBeGreaterThan(2);
-    expect(puts).toHaveLength(1); expect(puts[0].key).toMatch(/^doc:d1:notes:ap:ap-biology:u1:u1-1:en$/);
+    expect(puts).toHaveLength(1); expect(puts[0].key).toMatch(/^doc:d2:notes:ap:ap-biology:u1:u1-1:en$/);
     // Make the saved copy recognizable, then ask again: the saved copy comes back and nothing new is saved.
     store.get(puts[0].key)!.value = { ...first.notes, summary: "SAVED COPY ".repeat(6) };
     const second = await (await POST(post(body))).json();
@@ -42,7 +42,7 @@ describe("shared saved copies of notes, vocabulary and cram sheets", () => {
   });
   it("a bad saved copy is ignored and made again", async () => {
     const { POST } = await import("@/app/api/learn/route");
-    store.set("doc:d1:terms:sat:math:algebra::en", { value: "garbage", compact: false, ageMs: 10 });
+    store.set("doc:d2:terms:sat:math:algebra::en", { value: "garbage", compact: false, ageMs: 10 });
     const r = await (await POST(post({ track: "sat", section: "math", skill: "algebra", kind: "terms", lang: "en" }))).json();
     expect(Array.isArray(r.terms)).toBe(true);
   });

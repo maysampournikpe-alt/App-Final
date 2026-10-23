@@ -12,7 +12,7 @@ export const BIO_CHEM_BRIEFS: Record<string, string[][]> = {
     ],
     [
       "Functions of organelles: nucleus, ribosomes, rough and smooth endoplasmic reticulum, Golgi complex, mitochondria, chloroplasts, lysosomes, vacuoles and the cytoskeleton, and which cells have them. Tasks: match a cell function to an organelle, or predict the effect of a defect.",
-      "How structure relates to function inside cells: mitochondrial cristae, chloroplast thylakoids, membrane folding, the endomembrane system (the path of a protein from ribosome to secretion), and prokaryotic versus eukaryotic cells.",
+      "How structure relates to function inside cells: mitochondrial cristae, chloroplast thylakoids, membrane folding, the endomembrane system (the path of a protein from ribosome to secretion), and prokaryotic versus eukaryotic cells. Includes how body size relates to metabolic rate in mammals (smaller animals have a higher mass-specific metabolic rate).",
       "Surface-area-to-volume ratio: as a cell grows, volume increases faster than surface area, which limits exchange of materials. Adaptations such as folding, microvilli and flattened shapes. Students compare ratios for simple shapes. Not tested: advanced geometry.",
       "The fluid mosaic model: a phospholipid bilayer with hydrophilic heads and hydrophobic tails, integral and peripheral proteins, cholesterol and glycoproteins; amphipathic molecules; effect of temperature on fluidity; selective permeability.",
       "Which molecules cross the bilayer freely (small nonpolar molecules such as oxygen and carbon dioxide) and which need transport proteins (ions and large or polar molecules); roles of channel and carrier proteins; membrane proteins in cell recognition.",
@@ -30,7 +30,6 @@ export const BIO_CHEM_BRIEFS: Record<string, string[][]> = {
       "Energy coupling and ATP: cells need a continuous input of energy; the laws of thermodynamics in qualitative terms (energy flows and is lost as heat); coupling exergonic reactions to endergonic ones through ATP hydrolysis. Not tested: calculating delta G or entropy values.",
       "Light reactions in the thylakoid membranes (photosystems, electron transport chain, proton gradient, ATP synthase, NADPH, oxygen from splitting water) and the Calvin cycle in the stroma (carbon fixation by rubisco, reduction, regeneration, G3P); chloroplast structure; factors affecting the rate (light, carbon dioxide, temperature).",
       "Glycolysis in the cytosol, pyruvate oxidation, the Krebs cycle in the matrix, the electron transport chain and chemiosmosis on the inner mitochondrial membrane with oxygen as the final electron acceptor; ATP yield in qualitative terms; fermentation when oxygen is absent; breakdown of other macromolecules.",
-      "Fitness means reproductive success. Adaptations for capturing and using energy, how organism size and metabolic rate and energy storage affect survival and reproduction, and how energy strategies relate to population success.",
     ],
     [
       "Types of cell signaling: direct contact, paracrine, autocrine, endocrine (hormones) and synaptic signaling; local versus long-distance signals; bacterial quorum sensing; the evolutionary conservation of signaling.",
@@ -62,6 +61,7 @@ export const BIO_CHEM_BRIEFS: Record<string, string[][]> = {
     [
       "Evolution is change in the genetic makeup of populations over time. Darwin's observations: variation, overproduction, competition and differential survival and reproduction; fitness and adaptation. Evolution acts on populations, not individuals.",
       "Directional, stabilizing and disruptive selection, sexual selection and selection pressures; heritable variation leads to adaptation; examples such as antibiotic resistance and beak size; reading data on trait distributions.",
+      "Fitness means reproductive success: relative fitness, how adaptations and the survival and reproduction of individuals change allele frequencies, and how energy strategies, organism size and metabolic rate relate to survival and reproduction. Not tested: calculating fitness values beyond simple comparisons.",
       "Humans select for traits in crops, dogs and livestock, which changes allele frequencies; compare with natural selection; unintended effects such as reduced genetic diversity.",
       "Allele frequencies and gene pools; genetic drift (bottleneck and founder effects), gene flow, mutation and nonrandom mating; small versus large populations and how each factor changes allele frequencies.",
       "p + q = 1 and p squared + 2pq + q squared = 1; the conditions for equilibrium; calculating allele and genotype frequencies and deciding whether a population is evolving; using the formula sheet.",
@@ -70,18 +70,17 @@ export const BIO_CHEM_BRIEFS: Record<string, string[][]> = {
       "Evolution still happens: antibiotic and pesticide resistance, emerging diseases, changes in populations such as finch beaks; the roles of environmental change and genetic variation.",
       "Reading and building phylogenetic trees and cladograms: nodes, branches, shared derived characters, outgroups and molecular clocks; maximum parsimony; homology versus analogy (convergent evolution).",
       "The biological species concept, reproductive isolation (prezygotic and postzygotic barriers), allopatric and sympatric speciation, adaptive radiation, hybrid zones, and divergent and convergent evolution.",
-      "Mass extinctions and background extinction, causes (environmental change, human activity, competition), effects on biodiversity and the opening of niches, and adaptive radiation afterward.",
       "Genetic diversity helps populations survive environmental change; sources of variation; low diversity increases vulnerability (for example cheetahs and monocultures).",
       "Conditions on early Earth, the RNA world hypothesis, the Miller-Urey experiment, formation of organic molecules and protocells, and evidence for the origin of the first cells.",
     ],
     [
       "How organisms respond to changes in the environment: behaviors (taxis, kinesis, migration, circadian rhythms), communication (pheromones and signals), and plant responses (phototropism and photoperiodism); innate and learned behavior.",
-      "Producers, consumers and decomposers; trophic levels; energy lost as heat at each level (about 10 percent is transferred); food chains and webs; primary productivity; energy pyramids; metabolic rate and body size.",
+      "Producers, consumers and decomposers; trophic levels; energy lost as heat at each level (about 10 percent is transferred); food chains and webs; primary productivity; energy pyramids; metabolic rate and body size. Also the biogeochemical cycles: carbon, water, nitrogen and phosphorus, including how organisms and human activity move matter through ecosystems.",
       "Population density and distribution, exponential and logistic growth models and carrying capacity, calculating growth rate, limiting factors, and interpreting growth graphs.",
       "Density-dependent factors (competition, predation, disease, waste) and density-independent factors (weather, fire, human disturbance) and their effects on population size; r- and K-selection.",
-      "Species interactions: competition, predation, parasitism, mutualism and commensalism; niche and competitive exclusion; keystone species and trophic cascades; species diversity and Simpson's diversity index; succession.",
+      "Species interactions: competition, predation, parasitism, mutualism and commensalism; niche and competitive exclusion; keystone species and trophic cascades; species diversity and Simpson's diversity index.",
       "Species richness and evenness, how diversity supports ecosystem stability and resilience, and the effects of invasive species.",
-      "Natural disruptions (drought, fire, volcanoes) and human disruptions (habitat destruction, pollution, climate change, invasive species); ecosystem resilience and recovery.",
+      "Natural disruptions (drought, fire, volcanoes) and human disruptions (habitat destruction, pollution, climate change, invasive species); ecosystem resilience and recovery. Includes eutrophication (nutrient runoff causing algal blooms and oxygen loss) and biomagnification (toxins becoming more concentrated at higher trophic levels).",
     ],
   ],
   "AP Chemistry": [
@@ -167,7 +166,6 @@ export const BIO_CHEM_BRIEFS: Record<string, string[][]> = {
       "Using Q and K to explain shifts quantitatively.",
       "Ksp, writing solubility product expressions and calculating molar solubility.",
       "How a common ion decreases solubility.",
-      "How pH affects the solubility of salts with basic anions.",
       "Relating Ksp to free energy and the temperature dependence of solubility.",
     ],
     [
@@ -181,6 +179,7 @@ export const BIO_CHEM_BRIEFS: Record<string, string[][]> = {
       "How buffers resist changes in pH; buffer components and neutralization.",
       "pH = pKa + log([A-]/[HA]) and buffer calculations.",
       "How the concentrations of buffer components set capacity and the pH change after adding acid or base.",
+      "How pH affects the solubility of salts with basic anions.",
     ],
     [
       "Entropy as the dispersal of energy and matter, microstates, and predicting the sign of delta S qualitatively.",

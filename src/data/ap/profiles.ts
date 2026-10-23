@@ -11,8 +11,8 @@ const lang = (name: string, extra = ""): Profile => ({
 
 export const PROFILES: Record<string, Profile> = {
   "AP Statistics": {
-    about: "High school statistics: exploring one-variable and two-variable data, collecting data (sampling and experiments), probability and random variables, sampling distributions, and inference (confidence intervals and significance tests for proportions, means, chi-square and slopes). Questions give a short context or data summary and ask students to describe, check conditions, calculate with a calculator, and interpret results in context.",
-    avoid: "Calculus-based probability, matrix algebra, Bayesian methods, regression with more than one predictor, and any formula that is not taught in the course.",
+    about: "High school statistics in the redesigned five-unit course: exploring one-variable data and collecting data (sampling and experiments), probability and random variables, inference for proportions (including chi-square tests for two-way tables), inference for means, and regression analysis (description only, not inference for slopes). Questions give a short context or data summary and ask students to describe, check conditions, calculate with a calculator, and interpret results in context.",
+    avoid: "Calculus-based probability, matrix algebra, Bayesian methods, regression with more than one predictor, the geometric distribution, combining random variables, chi-square goodness of fit, inference for the slope of a regression line, and any formula that is not taught in the course.",
   },
   "AP US History": {
     about: "United States history from 1491 to the present in nine periods, using themes such as identity, work and exchange, politics and power, America in the world, environment and geography, and culture and society. Questions give a short primary or secondary source excerpt, image or data (written in the prompt) and test historical thinking: contextualization, comparison, causation, continuity and change, and argumentation.",
@@ -59,7 +59,7 @@ export const PROFILES: Record<string, Profile> = {
     avoid: "Syntax of a specific language such as Python or Java, advanced algorithms beyond the course, and hardware engineering.",
   },
   "AP English Language and Composition": {
-    about: "Rhetoric and argument: analyzing nonfiction prose (rhetorical situation, claims, evidence, reasoning, organization and style) and writing arguments. Multiple-choice questions include the passage in the prompt and ask about rhetorical choices, claims, evidence, organization, tone, and revising sentences; free response asks for rhetorical analysis, argument and synthesis essays.",
+    about: "Rhetoric and argument (the course is organized around four big ideas: rhetorical situation, claims and evidence, reasoning and organization, and style): analyzing nonfiction prose (rhetorical situation, claims, evidence, reasoning, organization and style) and writing arguments. Multiple-choice questions include the passage in the prompt and ask about rhetorical choices, claims, evidence, organization, tone, and revising sentences; free response asks for rhetorical analysis, argument and synthesis essays.",
     avoid: "Fiction and poetry analysis as the main task (that is AP Literature), grammar drills unrelated to rhetoric, and obscure literary terms.",
   },
   "AP English Literature and Composition": {
@@ -95,11 +95,11 @@ export const PROFILES: Record<string, Profile> = {
     avoid: "Calculus, mechanics-only questions (those belong to Physics 1) and college-level derivations.",
   },
   "AP Physics C: Mechanics": {
-    about: "Calculus-based mechanics: kinematics, Newton's laws, work, energy and power, systems of particles and linear momentum, rotation, oscillations and gravitation. Problems use derivatives and integrals, for example force as a function of position or time.",
+    about: "Calculus-based mechanics in seven units: kinematics, force and translational dynamics (including gravitation), work, energy and power, linear momentum, torque and rotational dynamics, energy and momentum of rotating systems (including orbits), and oscillations. Problems use derivatives and integrals, for example force as a function of position or time.",
     avoid: "Electricity and magnetism, thermodynamics, fluids, optics and modern physics.",
   },
   "AP Physics C: Electricity and Magnetism": {
-    about: "Calculus-based electricity and magnetism: electrostatics and Gauss's law, conductors, capacitors and dielectrics, circuits including RC circuits, magnetic fields (Biot-Savart and Ampere's law), and electromagnetic induction and inductance.",
+    about: "Calculus-based electricity and magnetism in six units: electric charges, fields and Gauss's law, electric potential, conductors and capacitors, electric circuits including RC circuits, magnetic fields and electromagnetism (Biot-Savart and Ampere's law), and electromagnetic induction and inductance.",
     avoid: "Mechanics, thermodynamics, optics and modern physics.",
   },
   "AP Precalculus": {
@@ -131,17 +131,13 @@ export const PROFILES: Record<string, Profile> = {
     about: "Independent academic research: forming a research question, methods and design, ethics, collecting and analyzing data, and writing and presenting an academic paper. Questions give a short research scenario and ask students to evaluate methods, design, evidence and ethics.",
     avoid: "Content from a single subject and statistical tests beyond a basic level.",
   },
-  "AP Studio Art": {
-    about: "A portfolio course (2-D, 3-D or drawing) built around a sustained investigation, selected works and the art-making process. A text-only quiz can ask about the elements and principles of design, processes, and how to describe and write about a sustained investigation.",
-    avoid: "Judging an image the prompt does not describe, and art history trivia.",
-  },
   "AP Chinese Language and Culture": lang("Chinese", " Use simplified characters and add pinyin only when the question is about pronunciation."),
   "AP French Language and Culture": lang("French"),
   "AP German Language and Culture": lang("German"),
   "AP Italian Language and Culture": lang("Italian"),
   "AP Japanese Language and Culture": lang("Japanese", " Use standard Japanese script (kanji, hiragana and katakana) and add furigana only when needed."),
   "AP Latin": {
-    about: "Reading and translating Latin from Vergil's Aeneid and Caesar's Gallic War. Questions include a Latin passage in the prompt and ask about grammar, syntax, vocabulary, translation, context and literary analysis.",
+    about: "Reading and translating Latin from Vergil's Aeneid (selections from Books 1, 2, 4, 6, 7, 11 and 12) and Pliny the Younger's Letters. Questions include a Latin passage in the prompt and ask about grammar, syntax, vocabulary, translation, context and literary analysis.",
     avoid: "Passages that are not in the prompt, and writing Latin prose.",
   },
 };

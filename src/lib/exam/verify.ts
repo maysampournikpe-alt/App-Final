@@ -3,6 +3,7 @@ import { EXAMS } from "./config";
 import { apBriefs } from "./ap-briefs";
 import { coursesFor } from "./courses";
 import { isCorrect, parseNumeric } from "./engine";
+import { OUTLINE_REV } from "./rev";
 import type { Question } from "./types";
 
 export interface GenSpec { exam: "sat" | "act" | "tsi" | "ap"; section: string; skill: string; /** One topic inside the unit or skill, like 1.2. */ topic?: string; count: number; difficulty: 1 | 2 | 3 }
@@ -116,7 +117,7 @@ export function verifyQuestion(item: z.infer<typeof genItem>, spec: GenSpec, sol
     id, exam: spec.exam, section: spec.section, skill: spec.skill, ...(spec.topic ? { topic: spec.topic } : {}), difficulty: spec.difficulty, type: item.type,
     stem: item.stem.trim(), ...(item.passage ? { passage: item.passage.trim() } : {}),
     ...(item.type === "mc" ? { choices: item.choices!.map((c) => c.trim()) } : { accept: item.accept ?? [] }),
-    answer: item.answer.trim(), explanation: item.explanation.trim(), scoped: true, source: "generated",
+    answer: item.answer.trim(), explanation: item.explanation.trim(), scoped: true, rev: OUTLINE_REV, source: "generated",
   };
   if (!solved) return { ok: false, reason: "checker gave no answer" };
   if (!isCorrect(q, solved)) return { ok: false, reason: `checker disagreed (key ${q.answer}, checker ${solved})` };

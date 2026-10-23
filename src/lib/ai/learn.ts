@@ -21,9 +21,9 @@ export const notesSchema = z.object({
 });
 export type Notes = z.infer<typeof notesSchema>;
 /** Bump when the shape changes, so notes saved on a device in the old shape are fetched again. */
-export const NOTES_VERSION = "v2";
+export const NOTES_VERSION = "v3";
 /** Bump when notes, vocabulary or cram prompts change a lot, so the shared saved copies are written again. */
-export const DOC_VERSION = "d1";
+export const DOC_VERSION = "d2";
 
 const EXAM_NAME: Record<Track, string> = { ap: "the College Board AP course named below", sat: "the digital SAT", act: "the ACT", tsi: "the Texas TSIA2 college-readiness test" };
 

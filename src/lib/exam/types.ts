@@ -17,6 +17,8 @@ export interface Question {
   explanation: string;
   /** Set when a second AI check confirmed the question belongs to its course and topic. Written questions without it are not used. */
   scoped?: true;
+  /** The AP outline version this generated question was written for (see rev.ts). */
+  rev?: string;
   source?: "seed" | "generated";
 }
 

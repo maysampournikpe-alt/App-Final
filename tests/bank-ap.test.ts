@@ -22,7 +22,7 @@ describe("AP starter bank", () => {
   });
   it("has the official number of units for each practice course", () => {
     const units = Object.fromEntries(AP_PRACTICE_COURSES.map((c) => [c.id, c.units.length]));
-    expect(units).toEqual({ apstats: 9, apush: 9, aphug: 7 });
+    expect(units).toEqual({ apstats: 5, apush: 9, aphug: 7 });
   });
   it("has at least 3 questions in each unit that has questions, and 9 per course", () => {
     for (const c of AP_PRACTICE_COURSES) {
@@ -35,10 +35,10 @@ describe("AP starter bank", () => {
   it("statistics answer keys, recomputed", () => {
     expect(Number(right("ap-apstats-u1-1"))).toBe(22 - 10);
     expect(Number(right("ap-apstats-u1-3"))).toBe(30 + 1.5 * (30 - 20));
-    expect(Number(right("ap-apstats-u2-2"))).toBe(2 + 3 * 4);
-    expect(Number(right("ap-apstats-u2-3"))).toBe(17 - 14);
-    expect(Number(right("ap-apstats-u4-1"))).toBeCloseTo(0.3 * 0.4, 9);
-    expect(Number(right("ap-apstats-u4-2"))).toBeCloseTo(1 * 0.2 + 2 * 0.5 + 3 * 0.3, 9);
+    expect(Number(right("ap-apstats-u5-2"))).toBe(2 + 3 * 4);
+    expect(Number(right("ap-apstats-u5-3"))).toBe(17 - 14);
+    expect(Number(right("ap-apstats-u2-1"))).toBeCloseTo(0.3 * 0.4, 9);
+    expect(Number(right("ap-apstats-u2-2"))).toBeCloseTo(1 * 0.2 + 2 * 0.5 + 3 * 0.3, 9);
     expect(0.2 + 0.5 + 0.3).toBeCloseTo(1, 9); // the probabilities in the question add to 1
   });
   it("maps percent correct to a 1 to 5 estimate", () => {
@@ -88,7 +88,7 @@ describe("AP outlines", () => {
   });
   it("keeps the old unit ids for the courses with starter questions and numbers Physics 2 from Unit 9", () => {
     expect(AP_COURSES.find((c) => c.id === "apush")!.units[0].id).toBe("p1");
-    expect(AP_COURSES.find((c) => c.id === "apstats")!.units[8].topics[0].num).toBe("9.1");
+    expect(AP_COURSES.find((c) => c.id === "apstats")!.units[4].topics[0].num).toBe("5.1");
     expect(AP_COURSES.find((c) => c.id === "ap-physics-2")!.units[0].no).toBe(9);
     expect(AP_COURSES.find((c) => c.id === "ap-calculus-bc")!.units.length).toBe(10);
     expect(AP_COURSES.find((c) => c.id === "ap-calculus-ab")!.units.length).toBe(8);

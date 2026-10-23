@@ -256,6 +256,7 @@ export const ENV_PHYS_PSYCH_BRIEFS: Record<string, string[][]> = {
       "Hooke's law and spring forces.",
       "Drag and other resistive forces, and terminal velocity.",
       "Uniform circular motion and centripetal force.",
+      "Newton's law of gravitation.",
     ],
     [
       "Kinetic energy and the work-energy theorem.",
@@ -271,22 +272,25 @@ export const ENV_PHYS_PSYCH_BRIEFS: Record<string, string[][]> = {
       "Elastic and inelastic collisions in one and two dimensions.",
     ],
     [
-      "Torque, lever arms and rotational statics.",
       "Angular position, velocity and acceleration.",
-      "Rotational inertia, rotational dynamics and rotational kinetic energy.",
+      "Connecting linear and rotational motion: arc length, tangential speed and acceleration, and v = r times omega.",
+      "Torque, lever arms and rotational statics.",
+      "Rotational inertia: moment of inertia of point masses, rods, disks and rings, and calculating it with integrals; the parallel-axis theorem.",
+      "Newton's second law in rotational form: net torque equals I times alpha, for fixed-axis rotation.",
+    ],
+    [
+      "Rotational kinetic energy and conservation of energy in rotating systems.",
+      "Torque and work, and power in rotation.",
+      "Angular momentum of particles and rigid bodies and its relation to torque.",
       "Angular momentum and its conservation.",
+      "Rolling without slipping: combining translation and rotation, energy and acceleration down an incline.",
+      "Circular and elliptical orbits and Kepler's laws. Escape speed.",
     ],
     [
       "Simple harmonic motion and its differential equation.",
       "Frequency and period.",
       "Energy in simple harmonic motion.",
       "Simple and physical pendulums.",
-    ],
-    [
-      "Newton's law of gravitation.",
-      "Gravitational field and gravitational potential energy.",
-      "Circular and elliptical orbits and Kepler's laws.",
-      "Escape speed.",
     ],
   ],
   "AP Physics C: Electricity and Magnetism": [
@@ -295,7 +299,11 @@ export const ENV_PHYS_PSYCH_BRIEFS: Record<string, string[][]> = {
       "Coulomb's law and the electric force.",
       "Electric field of point charges and continuous distributions.",
       "Gauss's law for symmetrical charge distributions.",
-      "Electric potential, potential energy and the relation between field and potential.",
+    ],
+    [
+      "Electric potential energy of a charge or a system of charges, and the work done moving a charge in an electric field.",
+      "Electric potential (potential energy per unit charge) of point charges and continuous charge distributions, found by superposition or by integrating the field.",
+      "Equipotential surfaces and the relationship between electric field and potential: the field as the negative gradient of potential, and finding potential by integrating the field.",
     ],
     [
       "Conductors in electrostatic equilibrium.",

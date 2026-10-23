@@ -1,6 +1,7 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { matchesLevel, type Level } from "@/lib/exam/levels";
+import { isCurrent } from "@/lib/exam/rev";
 import type { Question } from "@/lib/exam/types";
 
 /** A question stops being served once this many different students reported it. */
@@ -20,7 +21,7 @@ export async function fromBank(key: BankKey, exclude: string[], n: number): Prom
     if (error) ({ data, error } = await read(false)); // migration 0005 not run yet: serve without the report filter
     if (error) throw error;
     const skip = new Set(exclude);
-    const pool = (data ?? []).filter((r) => !skip.has(r.id)).map((r) => r.data as Question).filter((q) => q.scoped && matchesLevel(q, key.level));
+    const pool = (data ?? []).filter((r) => !skip.has(r.id)).map((r) => r.data as Question).filter((q) => q.scoped && isCurrent(q) && matchesLevel(q, key.level));
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     return pool.slice(0, n);
   } catch (e) {

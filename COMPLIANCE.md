@@ -38,7 +38,7 @@ Two different things need to be described honestly.
 - Study notes, vocabulary lists, cram sheets and extra practice questions are written by the AI at the time a student asks, not copied from any publisher. Questions follow the general format of each test and never copy specific released questions.
 - Practice questions are original, from the app's own seed files or written by the app's AI. They are not copied from College Board, ACT or Khan Academy.
 - The YouTube and Khan Academy buttons only open a search page on those sites in a new tab. The app does not copy, embed or download their videos or text.
-- AP topic names follow the usual public course outlines, which College Board publishes. They were not checked against the official Course and Exam Descriptions, so verify them before you claim they are exact.
+- AP topic names follow the usual public course outlines, which College Board publishes. The unit lists were checked against AP Central on October 23, 2026 (see `AP-CED-CHECK.md`). Exact topic titles inside units were not compared word for word, so verify them before you claim they are exact.
 - Trademark notice: AP, SAT and PSAT are trademarks of College Board, and ACT is a trademark of ACT, Inc. The app shows a "not affiliated or endorsed" line on its test-prep screens.
 - Privacy: the app stores study data on the device and, when signed in, in your Supabase project. Student passwords are handled by Supabase Auth. No unmoderated chat or message boards. A "report this question" click sends only the question id (no name, no account) so a bad AI question leaves the shared bank after two reports.
 

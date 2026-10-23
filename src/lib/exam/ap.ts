@@ -12,11 +12,9 @@ const u = (id: string, en: string, es = en): RawUnit => ({ id, en, es });
 /** Courses with practice questions. Units follow the College Board framework for each course. */
 const PRACTICE_RAW: RawCourse[] = [
   { id: "apstats", en: "AP Statistics", es: "AP Estadística", units: [
-    u("u1", "Unit 1: Exploring one-variable data", "Unidad 1: Datos de una variable"), u("u2", "Unit 2: Exploring two-variable data", "Unidad 2: Datos de dos variables"),
-    u("u3", "Unit 3: Collecting data", "Unidad 3: Recolección de datos"), u("u4", "Unit 4: Probability and random variables", "Unidad 4: Probabilidad y variables aleatorias"),
-    u("u5", "Unit 5: Sampling distributions", "Unidad 5: Distribuciones muestrales"), u("u6", "Unit 6: Inference for proportions", "Unidad 6: Inferencia para proporciones"),
-    u("u7", "Unit 7: Inference for means", "Unidad 7: Inferencia para medias"), u("u8", "Unit 8: Chi-square inference", "Unidad 8: Inferencia con chi cuadrada"),
-    u("u9", "Unit 9: Inference for slopes", "Unidad 9: Inferencia para pendientes")] },
+    u("u1", "Unit 1: Exploring one-variable data and collecting data", "Unidad 1: Datos de una variable y recolección de datos"), u("u2", "Unit 2: Probability, random variables and probability distributions", "Unidad 2: Probabilidad, variables aleatorias y distribuciones"),
+    u("u3", "Unit 3: Inference for categorical data: proportions", "Unidad 3: Inferencia para datos categóricos: proporciones"), u("u4", "Unit 4: Inference for quantitative data: means", "Unidad 4: Inferencia para datos cuantitativos: medias"),
+    u("u5", "Unit 5: Regression analysis", "Unidad 5: Análisis de regresión")] },
   { id: "apush", en: "AP US History", es: "AP Historia de EE. UU.", units: [
     u("p1", "Period 1: 1491 to 1607", "Periodo 1: 1491 a 1607"), u("p2", "Period 2: 1607 to 1754", "Periodo 2: 1607 a 1754"), u("p3", "Period 3: 1754 to 1800", "Periodo 3: 1754 a 1800"),
     u("p4", "Period 4: 1800 to 1848", "Periodo 4: 1800 a 1848"), u("p5", "Period 5: 1844 to 1877", "Periodo 5: 1844 a 1877"), u("p6", "Period 6: 1865 to 1898", "Periodo 6: 1865 a 1898"),
@@ -36,7 +34,7 @@ export const AP_ALL_COURSES: { id: string; en: string; es: string }[] = [
     "AP Computer Science A", "AP Computer Science Principles", "AP English Language and Composition", "AP English Literature and Composition", "AP Environmental Science",
     "AP European History", "AP Macroeconomics", "AP Microeconomics", "AP Music Theory", "AP Physics 1", "AP Physics 2", "AP Physics C: Mechanics",
     "AP Physics C: Electricity and Magnetism", "AP Precalculus", "AP Psychology", "AP Spanish Language and Culture", "AP Spanish Literature and Culture",
-    "AP United States Government and Politics", "AP World History: Modern", "AP Seminar", "AP Research", "AP Studio Art", "AP Chinese Language and Culture",
+    "AP United States Government and Politics", "AP World History: Modern", "AP Seminar", "AP Research", "AP Chinese Language and Culture",
     "AP French Language and Culture", "AP German Language and Culture", "AP Italian Language and Culture", "AP Japanese Language and Culture", "AP Latin",
   ].map((en) => ({ id: en.toLowerCase().replace(/[^a-z0-9]+/g, "-"), en, es: en })),
 ];
@@ -68,7 +66,41 @@ export const AP_PRACTICE_COURSES: ApCourse[] = AP_COURSES.filter((c) => PRACTICE
 const generatedCount = (id: string) => (generated as { section: string }[]).filter((q) => q.section === id).length;
 export const hasQuestions = (id: string) => AP_PRACTICE_COURSES.some((c) => c.id === id) || generatedCount(id) >= 12;
 
+/**
+ * Multiple-choice length (questions, minutes) of the real exam, for the courses where the College Board's exam pages agree.
+ * Mock exams use it. The physics numbers are the May 2027 format; other courses use a general default.
+ * Check the exam overview on AP Central each year, because the College Board changes these.
+ */
+export const AP_MC_FORMAT: Record<string, { questions: number; minutes: number }> = {
+  "ap-biology": { questions: 60, minutes: 90 },
+  "ap-chemistry": { questions: 60, minutes: 90 },
+  "ap-environmental-science": { questions: 80, minutes: 90 },
+  "ap-psychology": { questions: 75, minutes: 90 },
+  "ap-calculus-ab": { questions: 45, minutes: 105 },
+  "ap-calculus-bc": { questions: 45, minutes: 105 },
+  apstats: { questions: 42, minutes: 90 },
+  "ap-physics-1": { questions: 42, minutes: 85 },
+  "ap-physics-2": { questions: 42, minutes: 85 },
+  "ap-physics-c-mechanics": { questions: 42, minutes: 85 },
+  "ap-physics-c-electricity-and-magnetism": { questions: 42, minutes: 85 },
+  "ap-precalculus": { questions: 40, minutes: 120 },
+  "ap-computer-science-a": { questions: 42, minutes: 90 },
+  apush: { questions: 55, minutes: 55 },
+  "ap-world-history-modern": { questions: 55, minutes: 55 },
+  "ap-european-history": { questions: 55, minutes: 55 },
+  aphug: { questions: 60, minutes: 60 },
+  "ap-united-states-government-and-politics": { questions: 55, minutes: 80 },
+  "ap-comparative-government-and-politics": { questions: 55, minutes: 60 },
+  "ap-macroeconomics": { questions: 60, minutes: 70 },
+  "ap-microeconomics": { questions: 60, minutes: 70 },
+  "ap-english-language-and-composition": { questions: 45, minutes: 60 },
+  "ap-english-literature-and-composition": { questions: 45, minutes: 60 },
+};
+
+/** Units that are taught but not on the AP exam (AP Precalculus Unit 4), so mock exams skip them. */
+export const AP_UNASSESSED: Record<string, string[]> = { "ap-precalculus": ["u4"] };
+
 /** Every course is a section, so mock exams, timed practice and score estimates work for all of them. */
 export const AP_SECTIONS: SectionConfig[] = AP_COURSES.map((c) => ({
-  id: c.id, en: c.en, es: c.es, questions: 55, minutes: 80, skills: c.units.map((x) => ({ id: x.id, en: x.en, es: x.es })),
+  id: c.id, en: c.en, es: c.es, ...(AP_MC_FORMAT[c.id] ?? { questions: 55, minutes: 80 }), skills: c.units.map((x) => ({ id: x.id, en: x.en, es: x.es })),
 }));

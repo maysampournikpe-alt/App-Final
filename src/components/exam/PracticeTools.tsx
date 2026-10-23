@@ -15,6 +15,7 @@ import { useLang } from "@/lib/i18n";
 import { useLocalDoc } from "@/lib/local-doc";
 import { FLASHCARDS_KEY, newCard, NO_CARDS, type Card } from "@/lib/srs";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { POINTS } from "@/lib/xp";
 import { buttonClass, inputClass, Page } from "../ui";
 import { MathText } from "./MathText";
@@ -92,12 +93,13 @@ function Pickers({ track, sc, c, needUnit, withTopic = true }: { track: ExamId; 
 
 const Radio = ({ name, checked, onChange, children, title }: { name: string; checked: boolean; onChange: () => void; children: React.ReactNode; title?: string }) => (
   <label className="cursor-pointer" title={title}><input type="radio" name={name} checked={checked} onChange={onChange} className="peer sr-only" />
-    <span className="inline-block rounded-md border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">{children}</span></label>
+    <span className="inline-block rounded-xl border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">{children}</span></label>
 );
 
 /** Practice quizzes and mock exams for every test and AP course. Questions come from the bank first, then the AI (checked by a second AI). */
 export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "mock" }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const lang = useLang();
   const router = useRouter();
   const cfg = EXAMS[track];
@@ -126,7 +128,7 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
       : sc.unit && kind === "quiz" ? [{ skill: sc.unit.id, n: want }]
       : (() => { const units = sc.course.units; const base = Math.floor(want / units.length), extra = want % units.length; return units.map((u, i) => ({ skill: u.id, n: base + (i < extra ? 1 : 0) })).filter((x) => x.n > 0); })();
     setBusy({ done: 0, total: want });
-    const g = await gather({ exam: cfg.bank, section: sc.course.id, needs, lang, hidden, level, maxDifficulty: cfg.maxDifficulty, onProgress: (done, total) => setBusy({ done, total }) });
+    const g = await gather({ exam: cfg.bank, section: sc.course.id, needs, lang, hidden, level: kind === "mock" ? "mixed" : level, maxDifficulty: cfg.maxDifficulty, onProgress: (done, total) => setBusy({ done, total }) });
     setBusy(null);
     if (g.questions.length < 3) return setErr(g.error ?? "empty");
     if (g.questions.length < want) setNote(c.short(g.questions.length, want));
@@ -163,9 +165,9 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
         ? <Pickers track={track} sc={sc} c={c} needUnit={false} />
         : <label className="mt-5 block max-w-md"><span className="block font-bold">{track === "ap" ? c.course : c.section}</span>
           <select value={sc.course.id} onChange={(e) => { sc.setCurrent(e.target.value); setCount(-1); }} className={`${inputClass} mt-1`}>{sc.list.map((x) => <option key={x.id} value={x.id}>{x[lang]}</option>)}</select></label>}
-      <fieldset className="mt-5"><legend className="font-bold">{c.level}</legend>
+      {kind === "quiz" ? <fieldset className="mt-5"><legend className="font-bold">{c.level}</legend>
         <div className="mt-2 flex flex-wrap gap-2">{levels.map((l) => <Radio key={l} name="level" checked={level === l} onChange={() => setLevel(l)} title={c.levelHelp[l]}>{c.levels[l]}</Radio>)}</div>
-        <p className="mt-2 text-sm text-muted" aria-live="polite">{c.levelHelp[level]}</p></fieldset>
+        <p className="mt-2 text-sm text-muted" aria-live="polite">{c.levelHelp[level]}</p></fieldset> : null}
       <fieldset className="mt-5"><legend className="font-bold">{c.how}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {kind === "mock"
@@ -178,7 +180,7 @@ export function PracticeTool({ track, kind }: { track: ExamId; kind: "quiz" | "m
       <p className="mt-2 max-w-prose text-sm text-muted">{c.aiNote}</p>
       <button disabled={!!busy} onClick={begin} className={`${buttonClass.primary} mt-6`}>{c.start}</button>
       {busy ? <p role="status" className="mt-4 font-bold text-teal">{c.making(busy.done, busy.total)}</p> : null}
-      {err ? <p role="alert" className="mt-4 font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p> : null}
+      {err ? <p role="alert" className="mt-4 font-bold text-ruby">{errorText(c.errors, err, limit)}</p> : null}
       {note ? <p role="status" className="mt-4 font-bold">{note}</p> : null}
       <TrademarkNote />
     </Page>
@@ -211,7 +213,10 @@ function useLearned<T>(doc: string, key: string, body: object, field: "terms" | 
 
 type Term = { term: string; meaning: string };
 const Loading = ({ text }: { text: string }) => <p className="mt-6 text-lg text-muted" role="status">{text}</p>;
-const Failed = ({ c, err, retry }: { c: C; err: string; retry: () => void }) => <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p><button onClick={retry} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+function Failed({ c, err, retry }: { c: C; err: string; retry: () => void }) {
+  const limit = useAiLimitText();
+  return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{errorText(c.errors, err, limit)}</p><button onClick={retry} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+}
 
 export function VocabTool({ track }: { track: ExamId }) {
   const c = useCopy(copy);

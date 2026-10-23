@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { claudeBody, claudeConfigured, claudeText, DEFAULT_CLAUDE_MODEL } from "@/lib/ai/claude";
+import { claudeBody, claudeConfigured, claudeText, claudeUsable, DEFAULT_CLAUDE_MODEL, resumeClaude } from "@/lib/ai/claude";
 import { parseSseText } from "@/lib/ai/coach";
 
 const ENV_KEYS = ["CLOUDFLARE_ACCOUNT_ID", "CLOUDFLARE_API_TOKEN", "AI_PROVIDER", "GROQ_API_KEY", "CLAUDE_MODEL"];
 const saved: Record<string, string | undefined> = {};
 beforeEach(() => { for (const k of ENV_KEYS) { saved[k] = process.env[k]; delete process.env[k]; } });
-afterEach(() => { for (const k of ENV_KEYS) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; } vi.unstubAllGlobals(); });
+afterEach(() => { resumeClaude(); for (const k of ENV_KEYS) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; } vi.unstubAllGlobals(); });
 
 describe("claude request and reply shapes", () => {
   it("keeps the system text apart and starts and alternates with user turns", () => {
@@ -98,5 +98,32 @@ describe("groqChat with Claude turned on", () => {
     const { groqChat } = await import("@/lib/ai/groq");
     expect((await groqChat({ model: "llama-3.3-70b-versatile", timeoutSeconds: 5, temperature: 0.3, messages: [{ role: "user", content: "hi" }] })).content).toBe("from claude");
     expect(bodies).toHaveLength(2); expect(bodies[1].temperature).toBeUndefined();
+  });
+});
+
+describe("pausing Claude after a refusal", () => {
+  const setup = () => { process.env.CLOUDFLARE_ACCOUNT_ID = "acct"; process.env.CLOUDFLARE_API_TOKEN = "tok"; process.env.GROQ_API_KEY = "g"; };
+  it("stops asking Claude after a 402 (no credit), and uses Groq meanwhile", async () => {
+    setup();
+    let claudeCalls = 0;
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => {
+      if (String(u).includes("cloudflare")) { claudeCalls++; return new Response('{"error":{"message":"Insufficient balance"}}', { status: 402 }); }
+      if (String(u).endsWith("/models")) return new Response(JSON.stringify({ data: [{ id: "llama-3.3-70b-versatile" }] }));
+      return new Response(JSON.stringify({ choices: [{ message: { content: "from groq" } }] }));
+    }));
+    const { groqChat } = await import("@/lib/ai/groq");
+    const ask = { model: "llama-3.3-70b-versatile", timeoutSeconds: 5, messages: [{ role: "user" as const, content: "hi" }] };
+    expect((await groqChat(ask)).content).toBe("from groq");
+    expect(claudeUsable()).toBe(false);
+    expect((await groqChat(ask)).content).toBe("from groq");
+    expect(claudeCalls).toBe(1); // the second request skipped Claude
+    resumeClaude(); expect(claudeUsable()).toBe(true);
+  });
+  it("does not pause for a plain rate limit (429)", async () => {
+    setup();
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => (String(u).includes("cloudflare") ? new Response("{}", { status: 429 }) : String(u).endsWith("/models") ? new Response(JSON.stringify({ data: [{ id: "llama-3.3-70b-versatile" }] })) : new Response(JSON.stringify({ choices: [{ message: { content: "g" } }] })))));
+    const { groqChat } = await import("@/lib/ai/groq");
+    await groqChat({ model: "llama-3.3-70b-versatile", timeoutSeconds: 5, messages: [{ role: "user", content: "hi" }] });
+    expect(claudeUsable()).toBe(true);
   });
 });

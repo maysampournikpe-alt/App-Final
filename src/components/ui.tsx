@@ -14,7 +14,7 @@ export function Page({ children, wide = false }: { children: React.ReactNode; wi
 export function SoonBadge({ className = "" }: { className?: string }) {
   const t = useT();
   return (
-    <span className={`inline-block rounded-sm border border-line px-1.5 text-xs font-bold leading-5 text-muted ${className}`}>
+    <span className={`inline-block rounded-lg border border-line px-1.5 text-xs font-bold leading-5 text-muted ${className}`}>
       {t("comingSoon")}
     </span>
   );
@@ -54,8 +54,8 @@ export function IndexRow({ tool, href }: { tool: Tool; href: string }) {
   const lang = useLang();
   const Icon = ICONS[tool.icon];
   return (
-    <Link href={href} className="group flex items-start gap-3 rounded-sm py-3 hover:bg-sunken sm:px-2">
-      <Icon size={22} strokeWidth={1.75} className="mt-0.5 shrink-0 text-teal" />
+    <Link href={href} className="group guide-card flex h-full items-start gap-3 p-4 hover:-translate-y-0.5">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sunken text-teal"><Icon size={21} strokeWidth={2} aria-hidden /></span>
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
           <span className="font-bold group-hover:underline">{tool.name[lang]}</span>
@@ -66,7 +66,7 @@ export function IndexRow({ tool, href }: { tool: Tool; href: string }) {
   );
 }
 
-const btn = "inline-flex items-center justify-center gap-2 rounded-md border-[1.5px] border-ink px-5 py-2.5 font-bold disabled:cursor-not-allowed disabled:opacity-60";
+const btn = "inline-flex items-center justify-center gap-2 rounded-xl border-[1.5px] border-ink px-5 py-2.5 font-bold disabled:cursor-not-allowed disabled:opacity-60";
 export const buttonClass = {
   primary: `${btn} bg-ruby text-on-ruby shadow-[3px_3px_0_var(--c-ink)] active:translate-x-px active:translate-y-px active:shadow-[2px_2px_0_var(--c-ink)]`,
   secondary: `${btn} bg-teal text-on-teal`,
@@ -89,13 +89,13 @@ export function Field({
     </div>
   );
 }
-export const inputClass = "w-full rounded-md border-[1.5px] border-ink bg-surface px-3 py-2.5 text-lg placeholder:text-muted aria-[invalid=true]:border-ruby";
+export const inputClass = "w-full rounded-xl border-[1.5px] border-ink bg-surface px-3 py-2.5 text-lg placeholder:text-muted aria-[invalid=true]:border-ruby";
 
 /** Only tools that work are listed. */
 export function ToolList({ tools }: { tools: Tool[] }) {
   const ready = tools.filter((x) => x.status === "built");
   return ready.length ? (
-    <ul className="divide-y-2 divide-dotted divide-line">
+    <ul className="grid gap-3 sm:grid-cols-2">
       {ready.map((tool) => <li key={tool.key}><IndexRow tool={tool} href={`/t/${tool.key}`} /></li>)}
     </ul>
   ) : null;

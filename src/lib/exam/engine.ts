@@ -80,7 +80,7 @@ export function grade(bank: Map<string, Question>, session: Session, finishedAt 
     if (!q) continue;
     const given = session.answers[qid];
     if (!given) unanswered++;
-    items.push({ qid, section: q.section, skill: q.skill, answer: given ?? "", correct: isCorrect(q, given) });
+    items.push({ qid, section: q.section, skill: q.skill, ...(q.topic ? { topic: q.topic } : {}), answer: given ?? "", correct: isCorrect(q, given) });
   }
   return { id: `${session.startedAt}`, exam: session.exam, mode: session.mode, startedAt: session.startedAt, finishedAt, timed: session.timed, items, unanswered };
 }
@@ -124,6 +124,21 @@ export function skillStats(attempts: Attempt[]): SkillStat[] {
     if (!i.answer) continue;
     const key = `${a.exam}/${i.section}/${i.skill}`;
     const s = map.get(key) ?? { exam: a.exam, skill: i.skill, section: i.section, correct: 0, total: 0, pct: 0 };
+    s.total++; if (i.correct) s.correct++;
+    map.set(key, s);
+  }
+  return [...map.values()].filter((s) => s.total >= 2).map((s) => ({ ...s, pct: s.correct / s.total })).sort((a, b) => a.pct - b.pct);
+}
+
+export interface TopicStat { exam: ExamId; section: string; skill: string; topic: string; correct: number; total: number; pct: number }
+
+/** Like skillStats, but one row per topic (1.1, 1.2, ...). Only questions that belong to a topic count. */
+export function topicStats(attempts: Attempt[]): TopicStat[] {
+  const map = new Map<string, TopicStat>();
+  for (const a of attempts) for (const i of a.items) {
+    if (!i.answer || !i.topic) continue;
+    const key = `${a.exam}/${i.section}/${i.skill}/${i.topic}`;
+    const s = map.get(key) ?? { exam: a.exam, section: i.section, skill: i.skill, topic: i.topic, correct: 0, total: 0, pct: 0 };
     s.total++; if (i.correct) s.correct++;
     map.set(key, s);
   }

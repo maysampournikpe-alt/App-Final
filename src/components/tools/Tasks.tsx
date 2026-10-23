@@ -130,11 +130,11 @@ function Row({ t, c, patch, toggleTop, remove }: { t: Task; c: C; patch: (id: st
       <input type="checkbox" checked={t.done} onChange={() => patch(t.id, { done: !t.done, top: t.done ? t.top : false })} aria-label={`${t.done ? c.unmark : c.mark}: ${t.title}`} className="h-6 w-6 shrink-0 accent-[var(--c-teal)]" />
       <p className={`min-w-0 flex-1 font-bold ${t.done ? "text-muted line-through decoration-2" : ""}`}>{t.title}</p>
       {!t.done ? (
-        <button onClick={() => toggleTop(t)} aria-pressed={t.top} aria-label={`${t.top ? c.unstar : c.star}: ${t.title}`} title={t.top ? c.unstar : c.star} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken">
+        <button onClick={() => toggleTop(t)} aria-pressed={t.top} aria-label={`${t.top ? c.unstar : c.star}: ${t.title}`} title={t.top ? c.unstar : c.star} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken">
           <Star size={20} strokeWidth={1.75} className={t.top ? "fill-marigold text-ink" : ""} />
         </button>
       ) : null}
-      <button onClick={() => remove(t.id)} aria-label={`${c.remove}: ${t.title}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+      <button onClick={() => remove(t.id)} aria-label={`${c.remove}: ${t.title}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
     </li>
   );
 }

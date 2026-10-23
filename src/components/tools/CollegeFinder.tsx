@@ -53,7 +53,7 @@ export function ScholarshipsTool() {
   return (
     <Head title={c.sTitle} lead={c.sLead} wide>
       <div className="guide-card mt-5 flex flex-wrap items-end gap-x-6 gap-y-3 p-4">
-        <label><span className="block font-bold">{c.gradeL}</span><select value={grade} onChange={(e) => setGrade(Number(e.target.value))} className="mt-1 rounded-md border-[1.5px] border-ink bg-surface px-3 py-2 text-lg"><option value={0}>{c.anyGrade}</option>{[7, 8, 9, 10, 11, 12].map((g) => <option key={g} value={g}>{g}</option>)}</select></label>
+        <label><span className="block font-bold">{c.gradeL}</span><select value={grade} onChange={(e) => setGrade(Number(e.target.value))} className="mt-1 rounded-xl border-[1.5px] border-ink bg-surface px-3 py-2 text-lg"><option value={0}>{c.anyGrade}</option>{[7, 8, 9, 10, 11, 12].map((g) => <option key={g} value={g}>{g}</option>)}</select></label>
         {box(need, setNeed, c.need)}{box(hisp, setHisp, c.hisp)}{box(tx, setTx, c.tx)}
       </div>
       {shown.length === 0 ? <Empty>{c.sNone}</Empty> : <ul className="mt-6 grid gap-4 md:grid-cols-2">{shown.map((s) => (

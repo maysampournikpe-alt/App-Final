@@ -100,7 +100,7 @@ function TimedChoice({ timed, setTimed, c }: { timed: boolean; setTimed: (v: boo
         {[true, false].map((v) => (
           <label key={String(v)} className="cursor-pointer">
             <input type="radio" name="timed" checked={timed === v} onChange={() => setTimed(v)} className="peer sr-only" />
-            <span className="inline-block rounded-md border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">{v ? c.timed : c.untimed}</span>
+            <span className="inline-block rounded-xl border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">{v ? c.timed : c.untimed}</span>
           </label>
         ))}
       </div>

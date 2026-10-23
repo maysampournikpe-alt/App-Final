@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { AI } from "@/config/ai";
-import { claudeConfigured, claudeModel } from "@/lib/ai/claude";
+import { claudeConfigured, claudeModel, claudeUsable } from "@/lib/ai/claude";
 import { groqChat, groqStream } from "@/lib/ai/groq";
 import { hasSupabasePublic, SUPABASE_URL_WAS_MESSY } from "@/lib/supabase/env";
 import { hasSupabaseServer, supabaseAdmin } from "@/lib/supabase/server";
@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     groqApiKey: !!process.env.GROQ_API_KEY,
     claudeViaCloudflare: claudeConfigured(),
     claudeModel: claudeConfigured() ? claudeModel() : undefined,
+    claudePausedAfterRefusal: claudeConfigured() && !claudeUsable(),
     aiFixtureMode: process.env.AI_FIXTURES === "1",
     supabaseUrlNeededTidying: SUPABASE_URL_WAS_MESSY,
   };

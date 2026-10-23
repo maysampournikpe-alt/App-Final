@@ -13,7 +13,7 @@ function Choice<T extends string>({
         {options.map((o) => (
           <label key={o.value} className="cursor-pointer">
             <input type="radio" name={legend} value={o.value} checked={value === o.value} onChange={() => onChange(o.value)} className="peer sr-only" />
-            <span className="inline-block rounded-md border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">
+            <span className="inline-block rounded-xl border-[1.5px] border-ink bg-surface px-4 py-2 font-bold peer-checked:bg-ink peer-checked:text-paper peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--c-focus)]">
               {o.label}
             </span>
           </label>
@@ -80,7 +80,7 @@ export function AppearanceSettings() {
         <div className="border-t-2 border-dotted border-line pt-5">
           <button
             onClick={() => setPrefs({ theme: DEFAULT_PREFS.theme, text: DEFAULT_PREFS.text, dyslexia: false, lowData: false, motion: "system" } satisfies Partial<Prefs>)}
-            className="rounded-md border-[1.5px] border-ink px-4 py-2 font-bold hover:bg-sunken"
+            className="rounded-xl border-[1.5px] border-ink px-4 py-2 font-bold hover:bg-sunken"
           >
             {t("resetPrefs")}
           </button>

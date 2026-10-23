@@ -27,8 +27,8 @@ const copy = {
 };
 
 const clip = async (text: string) => { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } };
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
-const area = "min-h-32 w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const area = "min-h-32 w-full rounded-xl border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
 const clamp = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
 type Map = { center: string; branches: { id: string; text: string; leaves: { id: string; text: string }[] }[] };

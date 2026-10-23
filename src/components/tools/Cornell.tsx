@@ -55,7 +55,7 @@ export function CornellTool() {
             <ul className="mt-2 space-y-1">
               {notes.map((n) => (
                 <li key={n.id}><button onClick={() => { setOpenId(n.id); setCovered(false); }} aria-current={n.id === openId ? "true" : undefined}
-                  className={`w-full rounded-md px-3 py-2 text-left ${n.id === openId ? "bg-marigold text-on-marigold" : "hover:bg-sunken"}`}>
+                  className={`w-full rounded-xl px-3 py-2 text-left ${n.id === openId ? "bg-marigold text-on-marigold" : "hover:bg-sunken"}`}>
                   <span className="block truncate font-bold">{n.title || c.untitled}</span><span className="block truncate text-xs">{[n.cls, n.date].filter(Boolean).join(" · ")}</span></button></li>
               ))}
             </ul>

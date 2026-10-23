@@ -4,6 +4,7 @@ import type { AssistTask } from "@/lib/ai/assist";
 import { useLang } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { buttonClass, inputClass } from "../ui";
 import { Callout, Head, type L } from "./shared";
 
@@ -34,6 +35,7 @@ const copy = {
 const MAX = 6000;
 export function AssistTool({ task }: { task: AssistTask }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const lang = useLang();
   const [profile] = useProfile();
   const cfg = CFG[task];
@@ -70,9 +72,9 @@ export function AssistTool({ task }: { task: AssistTask }) {
             {x.kind === "select" ? <select value={extra[x.key] ?? ""} onChange={(e) => setExtra({ ...extra, [x.key]: e.target.value })} className={`${inputClass} mt-1`}>{x.options!.map((o) => <option key={o.v} value={o.v}>{o.label[lang]}</option>)}</select>
               : <input type={x.kind === "date" ? "date" : "text"} value={extra[x.key] ?? ""} onChange={(e) => setExtra({ ...extra, [x.key]: e.target.value })} placeholder={x.ph?.[lang]} maxLength={300} className={`${inputClass} mt-1`} />}</label>))}
         <label className="block"><span className="block font-bold">{cfg.input[lang]}</span>
-          <textarea value={input} onChange={(e) => setInput(e.target.value.slice(0, MAX))} placeholder={cfg.ph[lang]} rows={cfg.rows ?? 8} className="mt-1 w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted" />
+          <textarea value={input} onChange={(e) => setInput(e.target.value.slice(0, MAX))} placeholder={cfg.ph[lang]} rows={cfg.rows ?? 8} className="mt-1 w-full rounded-xl border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted" />
           <span className="text-sm text-muted">{c.long(MAX - input.length)}</span></label>
-        {error ? <p role="alert" className="font-bold text-ruby">{c.errors[error] ?? c.errors.failed}</p> : null}
+        {error ? <p role="alert" className="font-bold text-ruby">{errorText(c.errors, error, limit)}</p> : null}
         <div className="flex flex-wrap gap-3"><button disabled={busy} className={buttonClass.primary}>{busy ? c.working : cfg.button[lang]}</button>{input || text ? <button type="button" onClick={() => { setInput(""); setText(""); setError(null); }} className={buttonClass.secondary}>{c.again}</button> : null}</div>
       </form>
       <div aria-live="polite">{text ? <section className="guide-card mt-6 p-5"><h2 className="text-xl">{crisis ? c.crisis : c.result}</h2><div className="mt-2 whitespace-pre-wrap text-lg leading-relaxed">{text}</div>

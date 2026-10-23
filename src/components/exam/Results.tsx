@@ -12,6 +12,12 @@ import { examCopy } from "./copy";
 import { MathText } from "./MathText";
 import { useExamData } from "./useExam";
 
+/** Tells the server too, so a question two students flag leaves the shared bank. Best effort. */
+function reportToBank(id: string) {
+  if (!id.startsWith("ai-")) return;
+  fetch("/api/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => {});
+}
+
 export function Results({ attempt, auto = false, onAgain, onScores }: { attempt: Attempt; auto?: boolean; onAgain: () => void; onScores: () => void }) {
   const c = useCopy(examCopy);
   const lang = useLang();
@@ -98,7 +104,7 @@ export function Results({ attempt, auto = false, onAgain, onScores }: { attempt:
                 <div className="notebook mt-3 py-3 pr-3"><b>{c.why}</b><MathText text={q.explanation} /></div>
                 <div className="mt-3 text-sm">
                   {hidden.includes(q.id) ? <span className="text-muted">{c.reported}</span>
-                    : <button onClick={() => setHidden([...hidden, q.id])} className="font-bold text-teal underline underline-offset-4">{c.report}</button>}
+                    : <button onClick={() => { setHidden([...hidden, q.id]); reportToBank(q.id); }} className="font-bold text-teal underline underline-offset-4">{c.report}</button>}
                 </div>
               </li>
             );

@@ -152,7 +152,7 @@ export function ReadAloudTool() {
   return (
     <Head title={c.raTitle} lead={c.raLead}>
       {!ok ? <Callout tone="warn">{c.raNo}</Callout> : <>
-        <label className="mt-5 block"><span className="block font-bold">{c.raText}</span><textarea value={text} onChange={(e) => setText(e.target.value.slice(0, 5000))} rows={8} className="mt-1 w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg" /><span className="text-sm text-muted">{c.raMax(5000 - text.length)}</span></label>
+        <label className="mt-5 block"><span className="block font-bold">{c.raText}</span><textarea value={text} onChange={(e) => setText(e.target.value.slice(0, 5000))} rows={8} className="mt-1 w-full rounded-xl border-[1.5px] border-ink bg-surface p-3 text-lg" /><span className="text-sm text-muted">{c.raMax(5000 - text.length)}</span></label>
         <div className="mt-3 flex flex-wrap items-end gap-5">
           <div className="flex gap-2" role="group" aria-label={c.raVoice}>{(["en", "es"] as const).map((l) => <button key={l} onClick={() => setVl(l)} aria-pressed={vl === l} className={`rounded-full border-[1.5px] border-ink px-4 py-1.5 font-bold ${vl === l ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{l === "en" ? "English" : "Español"}</button>)}</div>
           <label className="flex items-center gap-2 font-bold">{c.raRate}: {c.raSlow}<input type="range" min={0.6} max={1.5} step={0.1} value={rate} onChange={(e) => setRate(Number(e.target.value))} aria-label={c.raRate} className="accent-[var(--c-teal)]" />{c.raFast}</label></div>

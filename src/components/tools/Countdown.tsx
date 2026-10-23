@@ -53,7 +53,7 @@ export function CountdownTool() {
         <p className="mt-1 text-xs font-bold text-muted">{n < 0 ? c.past(n) : c.unit(n)}</p>
       </div>
       <div className="min-w-0 flex-1"><p className="font-bold">{e.name}</p><p className="text-sm text-muted">{formatDay(e.date, lang)}{n >= 14 ? ` · ${c.weeks(n)}` : ""}</p></div>
-      <button onClick={() => setEvents((p) => p.filter((x) => x.id !== e.id))} aria-label={`${c.remove}: ${e.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+      <button onClick={() => setEvents((p) => p.filter((x) => x.id !== e.id))} aria-label={`${c.remove}: ${e.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
     </li>
   );
 

@@ -96,7 +96,7 @@ export function QuizTool() {
       <p className="mt-3 font-bold" aria-live="polite">{c.progress(answered, QUIZ.length)}</p>
       <ol className="mt-4 space-y-4">{QUIZ.map((q, i) => (
         <li key={i}><fieldset className="guide-card p-4"><legend className="px-1 text-lg font-bold">{i + 1}. {pick(q.text, lang)}</legend>
-          <div className="mt-2 flex flex-wrap gap-2">{c.scale.map((label, v) => <label key={v} className={`cursor-pointer rounded-md border-[1.5px] border-ink px-3 py-1.5 text-sm font-bold ${ans[i] === v + 1 ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}><input type="radio" name={`q${i}`} className="sr-only" checked={ans[i] === v + 1} onChange={() => setAns((a) => a.map((x, k) => (k === i ? v + 1 : x)))} />{label}</label>)}</div></fieldset></li>))}</ol>
+          <div className="mt-2 flex flex-wrap gap-2">{c.scale.map((label, v) => <label key={v} className={`cursor-pointer rounded-xl border-[1.5px] border-ink px-3 py-1.5 text-sm font-bold ${ans[i] === v + 1 ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}><input type="radio" name={`q${i}`} className="sr-only" checked={ans[i] === v + 1} onChange={() => setAns((a) => a.map((x, k) => (k === i ? v + 1 : x)))} />{label}</label>)}</div></fieldset></li>))}</ol>
       <button onClick={() => setDone(true)} disabled={answered < QUIZ.length} className={`${buttonClass.primary} mt-6`}>{c.see}</button>
     </Head>
   );

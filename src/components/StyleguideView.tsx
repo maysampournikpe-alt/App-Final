@@ -32,7 +32,7 @@ export function StyleguideView() {
       <Section title="Color">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {swatches.map(([name, label, cls]) => (
-            <div key={name} className="overflow-hidden rounded-md border-[1.5px] border-ink">
+            <div key={name} className="overflow-hidden rounded-xl border-[1.5px] border-ink">
               <div className={`h-16 ${cls}`} />
               <div className="bg-surface p-2 text-sm"><b>{name}</b><br />{label}</div>
             </div>
@@ -41,7 +41,7 @@ export function StyleguideView() {
       </Section>
 
       <Section title="Type">
-        <p className="font-display text-5xl font-semibold">Fraunces for headings</p>
+        <p className="font-display text-5xl font-semibold">Nunito for headings</p>
         <p className="mt-3 max-w-prose text-lg">Atkinson Hyperlegible for everything you read. It was drawn so similar letters, like I, l and 1, are easy to tell apart. Dyslexia-friendly mode swaps every word to OpenDyslexic.</p>
         <div className="mt-4 space-y-1">
           <h1 className="text-4xl">Heading 1, four rem</h1><h2 className="text-3xl">Heading 2</h2>
@@ -51,15 +51,15 @@ export function StyleguideView() {
 
       <Section title="Buttons and fields">
         <div className="flex flex-wrap items-center gap-3">
-          <button className="rounded-md border-[1.5px] border-ink bg-ruby px-5 py-2.5 font-bold text-on-ruby shadow-[3px_3px_0_var(--c-ink)] active:translate-x-px active:translate-y-px active:shadow-[2px_2px_0_var(--c-ink)]">Save it</button>
-          <button className="rounded-md border-[1.5px] border-ink bg-teal px-5 py-2.5 font-bold text-on-teal">Start plan</button>
-          <button className="rounded-md border-[1.5px] border-ink px-5 py-2.5 font-bold hover:bg-sunken">Not now</button>
-          <button disabled className="cursor-not-allowed rounded-md border-[1.5px] border-line px-5 py-2.5 font-bold text-muted">Disabled</button>
+          <button className="rounded-xl border-[1.5px] border-ink bg-ruby px-5 py-2.5 font-bold text-on-ruby shadow-[3px_3px_0_var(--c-ink)] active:translate-x-px active:translate-y-px active:shadow-[2px_2px_0_var(--c-ink)]">Save it</button>
+          <button className="rounded-xl border-[1.5px] border-ink bg-teal px-5 py-2.5 font-bold text-on-teal">Start plan</button>
+          <button className="rounded-xl border-[1.5px] border-ink px-5 py-2.5 font-bold hover:bg-sunken">Not now</button>
+          <button disabled className="cursor-not-allowed rounded-xl border-[1.5px] border-line px-5 py-2.5 font-bold text-muted">Disabled</button>
           <SoonBadge />
         </div>
         <label className="mt-5 block max-w-md">
           <span className="font-bold">Your nickname</span>
-          <input className="mt-1 w-full rounded-md border-[1.5px] border-ink bg-surface px-3 py-2.5" placeholder="maria_r" />
+          <input className="mt-1 w-full rounded-xl border-[1.5px] border-ink bg-surface px-3 py-2.5" placeholder="maria_r" />
           <span className="text-sm text-muted">Not your real name. Pick something only you would pick.</span>
         </label>
       </Section>
@@ -68,7 +68,7 @@ export function StyleguideView() {
         <p className="mb-3 text-muted">One family, one stroke weight.</p>
         <div className="grid grid-cols-6 gap-3 sm:grid-cols-10 lg:grid-cols-14">
           {Object.entries(ICONS).map(([name, Icon]) => (
-            <div key={name} title={name} className="grid h-11 place-items-center rounded-md border border-line bg-surface"><Icon size={22} strokeWidth={1.75} /></div>
+            <div key={name} title={name} className="grid h-11 place-items-center rounded-xl border border-line bg-surface"><Icon size={22} strokeWidth={1.75} /></div>
           ))}
         </div>
         <div className="mt-5 flex items-center gap-6 text-teal"><Compass size={44} /><MapPin size={40} /></div>
@@ -100,8 +100,8 @@ export function StyleguideView() {
         <div className="max-w-md">
           <CheckpointTrail steps={["Pick a tournament", "Learn two openings", "Play 10 practice games", "Register by Nov 14", "Compete"]} done={done} />
           <div className="mt-5 flex gap-2">
-            <button onClick={() => setDone((d) => Math.min(5, d + 1))} className="rounded-md border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">Complete a step</button>
-            <button onClick={() => setDone(0)} className="rounded-md border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">Reset</button>
+            <button onClick={() => setDone((d) => Math.min(5, d + 1))} className="rounded-xl border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">Complete a step</button>
+            <button onClick={() => setDone(0)} className="rounded-xl border-[1.5px] border-ink px-3 py-1.5 font-bold hover:bg-sunken">Reset</button>
           </div>
         </div>
       </Section>

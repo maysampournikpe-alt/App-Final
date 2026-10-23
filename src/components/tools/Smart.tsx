@@ -76,7 +76,7 @@ export function SmartTool() {
             <li key={g.id} className="guide-card p-4">
               <div className="flex items-start gap-3">
                 <p className="min-w-0 flex-1 text-lg">{c.sentence(g, formatDay(g.by, lang))}</p>
-                <button onClick={() => setGoals((p) => p.filter((x) => x.id !== g.id))} aria-label={`${c.remove}: ${g.specific}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+                <button onClick={() => setGoals((p) => p.filter((x) => x.id !== g.id))} aria-label={`${c.remove}: ${g.specific}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
               </div>
               <p className="mt-2 text-sm font-bold text-muted">{c.days(diffDays(today(), g.by))} · <Link href="/t/plan/builder" className="text-teal underline underline-offset-4">{c.plan}</Link></p>
             </li>

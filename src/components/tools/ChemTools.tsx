@@ -71,9 +71,9 @@ export function PeriodicTool() {
           })}
         </div>
       </div>
-      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">{(Object.keys(c.cats) as Category[]).map((k) => <li key={k} className="inline-flex items-center gap-1"><span className={`h-3 w-3 rounded-sm border border-ink ${TINT[k]}`} />{c.cats[k]}</li>)}</ul>
+      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">{(Object.keys(c.cats) as Category[]).map((k) => <li key={k} className="inline-flex items-center gap-1"><span className={`h-3 w-3 rounded-lg border border-ink ${TINT[k]}`} />{c.cats[k]}</li>)}</ul>
       <section className="guide-card mt-5 grid gap-4 p-5 sm:grid-cols-[auto_1fr]" aria-live="polite" aria-label={e.name}>
-        <div className={`grid h-28 w-28 place-items-center rounded-md border-[1.5px] border-ink ${TINT[e.cat]}`}><div className="text-center"><p className="text-sm">{e.z}</p><p className="font-display text-5xl font-semibold leading-none">{e.sym}</p></div></div>
+        <div className={`grid h-28 w-28 place-items-center rounded-xl border-[1.5px] border-ink ${TINT[e.cat]}`}><div className="text-center"><p className="text-sm">{e.z}</p><p className="font-display text-5xl font-semibold leading-none">{e.sym}</p></div></div>
         <div><h2 className="text-3xl">{e.name}</h2>
           <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3">
             {([[c.number, e.z], [c.mass, e.mass], [c.category, c.cats[e.cat]], [c.group, g ?? "—"], [c.period, periodOf(e.z)], [c.state, c.states[stateOf(e.z)]]] as const).map(([k, v]) => <div key={k}><dt className="text-sm font-bold text-muted">{k}</dt><dd className="font-bold">{v}</dd></div>)}
@@ -115,7 +115,7 @@ export function MolarTool() {
             <p className="text-lg">{c.total} <strong className="font-display text-3xl text-teal">{result.total}</strong> {c.per}</p>
             <table className="mt-3 w-full text-left"><thead><tr className="border-b-[1.5px] border-ink text-sm"><th className="py-1">{c.element}</th><th>{c.count}</th><th>{c.massCol}</th><th>{c.percent}</th></tr></thead>
               <tbody>{result.parts.map((p) => <tr key={p.sym} className="border-b-2 border-dotted border-line"><td className="py-1.5 font-bold">{p.sym} <span className="font-normal text-muted">{BY_SYMBOL.get(p.sym)!.name}</span></td><td>{p.count}</td><td className="tabular-nums">{p.mass}</td>
-                <td><span className="inline-flex items-center gap-2"><span className="inline-block h-3 w-16 rounded-sm bg-sunken" aria-hidden><span className="block h-full rounded-sm bg-teal" style={{ width: `${p.percent}%` }} /></span><span className="tabular-nums">{p.percent}%</span></span></td></tr>)}</tbody></table>
+                <td><span className="inline-flex items-center gap-2"><span className="inline-block h-3 w-16 rounded-lg bg-sunken" aria-hidden><span className="block h-full rounded-lg bg-teal" style={{ width: `${p.percent}%` }} /></span><span className="tabular-nums">{p.percent}%</span></span></td></tr>)}</tbody></table>
           </>
         ) : null}
       </section>

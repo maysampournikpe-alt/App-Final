@@ -8,6 +8,7 @@ import { useProfile } from "@/lib/profile";
 import { HORIZONS, keepProgress, NO_PLANS, PLANS_KEY, planForModel, progress, toggleStep, type Horizon, type Plan } from "@/lib/plan";
 import { TEMPLATES, templatePlan } from "@/lib/plan-templates";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { EmptyTrail } from "../art";
 import { buttonClass, Field, inputClass, Page } from "../ui";
 
@@ -54,6 +55,7 @@ const copy = {
 
 export function PlanTool({ view }: { view: View }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const lang = useLang();
   const [profile] = useProfile();
   const [plans, setPlans] = useLocalDoc<Plan[]>(PLANS_KEY, NO_PLANS);
@@ -62,6 +64,7 @@ export function PlanTool({ view }: { view: View }) {
   const [hours, setHours] = useState(5);
   const [busy, setBusy] = useState<"build" | "adjust" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [crisisText, setCrisisText] = useState("");
   const [justStarted, setJustStarted] = useState<string | null>(null);
 
   const current = plans.find((p) => p.id === selected) ?? plans[0] ?? null;
@@ -74,6 +77,7 @@ export function PlanTool({ view }: { view: View }) {
       const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lang, grade: profile.grade, ...body }) });
       const j = await res.json().catch(() => null);
       if (j?.ok) return j.plan as Plan;
+      if (j?.error === "crisis" && typeof j.text === "string") setCrisisText(j.text);
       setError(j?.error ?? "failed");
     } catch { setError(navigator.onLine ? "failed" : "offline"); }
     return null;
@@ -112,7 +116,7 @@ export function PlanTool({ view }: { view: View }) {
         </form>
       ) : null}
 
-      {error && error !== "bad_request" ? <p role="alert" className="guide-card mt-5 max-w-2xl p-4 font-bold">{c.errors[error] ?? c.errors.failed}</p> : null}
+      {error && error !== "bad_request" ? <p role="alert" className="guide-card mt-5 max-w-2xl whitespace-pre-line p-4 font-bold">{errorText({ ...c.errors, crisis: crisisText || c.errors.failed }, error, limit)}</p> : null}
 
       {view === "templates" ? (
         <ul className="mt-6 grid gap-5 md:grid-cols-2">
@@ -134,7 +138,7 @@ export function PlanTool({ view }: { view: View }) {
               <div className="flex flex-wrap gap-2">
                 {plans.map((p) => {
                   const pr = progress(p);
-                  return <button key={p.id} onClick={() => setSelected(p.id)} aria-pressed={current?.id === p.id} className={`rounded-md border-[1.5px] border-ink px-3 py-2 text-left font-bold ${current?.id === p.id ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{p.title} <span className="font-normal">· {pr.pct}%</span></button>;
+                  return <button key={p.id} onClick={() => setSelected(p.id)} aria-pressed={current?.id === p.id} className={`rounded-xl border-[1.5px] border-ink px-3 py-2 text-left font-bold ${current?.id === p.id ? "bg-ink text-paper" : "bg-surface hover:bg-sunken"}`}>{p.title} <span className="font-normal">· {pr.pct}%</span></button>;
                 })}
               </div>
             </div>

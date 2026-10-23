@@ -93,10 +93,10 @@ export function AutoScheduleTool() {
       </form>
       <div className="mt-3 flex flex-wrap items-center gap-4">
         {homework.some((h) => !h.done) ? <button onClick={importHw} className={buttonClass.secondary}>{c.fromHw}</button> : null}
-        <label className="flex items-center gap-2 font-bold">{c.build}<select value={days} onChange={(e) => setDays(Number(e.target.value))} className="rounded-md border-[1.5px] border-ink bg-surface px-2 py-1.5">{[7, 14].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
+        <label className="flex items-center gap-2 font-bold">{c.build}<select value={days} onChange={(e) => setDays(Number(e.target.value))} className="rounded-xl border-[1.5px] border-ink bg-surface px-2 py-1.5">{[7, 14].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
         <span className="font-bold text-teal" role="status">{note}</span></div>
       {tasks.length ? <ul className="mt-4 divide-y-2 divide-dotted divide-line">{tasks.map((t) => <li key={t.id} className="flex items-center gap-3 py-2"><p className="min-w-0 flex-1"><span className="font-bold">{t.title}</span> <span className="text-muted">· {t.minutes} {c.min}{t.due ? ` · ${formatDay(t.due, lang)}` : ""}</span></p>
-        <button onClick={() => setTasks((p) => p.filter((x) => x.id !== t.id))} aria-label={`${c.remove}: ${t.title}`} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} /></button></li>)}</ul> : null}
+        <button onClick={() => setTasks((p) => p.filter((x) => x.id !== t.id))} aria-label={`${c.remove}: ${t.title}`} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} /></button></li>)}</ul> : null}
       <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.sessionsH}</h2>
       {res.sessions.length === 0 && res.unscheduled.length === 0 ? <Empty>{c.noPlan}</Empty> : (
         <>
@@ -148,7 +148,7 @@ export function StudyPlannerTool() {
         {err ? <p role="alert" className="font-bold text-ruby sm:col-span-2 lg:col-span-4">{err}</p> : null}
       </form>
       {live.length ? <ul className="mt-4 divide-y-2 divide-dotted divide-line">{live.map((t) => <li key={t.id} className="flex items-center gap-3 py-2"><p className="min-w-0 flex-1"><span className="font-bold">{t.name}</span> <span className="text-muted">· {formatDay(t.date, lang)} · {t.minutes} {c.min}</span></p>
-        <button onClick={() => setTests((p) => p.filter((x) => x.id !== t.id))} aria-label={`${c.remove}: ${t.name}`} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} /></button></li>)}</ul> : null}
+        <button onClick={() => setTests((p) => p.filter((x) => x.id !== t.id))} aria-label={`${c.remove}: ${t.name}`} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} /></button></li>)}</ul> : null}
       {sessions.length ? <div className="mt-6">
         <div className="flex flex-wrap items-center gap-4"><h2 className="text-2xl">{c.sessionsFor}</h2>{todays.length ? <button onClick={addToday} className={buttonClass.secondary}>{c.todoBtn}</button> : <span className="text-muted">{c.noToday}</span>}<span className="font-bold text-teal" role="status">{note}</span></div>
         <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3">{byDay(sessions).map(([d, list]) => <section key={d} className="guide-card p-4"><h3 className="text-lg">{formatDay(d, lang)}{d === now ? "" : ""}</h3><ul>{list.map((s, i) => <li key={i} className="py-0.5"><span className="font-bold">{s.title}</span> · {s.minutes} {c.min}</li>)}</ul></section>)}</div></div> : null}
@@ -194,7 +194,7 @@ export function PackingTool() {
       {p.items.length ? <>
         <p className="mt-4 font-bold text-teal" aria-live="polite">{c.packed(done, p.items.length)}</p>
         <ul className="mt-2 divide-y-2 divide-dotted divide-line">{p.items.map((i) => <li key={i.id} className="flex items-center gap-3 py-2"><label className="flex min-w-0 flex-1 items-center gap-3"><input type="checkbox" checked={i.done} onChange={() => setP({ ...p, items: p.items.map((x) => (x.id === i.id ? { ...x, done: !x.done } : x)) })} className="h-5 w-5 accent-[var(--c-teal)]" /><span className={i.done ? "line-through text-muted" : ""}>{i.text}</span></label>
-          <button onClick={() => setP({ ...p, items: p.items.filter((x) => x.id !== i.id) })} aria-label={`${c.remove}: ${i.text}`} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} /></button></li>)}</ul>
+          <button onClick={() => setP({ ...p, items: p.items.filter((x) => x.id !== i.id) })} aria-label={`${c.remove}: ${i.text}`} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} /></button></li>)}</ul>
         <button onClick={() => setP({ ...p, items: p.items.map((x) => ({ ...x, done: false })) })} className="mt-2 font-bold underline underline-offset-4">{c.reset}</button></> : null}
       <form className="mt-5 flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (text.trim()) { setP({ ...p, items: [...p.items, { id: crypto.randomUUID(), text: text.trim(), done: false }] }); setText(""); } }}>
         <label className="min-w-0 flex-1"><span className="block font-bold">{c.items}</span><input value={text} onChange={(e) => setText(e.target.value)} placeholder={c.itemPh} maxLength={80} className={`${inputClass} mt-1`} /></label>

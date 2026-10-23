@@ -68,14 +68,14 @@ export function HabitsTool() {
                       <span>{c.best(bestStreak(h.done))}</span><span>{c.month(last28)}</span>
                     </p>
                   </div>
-                  <button onClick={() => setHabits((p) => p.filter((x) => x.id !== h.id))} aria-label={`${c.remove}: ${h.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+                  <button onClick={() => setHabits((p) => p.filter((x) => x.id !== h.id))} aria-label={`${c.remove}: ${h.name}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
                 </div>
                 <div className="mt-3 grid grid-cols-7 gap-1.5 sm:gap-2">
                   {days.map((d) => {
                     const on = h.done.includes(d);
                     return (
                       <button key={d} onClick={() => toggle(h.id, d)} aria-pressed={on} aria-label={`${d === now ? c.today : weekdayShort(d, lang)} ${d.slice(8)}: ${on ? c.unmark : c.mark} ${h.name}`}
-                        className={`flex flex-col items-center rounded-md border-[1.5px] border-ink py-2 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"} ${d === now ? "ring-2 ring-marigold ring-offset-2 ring-offset-paper" : ""}`}>
+                        className={`flex flex-col items-center rounded-xl border-[1.5px] border-ink py-2 ${on ? "bg-teal text-on-teal" : "bg-surface hover:bg-sunken"} ${d === now ? "ring-2 ring-marigold ring-offset-2 ring-offset-paper" : ""}`}>
                         <span className="text-xs font-bold">{d === now ? c.today : weekdayShort(d, lang)}</span>{" "}
                         <span className="text-lg font-bold">{on ? <Check size={20} strokeWidth={3} aria-hidden /> : d.slice(8)}</span>
                       </button>

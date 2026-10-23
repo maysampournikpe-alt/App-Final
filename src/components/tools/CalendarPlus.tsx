@@ -59,7 +59,7 @@ const copy = {
 type C = typeof copy.en;
 
 const monthLabel = (d: string, lang: string) => new Intl.DateTimeFormat(lang === "es" ? "es-US" : "en-US", { month: "long", year: "numeric" }).format(new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, 1));
-const del = (label: string, remove: string, onClick: () => void) => <button onClick={onClick} aria-label={`${remove}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const del = (label: string, remove: string, onClick: () => void) => <button onClick={onClick} aria-label={`${remove}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 
 function EventForm({ c, kinds, onAdd }: { c: C; kinds: EventKind[]; onAdd: (e: SchoolEvent) => void }) {
   const [f, setF] = useState({ title: "", kind: kinds[0], date: "", end: "" });
@@ -131,8 +131,8 @@ export function SemesterTool() {
       {weeks.length === 0 ? <Empty>{c.noWeeks}</Empty> : <ol className="mt-6 space-y-3">{weeks.map(({ w, ev, hw, n }) => (
         <li key={w} className={`guide-card p-4 ${n >= 4 ? "border-l-[6px] border-l-ruby" : ""}`}>
           <div className="flex flex-wrap items-baseline justify-between gap-2"><h2 className="text-xl">{w === startOfWeek(now) ? c.thisWeek : c.weekOf(formatDay(w, lang, false))}</h2><span className="text-sm font-bold text-muted">{c.items(n)}{n >= 4 ? ` · ${c.crunch}` : ""}</span></div>
-          <ul className="mt-2 flex flex-wrap gap-2">{ev.map((e) => <li key={e.id} className={`rounded-md border-[1.5px] border-ink px-2 py-1 text-sm font-bold ${e.kind === "test" ? "bg-ruby text-on-ruby" : e.kind === "project" ? "bg-marigold text-on-marigold" : "bg-teal text-on-teal"}`}>{c.eventKinds[e.kind]}: {e.title} · {rangeText(e, lang)}</li>)}
-            {hw.map((h) => <li key={h.id} className="rounded-md border-[1.5px] border-ink bg-surface px-2 py-1 text-sm">{h.title}{h.cls ? ` (${h.cls})` : ""} · {formatDay(h.due, lang)}</li>)}</ul>
+          <ul className="mt-2 flex flex-wrap gap-2">{ev.map((e) => <li key={e.id} className={`rounded-xl border-[1.5px] border-ink px-2 py-1 text-sm font-bold ${e.kind === "test" ? "bg-ruby text-on-ruby" : e.kind === "project" ? "bg-marigold text-on-marigold" : "bg-teal text-on-teal"}`}>{c.eventKinds[e.kind]}: {e.title} · {rangeText(e, lang)}</li>)}
+            {hw.map((h) => <li key={h.id} className="rounded-xl border-[1.5px] border-ink bg-surface px-2 py-1 text-sm">{h.title}{h.cls ? ` (${h.cls})` : ""} · {formatDay(h.due, lang)}</li>)}</ul>
         </li>))}</ol>}
     </Head>
   );
@@ -238,8 +238,8 @@ export function WeeklyTool({ layer }: { layer: "all" | "sports" }) {
         const dayBlocks = shown.filter((b) => b.day === i).sort((a, b) => toMin(a.start) - toMin(b.start));
         const dayClasses = showClasses && i < 5 ? sched.classes.filter((x) => (sched.kind === "weekdays" ? x.days.includes(DAY_KEYS[i]) : true)) : [];
         return <section key={name} className="guide-card p-3" aria-label={name}><h2 className="text-lg">{name}</h2>
-          <ul className="mt-2 space-y-1.5">{dayClasses.map((x) => <li key={x.id} className="rounded-md border border-dashed border-ink px-2 py-1 text-sm text-muted">{fmtTime(x.start, lang)} {x.name}</li>)}
-            {dayBlocks.map((b) => <li key={b.id} className={`flex items-start gap-1 rounded-md border-[1.5px] border-ink px-2 py-1 ${KIND_BG[b.kind]}`}><div className="min-w-0 flex-1"><p className="font-bold leading-tight">{b.title}</p><p className="text-xs">{fmtTime(b.start, lang)} – {fmtTime(b.end, lang)} · {c.blockKinds[b.kind]}</p></div>
+          <ul className="mt-2 space-y-1.5">{dayClasses.map((x) => <li key={x.id} className="rounded-xl border border-dashed border-ink px-2 py-1 text-sm text-muted">{fmtTime(x.start, lang)} {x.name}</li>)}
+            {dayBlocks.map((b) => <li key={b.id} className={`flex items-start gap-1 rounded-xl border-[1.5px] border-ink px-2 py-1 ${KIND_BG[b.kind]}`}><div className="min-w-0 flex-1"><p className="font-bold leading-tight">{b.title}</p><p className="text-xs">{fmtTime(b.start, lang)} – {fmtTime(b.end, lang)} · {c.blockKinds[b.kind]}</p></div>
               <button onClick={() => setBlocks((p) => p.filter((x) => x.id !== b.id))} aria-label={`${c.remove}: ${b.title}, ${name}`} className="grid h-8 w-8 shrink-0 place-items-center rounded hover:bg-sunken"><Trash2 size={15} /></button></li>)}</ul></section>;
       })}</div>
     </Head>
@@ -296,7 +296,7 @@ export function TimeBlockTool() {
       <ol className="mt-4 divide-y-2 divide-dotted divide-line">{hours.map((h) => (
         <li key={h} className="flex flex-wrap items-center gap-3 py-1.5"><span className="w-20 shrink-0 font-bold tabular-nums">{fmt(h)}</span>
           <label className="min-w-0 flex-1"><span className="sr-only">{c.hour} {fmt(h)}</span><input value={day[String(h)] ?? ""} onChange={(e) => set(h, e.target.value)} placeholder={c.slotPh} maxLength={80} className={`${inputClass} !py-1.5`} /></label>
-          {options.length ? <label><span className="sr-only">{c.fromList} {fmt(h)}</span><select value="" onChange={(e) => e.target.value && set(h, e.target.value)} className="rounded-md border-[1.5px] border-ink bg-surface px-2 py-1.5"><option value="">{c.fromList}</option>{options.map((o) => <option key={o}>{o}</option>)}</select></label> : null}</li>))}</ol>
+          {options.length ? <label><span className="sr-only">{c.fromList} {fmt(h)}</span><select value="" onChange={(e) => e.target.value && set(h, e.target.value)} className="rounded-xl border-[1.5px] border-ink bg-surface px-2 py-1.5"><option value="">{c.fromList}</option>{options.map((o) => <option key={o}>{o}</option>)}</select></label> : null}</li>))}</ol>
     </Head>
   );
 }

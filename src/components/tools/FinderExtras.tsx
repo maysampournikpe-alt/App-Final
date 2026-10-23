@@ -38,7 +38,7 @@ const copy = {
   },
 };
 const href = (q: string) => `/t/find/search?q=${encodeURIComponent(q)}`;
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
 
 const NO_SAVED: SavedListing[] = [];
 export type Hist = { q: string; place: string; at: number };

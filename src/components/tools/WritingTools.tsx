@@ -43,8 +43,8 @@ const copy = {
 
 const nowMs = () => Date.now();
 const clip = async (text: string) => { try { await navigator.clipboard.writeText(text); return true; } catch { return false; } };
-const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
-const area = "min-h-32 w-full rounded-md border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
+const rm = (label: string, text: string, fn: () => void) => <button onClick={fn} aria-label={`${text}: ${label}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>;
+const area = "min-h-32 w-full rounded-xl border-[1.5px] border-ink bg-surface p-3 text-lg placeholder:text-muted";
 
 type Outline = { hook: string; bg: string; thesis: string; paras: { topic: string; evidence: string; explain: string }[]; restate: string; wrap: string };
 const NO_OUTLINE: Outline = { hook: "", bg: "", thesis: "", paras: [{ topic: "", evidence: "", explain: "" }, { topic: "", evidence: "", explain: "" }, { topic: "", evidence: "", explain: "" }], restate: "", wrap: "" };

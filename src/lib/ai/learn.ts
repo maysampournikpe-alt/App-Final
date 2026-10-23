@@ -22,6 +22,8 @@ export const notesSchema = z.object({
 export type Notes = z.infer<typeof notesSchema>;
 /** Bump when the shape changes, so notes saved on a device in the old shape are fetched again. */
 export const NOTES_VERSION = "v2";
+/** Bump when notes, vocabulary or cram prompts change a lot, so the shared saved copies are written again. */
+export const DOC_VERSION = "d1";
 
 const EXAM_NAME: Record<Track, string> = { ap: "the College Board AP course named below", sat: "the digital SAT", act: "the ACT", tsi: "the Texas TSIA2 college-readiness test" };
 
@@ -55,7 +57,8 @@ export function cramMessages(track: Track, ref: LessonRef, lang: "en" | "es") {
   return [{ role: "system" as const, content: system }, { role: "user" as const, content: where(ref) }];
 }
 
-export function notesMessages(track: Track, topic: LessonRef, lang: "en" | "es") {
+/** `compact` asks for shorter notes. It is used when only the free Groq models are available, whose per-minute limit cannot fit a full set. */
+export function notesMessages(track: Track, topic: LessonRef, lang: "en" | "es", compact = false) {
   const ap = track === "ap";
   const system = [
     "You are Rumbo's study-path tutor for students aged 13 to 18 in South Texas. NOTES_JSON",
@@ -64,9 +67,9 @@ export function notesMessages(track: Track, topic: LessonRef, lang: "en" | "es")
     ap
       ? "Goal: a student who studies these notes and practices can earn a 5 on the AP exam. Follow the topic as described in that course's College Board Course and Exam Description (CED), and teach everything the multiple-choice and free-response sections can ask about it. Be thorough, like a strong textbook section taught by a good tutor."
       : "Goal: a student who studies these notes and then practices can get every question of this kind right on test day and aim for a perfect score. Write like an expert test-prep coach who also teaches the underlying idea from the ground up, so a student who is weak at this skill can follow it. Teach the idea, then the exact numbered method for each question type, the rules the test uses, the shortcuts, the traps and the timing.",
-    "Content rules: \"sections\" has 4 to 8 sections, each with a heading and a body of 100 to 300 words. Cover definitions and clear explanations; processes step by step (write the steps inside the body as 1), 2), 3)); cause and effect; comparisons; and the specific people, events, dates, numbers, formulas, experiments, rules or examples that belong to this topic, but only those you are sure are correct; and how this topic connects to other parts of the course.",
+    "Content rules: \"sections\" has " + (compact ? "3 to 5 sections, each with a heading and a body of 70 to 160 words" : "4 to 8 sections, each with a heading and a body of 100 to 300 words") + ". Cover definitions and clear explanations; processes step by step (write the steps inside the body as 1), 2), 3)); cause and effect; comparisons; and the specific people, events, dates, numbers, formulas, experiments, rules or examples that belong to this topic, but only those you are sure are correct; and how this topic connects to other parts of the course.",
     ap ? "" : "Test-prep rules for this lesson: (1) Include a section that shows what the question looks like and the kinds of wording it uses. (2) Include a section called a step-by-step method with numbered steps a student can follow every time, plus 'if you see X, do Y' patterns. (3) Include the rules, formulas or grammar and reading conventions the test uses, stated exactly. (4) Include a section on the most common wrong-answer traps and how to eliminate wrong choices. (5) Give a time target in seconds per question and when to skip and come back. (6) For the digital SAT and PSAT math, say when the built-in Desmos graphing calculator or the reference sheet saves time; for the ACT and TSI say which calculator rules apply only if you are sure, otherwise leave it out. (7) Give 3 or 4 worked examples with every step shown and the reason for each step, covering an easy, a medium and a hard version of the question type. (8) Use the 'must cover' brief below as a checklist and do not leave any part of it out.",
-    "\"keyIdeas\": 5 to 10 short, complete statements a student could memorize. \"terms\": 6 to 14 key terms with precise meanings. \"examples\": 2 to 4 worked examples or cases that show the idea in use: show every step for math, science and computer science; give a specific case with analysis for history, social science and arts; model an analysis of a short original sample for language and literature.",
+    "\"keyIdeas\": 5 to 10 short, complete statements a student could memorize. \"terms\": 6 to 14 key terms with precise meanings. \"examples\": " + (compact ? "2 to 3" : "2 to 4") + " worked examples or cases that show the idea in use: show every step for math, science and computer science; give a specific case with analysis for history, social science and arts; model an analysis of a short original sample for language and literature.",
     "\"mistakes\": 3 to 6 common mistakes and how to avoid them. \"howTested\": 3 to 5 points on how this topic shows up on the real test: question types, the skills or task verbs used, what a strong answer includes" + (ap ? ", for both the multiple-choice and free-response parts." : ", and how to approach them under time pressure."),
     "\"memoryTips\": 2 to 4 mnemonics, patterns or shortcuts that help recall (use an empty list if none fit). \"selfCheck\": 4 to 6 questions the student can ask themselves to test understanding.",
     "Stay inside this course. Teach only what its own course description requires for this topic, and never teach content that belongs to a different course (for example AP Chemistry ideas in AP Biology). If a brief says what the topic covers, cover it and stay within it.",

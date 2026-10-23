@@ -15,6 +15,7 @@ import { useLocalDoc } from "@/lib/local-doc";
 import { levelName, levelOf } from "@/lib/progress";
 import { FLASHCARDS_KEY, newCard, NO_CARDS, type Card } from "@/lib/srs";
 import { useCopy } from "@/lib/use-copy";
+import { errorText, useAiLimitText } from "@/lib/ai-limit";
 import { lessonXp, streakOf } from "@/lib/xp";
 import { buttonClass, inputClass, Page } from "../ui";
 import { MathText } from "./MathText";
@@ -225,6 +226,7 @@ function Lesson({ lessonRef: r, prog, lang, xpTotal, days, onAward, onProg, onBa
 const NO_NOTES: Record<string, Notes> = {};
 function NotesView({ r, lang, onRead }: { r: LessonRef; lang: "en" | "es"; onRead: () => void }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const apiTrack = r.track === "psat" ? "sat" : r.track;
   const [cache, setCache] = useLocalDoc<Record<string, Notes>>(`learn-notes-${apiTrack}-${r.section}`, NO_NOTES);
   const [cards, setCards] = useLocalDoc<Card[]>(FLASHCARDS_KEY, NO_CARDS);
@@ -247,7 +249,7 @@ function NotesView({ r, lang, onRead }: { r: LessonRef; lang: "en" | "es"; onRea
     return () => { live = false; };
   }, [key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!have && !err) return <p className="mt-6 text-lg text-muted" role="status">{c.notesLoading}</p>;
-  if (!have) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err!] ?? c.errors.failed}</p><button onClick={() => { setErr(null); setTick(tick + 1); }} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+  if (!have) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{errorText(c.errors, err!, limit)}</p><button onClick={() => { setErr(null); setTick(tick + 1); }} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
   const n = have;
   const deck = `${r.sectionEn}: ${r.topicNum ? `${r.topicNum} ` : ""}${r.topicLabel ?? r.skillEn}`.slice(0, 80);
   const addTerms = () => {
@@ -278,6 +280,7 @@ function NotesView({ r, lang, onRead }: { r: LessonRef; lang: "en" | "es"; onRea
 
 function QuizView({ r, lang, onDone }: { r: LessonRef; lang: "en" | "es"; onDone: (right: number, n: number) => void }) {
   const c = useCopy(copy);
+  const limit = useAiLimitText();
   const { hidden } = useExamData();
   const [qs, setQs] = useState<Question[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -296,7 +299,7 @@ function QuizView({ r, lang, onDone }: { r: LessonRef; lang: "en" | "es"; onDone
     });
     return () => { live = false; };
   }, [r.key, tick]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (err) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{c.errors[err] ?? c.errors.failed}</p><button onClick={() => { setErr(null); setQs(null); setTick(tick + 1); }} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
+  if (err) return <div className="mt-6"><p role="alert" className="font-bold text-ruby">{errorText(c.errors, err, limit)}</p><button onClick={() => { setErr(null); setQs(null); setTick(tick + 1); }} className={`${buttonClass.secondary} mt-3`}>{c.retry}</button></div>;
   if (!qs) return <p className="mt-6 text-lg text-muted" role="status">{c.quizLoading}</p>;
   const q = qs[i];
   const letter = (k: number) => "ABCD"[k];
@@ -307,12 +310,12 @@ function QuizView({ r, lang, onDone }: { r: LessonRef; lang: "en" | "es"; onDone
     <section className="mt-6" aria-label={c.quiz}>
       <p className="font-bold text-teal">{c.qOf(i + 1, qs.length)}{qs.length < want ? ` · ${c.short(qs.length)}` : ""}</p>
       <div className="guide-card mt-2 p-5">
-        {q.passage ? <MathText text={q.passage} className="mb-3 rounded-md border-l-[5px] border-l-line bg-sunken p-3 text-lg" /> : null}
+        {q.passage ? <MathText text={q.passage} className="mb-3 rounded-xl border-l-[5px] border-l-line bg-sunken p-3 text-lg" /> : null}
         <MathText text={q.stem} className="text-xl font-semibold" />
         <fieldset className="mt-4"><legend className="sr-only">{c.choose}</legend>
           <div className="grid gap-2">{q.choices!.map((ch, k) => {
             const sel = pick === letter(k), correct = checked && letter(k) === q.answer, wrong = checked && sel && !correct;
-            return <label key={k} className={`flex cursor-pointer items-start gap-3 rounded-md border-[1.5px] p-3 ${correct ? "border-palm bg-palm/15" : wrong ? "border-ruby bg-ruby/10" : sel ? "border-ink bg-sunken" : "border-line bg-surface hover:bg-sunken"}`}>
+            return <label key={k} className={`flex cursor-pointer items-start gap-3 rounded-xl border-[1.5px] p-3 ${correct ? "border-palm bg-palm/15" : wrong ? "border-ruby bg-ruby/10" : sel ? "border-ink bg-sunken" : "border-line bg-surface hover:bg-sunken"}`}>
               <input type="radio" name={`q-${q.id}`} disabled={checked} checked={sel} onChange={() => setPick(letter(k))} className="mt-1.5 h-5 w-5 accent-[var(--c-teal)]" />
               <span className="font-bold">{letter(k)}.</span><MathText text={ch} className="min-w-0 flex-1" />{correct ? <Check size={18} aria-label={c.right} /> : null}</label>;
           })}</div></fieldset>

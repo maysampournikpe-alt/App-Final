@@ -100,7 +100,7 @@ export function HomeworkTool() {
                       <p className={`font-bold ${a.done ? "text-muted line-through decoration-2" : ""}`}>{a.title}</p>
                       <p className="text-sm text-muted">{a.cls ? `${a.cls} · ` : ""}{formatDay(a.due, lang)} · {c.days(diffDays(today(), a.due))}</p>
                     </div>
-                    <button onClick={() => setItems(items.filter((x) => x.id !== a.id))} aria-label={`${c.remove}: ${a.title}`} className="grid h-10 w-10 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+                    <button onClick={() => setItems(items.filter((x) => x.id !== a.id))} aria-label={`${c.remove}: ${a.title}`} className="grid h-10 w-10 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
                   </li>
                 ))}
               </ul>

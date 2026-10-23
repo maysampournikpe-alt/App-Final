@@ -86,7 +86,7 @@ export function FractionsTool() {
         <input value={cv} onChange={(e) => setCv(e.target.value)} aria-label={c.conv} className={`${inputClass} mt-3 max-w-xs`} />
         <dl className="mt-4 grid gap-2 sm:grid-cols-3" aria-live="polite">
           {asFrac ? ([[c.asFrac, asFrac.d === 1 ? `${asFrac.n}` : `${asFrac.n}/${asFrac.d}`], [c.asDec, niceNumber(toDecimal(asFrac))], [c.asPct, `${niceNumber(toPercent(asFrac))}%`]] as const).map(([k, v]) => (
-            <div key={k} className="rounded-md border-[1.5px] border-ink bg-surface p-3"><dt className="text-sm font-bold text-muted">{k}</dt><dd className="font-display text-2xl font-semibold">{v}</dd></div>
+            <div key={k} className="rounded-xl border-[1.5px] border-ink bg-surface p-3"><dt className="text-sm font-bold text-muted">{k}</dt><dd className="font-display text-2xl font-semibold">{v}</dd></div>
           )) : <p className="font-bold text-ruby sm:col-span-3">{c.convBad}</p>}
         </dl>
       </section>

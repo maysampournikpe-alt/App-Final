@@ -55,14 +55,14 @@ export function Sidebar({ collapsible = true, onNavigate }: { collapsible?: bool
             const active = currentHub === h.id;
             return (
               <Link key={h.id} href={`/h/${h.id}`} title={h.name[lang]} aria-label={h.name[lang]} aria-current={active ? "page" : undefined}
-                className={`grid h-10 w-10 place-items-center rounded-md ${active ? "bg-teal text-on-teal" : "text-ink hover:bg-sunken"}`}>
+                className={`grid h-10 w-10 place-items-center rounded-xl ${active ? "bg-teal text-on-teal" : "text-ink hover:bg-sunken"}`}>
                 <Icon size={20} strokeWidth={1.75} />
               </Link>
             );
           })}
         </div>
         <button onClick={() => setPrefs({ sidebarCollapsed: false })} aria-label={t("expandSidebar")} title={t("expandSidebar")}
-          className="mt-auto grid h-10 w-10 place-items-center rounded-md text-ink hover:bg-sunken"><PanelLeftOpen size={20} strokeWidth={1.75} /></button>
+          className="mt-auto grid h-10 w-10 place-items-center rounded-xl text-ink hover:bg-sunken"><PanelLeftOpen size={20} strokeWidth={1.75} /></button>
       </nav>
     );
   }
@@ -73,11 +73,11 @@ export function Sidebar({ collapsible = true, onNavigate }: { collapsible?: bool
     <nav aria-label={BRAND.name} className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-4">
         <Link href="/" onClick={onNavigate} className="flex items-center gap-2 text-teal">
-          <Compass size={30} /><span className="font-display text-2xl font-semibold text-ink">{BRAND.name}</span>
+          <Compass size={30} /><span className="font-display text-2xl font-extrabold text-ink">{BRAND.name}</span>
         </Link>
         {collapsible ? (
           <button onClick={() => setPrefs({ sidebarCollapsed: true })} aria-label={t("collapseSidebar")} title={t("collapseSidebar")}
-            className="grid h-9 w-9 place-items-center rounded-md text-ink hover:bg-sunken"><PanelLeftClose size={20} strokeWidth={1.75} /></button>
+            className="grid h-9 w-9 place-items-center rounded-xl text-ink hover:bg-sunken"><PanelLeftClose size={20} strokeWidth={1.75} /></button>
         ) : null}
       </div>
 
@@ -86,7 +86,7 @@ export function Sidebar({ collapsible = true, onNavigate }: { collapsible?: bool
           <span className="sr-only">{t("searchFeatures")}</span>
           <Search size={18} strokeWidth={1.75} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("searchFeatures")} enterKeyHint="search"
-            className="w-full rounded-md border-[1.5px] border-ink bg-surface py-2 pl-10 pr-9 text-[0.95rem] placeholder:text-muted" />
+            className="w-full rounded-xl border-[1.5px] border-ink bg-surface py-2 pl-10 pr-9 text-[0.95rem] placeholder:text-muted" />
           {query ? (
             <button onClick={() => setQuery("")} aria-label="Clear" className="absolute right-1.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded text-muted hover:text-ink"><X size={16} /></button>
           ) : null}
@@ -115,21 +115,16 @@ export function Sidebar({ collapsible = true, onNavigate }: { collapsible?: bool
               </section>
             ) : null}
 
-            <ul className="relative space-y-0.5 pl-1">
-              <span aria-hidden className="trail-dots absolute bottom-3 left-[1.15rem] top-3 w-[4px]" />
-              {HUBS.map((hub, i) => {
+            <ul className="space-y-1">
+              {HUBS.map((hub) => {
                 const Icon = ICONS[hub.icon];
                 const active = currentHub === hub.id;
-                const tools = hub.tabs.flatMap((id) => ALL_TABS.find((x) => x.id === id)?.tools ?? []);
-                const ready = tools.filter((x) => x.status === "built").length;
                 return (
-                  <li key={hub.id} className="relative">
+                  <li key={hub.id}>
                     <Link href={`/h/${hub.id}`} onClick={onNavigate} aria-current={active ? "page" : undefined}
-                      className={`relative flex items-center gap-3 rounded-md px-2 py-2.5 ${active ? "bg-teal text-on-teal" : "hover:bg-sunken"}`}>
-                      <span className={`z-10 grid h-7 w-7 shrink-0 place-items-center rounded-full border-[1.5px] border-ink text-xs font-bold ${active ? "bg-marigold text-on-marigold" : "bg-surface text-ink"}`}>{i + 1}</span>
-                      <Icon size={19} strokeWidth={1.75} className="shrink-0" />
-                      <span className="min-w-0 flex-1 truncate font-display text-lg font-semibold">{hub.name[lang]}</span>
-                      <span className={`text-xs tabular-nums ${active ? "" : "text-muted"}`} title={`${ready} / ${tools.length}`}>{ready}</span>
+                      className={`flex items-center gap-3 rounded-xl px-2 py-2 ${active ? "bg-teal text-on-teal" : "hover:bg-sunken"}`}>
+                      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${active ? "bg-marigold text-on-marigold" : "bg-sunken text-teal"}`}><Icon size={19} strokeWidth={2} aria-hidden /></span>
+                      <span className="min-w-0 flex-1 truncate text-lg font-extrabold">{hub.name[lang]}</span>
                     </Link>
                   </li>
                 );
@@ -149,7 +144,7 @@ function ToolLink({ tool, tabName, active, onNavigate }: { tool: Tool; tabName?:
   const Icon = ICONS[tool.icon];
   const pinned = prefs.pinned.includes(tool.key);
   return (
-    <div className={`group flex items-center rounded-md ${active ? "bg-marigold text-on-marigold" : "hover:bg-sunken"}`}>
+    <div className={`group flex items-center rounded-xl ${active ? "bg-marigold text-on-marigold" : "hover:bg-sunken"}`}>
       <Link href={`/t/${tool.key}`} onClick={onNavigate} aria-current={active ? "page" : undefined} className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-[0.95rem]">
         <Icon size={17} strokeWidth={1.75} className="shrink-0" />
         <span className="min-w-0 flex-1">

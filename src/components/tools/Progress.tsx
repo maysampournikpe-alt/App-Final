@@ -156,7 +156,7 @@ export function ProgressTool({ view }: { view: "progress" | "streaks" | "levels"
         {st.current === 0 ? <p className="mt-4 font-bold">{c.noStreak}</p> : null}
         <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.last35}</h2>
         <ol className="mt-3 grid grid-cols-7 gap-1.5" aria-label={c.last35}>{days.map((d) => (
-          <li key={d} title={`${d}: ${act.has(d) ? c.doneDay : c.quietDay}`} className={`grid h-10 place-items-center rounded-md border-[1.5px] border-ink text-xs font-bold ${act.has(d) ? "bg-teal text-on-teal" : "bg-sunken text-muted"} ${d === snap.now ? "ring-2 ring-marigold ring-offset-2 ring-offset-paper" : ""}`}><span className="sr-only">{act.has(d) ? c.doneDay : c.quietDay} </span>{Number(d.slice(8))}</li>))}</ol>
+          <li key={d} title={`${d}: ${act.has(d) ? c.doneDay : c.quietDay}`} className={`grid h-10 place-items-center rounded-xl border-[1.5px] border-ink text-xs font-bold ${act.has(d) ? "bg-teal text-on-teal" : "bg-sunken text-muted"} ${d === snap.now ? "ring-2 ring-marigold ring-offset-2 ring-offset-paper" : ""}`}><span className="sr-only">{act.has(d) ? c.doneDay : c.quietDay} </span>{Number(d.slice(8))}</li>))}</ol>
         <h2 className="mt-8 text-xl">{c.counts}</h2>
         <ul className="mt-2 list-disc space-y-1 pl-6 text-lg">{c.countList.map((x) => <li key={x}>{x}</li>)}</ul>
       </Page>
@@ -200,7 +200,7 @@ export function ProgressTool({ view }: { view: "progress" | "streaks" | "levels"
           <AvatarBadge choice={avatar} size={80} />
           <div className="min-w-0 flex-1"><Link href="/t/profile/levels" className="font-display text-2xl font-semibold hover:underline">{c.level(lv.level, name)}</Link>
             <p className="text-muted">{c.xp(xp)} · {c.toNext(lv.toNext, lv.level + 1)}</p><div className="mt-2 max-w-md">{bar(lv.pct, c.level(lv.level, name))}</div></div>
-          <Link href="/t/profile/streaks" className="flex items-center gap-2 rounded-md border-[1.5px] border-ink bg-surface px-4 py-3 font-bold hover:bg-sunken"><Flame size={22} className="text-terracotta" />{c.streakLine(st.current)}</Link>
+          <Link href="/t/profile/streaks" className="flex items-center gap-2 rounded-xl border-[1.5px] border-ink bg-surface px-4 py-3 font-bold hover:bg-sunken"><Flame size={22} className="text-terracotta" />{c.streakLine(st.current)}</Link>
         </div>
       </section>
       <h2 className="mt-8 border-b-[1.5px] border-ink pb-1 text-2xl">{c.stats}</h2>

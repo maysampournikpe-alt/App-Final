@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh md:grid" style={{ gridTemplateColumns: `${prefs.sidebarCollapsed ? "4rem" : "19rem"} minmax(0,1fr)` }}>
       <ReminderBoot />
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-md focus:bg-ink focus:px-3 focus:py-2 focus:text-paper">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[60] focus:rounded-xl focus:bg-ink focus:px-3 focus:py-2 focus:text-paper">
         {t("skip")}
       </a>
 
@@ -61,7 +61,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               onClick={() => setDrawer(true)}
               aria-label={t("menu")}
               aria-expanded={drawer}
-              className="grid h-10 w-10 place-items-center rounded-md border-[1.5px] border-ink bg-surface"
+              className="grid h-10 w-10 place-items-center rounded-xl border-[1.5px] border-ink bg-surface"
             >
               <Menu size={20} strokeWidth={1.75} />
             </button>
@@ -91,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               ref={closeBtn}
               onClick={() => setDrawer(false)}
               aria-label={t("closeMenu")}
-              className="absolute right-2 top-3 z-10 grid h-9 w-9 place-items-center rounded-md hover:bg-sunken"
+              className="absolute right-2 top-3 z-10 grid h-9 w-9 place-items-center rounded-xl hover:bg-sunken"
             >
               <X size={20} strokeWidth={1.75} />
             </button>

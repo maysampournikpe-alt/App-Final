@@ -65,7 +65,7 @@ export function FocusLogTool({ view }: { view: "logger" | "stats" }) {
             <section className="guide-card mt-6 p-5" aria-labelledby="by-sub"><h2 id="by-sub" className="text-2xl">{c.thisWeek}</h2>
               {week.length ? <ul className="mt-3 space-y-2">{week.map((w) => (
                 <li key={w.subject} className="flex items-center gap-3"><span className="w-28 shrink-0 truncate font-bold">{w.subject}</span>
-                  <span className="h-5 flex-1 rounded-sm bg-sunken" aria-hidden><span className="block h-full rounded-sm bg-teal" style={{ width: `${(w.minutes / maxSub) * 100}%` }} /></span>
+                  <span className="h-5 flex-1 rounded-lg bg-sunken" aria-hidden><span className="block h-full rounded-lg bg-teal" style={{ width: `${(w.minutes / maxSub) * 100}%` }} /></span>
                   <span className="w-24 shrink-0 whitespace-nowrap text-right font-bold tabular-nums">{hoursText(w.minutes)}</span></li>))}</ul> : <p className="mt-2 text-muted">{c.none}</p>}
             </section>
             <section className="guide-card mt-6 p-5" aria-labelledby="by-wk"><h2 id="by-wk" className="text-2xl">{c.last8}</h2>
@@ -106,7 +106,7 @@ export function FocusLogTool({ view }: { view: "logger" | "stats" }) {
         <ul className="divide-y-2 divide-dotted divide-line">{sessions.slice(0, 25).map((s) => (
           <li key={s.id} className="flex items-center gap-3 py-2.5">
             <div className="min-w-0 flex-1"><p className="font-bold">{s.subject} · {hoursText(s.minutes)}</p><p className="text-sm text-muted">{formatDay(s.date, lang)} · {s.focus}/5 {c.focusNames[s.focus - 1]}</p></div>
-            <button onClick={() => setSessions((p) => p.filter((x) => x.id !== s.id))} aria-label={`${c.remove}: ${s.subject}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-md hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
+            <button onClick={() => setSessions((p) => p.filter((x) => x.id !== s.id))} aria-label={`${c.remove}: ${s.subject}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-sunken"><Trash2 size={18} strokeWidth={1.75} /></button>
           </li>))}</ul>
       )}
     </Page>
